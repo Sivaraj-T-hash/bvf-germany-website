@@ -112,12 +112,24 @@ Backend deploy (Render):
    - `CORS_ORIGIN=https://<your-firebase-site>.web.app`
    - `FIREBASE_DATABASE_URL=https://bvf-student-support-default-rtdb.firebaseio.com`
    - `FIREBASE_SERVICE_ACCOUNT_JSON={...}` (full JSON as one line)
+   - `MAIL_TRANSPORT=resend`
+   - `RESEND_API_KEY=<your-resend-api-key>`
+   - `MAIL_FROM=BVF Support <your-verified-sender-domain-email>`
+   - `ADMIN_NOTIFICATION_EMAIL=<your-email>`
+
+   Optional SMTP mode (for local dev or environments where SMTP egress is allowed):
+   - `MAIL_TRANSPORT=smtp`
    - `SMTP_HOST=smtp.gmail.com`
    - `SMTP_PORT=587`
    - `SMTP_USER=<your-email>`
    - `SMTP_PASS=<your-app-password>`
    - `MAIL_FROM=BVF Support <your-email>`
    - `ADMIN_NOTIFICATION_EMAIL=<your-email>`
+   - `SMTP_CONNECTION_TIMEOUT=10000`
+   - `SMTP_GREETING_TIMEOUT=10000`
+   - `SMTP_SOCKET_TIMEOUT=20000`
+Note: Render free web services block outbound SMTP ports, so `MAIL_TRANSPORT=resend` is recommended there.
+
 5. Verify backend health URL:
    - `https://<your-render-service>.onrender.com/api/health`
 

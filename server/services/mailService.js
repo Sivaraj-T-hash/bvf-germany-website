@@ -1,27 +1,107 @@
 import 'dotenv/config';
 import nodemailer from 'nodemailer';
 
+const mailTransport = String(process.env.MAIL_TRANSPORT || 'smtp')
+  .trim()
+  .toLowerCase();
+
 const smtpHost = process.env.SMTP_HOST;
 const smtpPort = Number(process.env.SMTP_PORT || 0);
 const smtpUser = process.env.SMTP_USER;
 const smtpPass = process.env.SMTP_PASS;
 const mailFrom = process.env.MAIL_FROM;
+const smtpSecure = String(process.env.SMTP_SECURE || smtpPort === 465).toLowerCase() === 'true';
+const smtpRequireTls = String(process.env.SMTP_REQUIRE_TLS || 'false').toLowerCase() === 'true';
+const smtpConnectionTimeout = Number(process.env.SMTP_CONNECTION_TIMEOUT || 10000);
+const smtpGreetingTimeout = Number(process.env.SMTP_GREETING_TIMEOUT || 10000);
+const smtpSocketTimeout = Number(process.env.SMTP_SOCKET_TIMEOUT || 20000);
 
-if (!smtpHost || !smtpPort || !smtpUser || !smtpPass || !mailFrom) {
-  throw new Error('Missing SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, or MAIL_FROM in environment.');
+const resendApiKey = process.env.RESEND_API_KEY;
+const resendApiBase = String(process.env.RESEND_API_BASE || 'https://api.resend.com').replace(/\/+$/, '');
+
+if (!mailFrom) {
+  throw new Error('Missing MAIL_FROM in environment.');
 }
 
-const transporter = nodemailer.createTransport({
-  host: smtpHost,
-  port: smtpPort,
-  secure: smtpPort === 465,
-  auth: {
-    user: smtpUser,
-    pass: smtpPass,
-  },
-});
+let transporter = null;
+if (mailTransport === 'smtp') {
+  if (!smtpHost || !smtpPort || !smtpUser || !smtpPass) {
+    throw new Error(
+      'MAIL_TRANSPORT=smtp requires SMTP_HOST, SMTP_PORT, SMTP_USER, and SMTP_PASS in environment.',
+    );
+  }
 
-const getAdminNotificationEmail = () => process.env.ADMIN_NOTIFICATION_EMAIL || smtpUser;
+  transporter = nodemailer.createTransport({
+    host: smtpHost,
+    port: smtpPort,
+    secure: smtpSecure,
+    requireTLS: smtpRequireTls,
+    connectionTimeout: smtpConnectionTimeout,
+    greetingTimeout: smtpGreetingTimeout,
+    socketTimeout: smtpSocketTimeout,
+    auth: {
+      user: smtpUser,
+      pass: smtpPass,
+    },
+  });
+}
+
+if (mailTransport === 'resend' && !resendApiKey) {
+  throw new Error('MAIL_TRANSPORT=resend requires RESEND_API_KEY in environment.');
+}
+
+if (mailTransport !== 'smtp' && mailTransport !== 'resend') {
+  throw new Error('Unsupported MAIL_TRANSPORT. Use "smtp" or "resend".');
+}
+
+async function sendViaSmtp(message) {
+  return transporter.sendMail(message);
+}
+
+async function sendViaResend(message) {
+  const to = Array.isArray(message.to) ? message.to : [message.to];
+  const response = await fetch(`${resendApiBase}/emails`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${resendApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: message.from,
+      to,
+      subject: message.subject,
+      text: message.text,
+      html: message.html,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`Resend API request failed (${response.status}): ${errorBody}`);
+  }
+
+  return response.json();
+}
+
+async function sendMail(message) {
+  try {
+    if (mailTransport === 'resend') {
+      return sendViaResend(message);
+    }
+    return sendViaSmtp(message);
+  } catch (error) {
+    if (mailTransport === 'smtp' && error?.code === 'ETIMEDOUT') {
+      throw new Error(
+        'SMTP connection timed out. On Render free web services, outbound SMTP ports are blocked. Use MAIL_TRANSPORT=resend on Render, or move SMTP to an unblocked environment.',
+      );
+    }
+    throw error;
+  }
+}
+
+const mailFromAddressMatch = /<([^>]+)>/.exec(mailFrom || '');
+const mailFromAddress = mailFromAddressMatch?.[1] || mailFrom;
+const getAdminNotificationEmail = () => process.env.ADMIN_NOTIFICATION_EMAIL || smtpUser || mailFromAddress;
 
 const escapeHtml = (value) =>
   String(value || '')
@@ -89,7 +169,7 @@ function getTemplateForForm(formType, payload) {
 }
 
 export async function sendTemporaryPasswordEmail(to, tempPassword) {
-  return transporter.sendMail({
+  return sendMail({
     from: mailFrom,
     to,
     subject: 'Your temporary BVF login password',
@@ -104,7 +184,7 @@ export async function sendTemporaryPasswordEmail(to, tempPassword) {
 }
 
 export async function sendWelcomeEmail(to, name = 'Student') {
-  return transporter.sendMail({
+  return sendMail({
     from: mailFrom,
     to,
     subject: 'Welcome to BVF Germany',
@@ -133,14 +213,14 @@ export async function sendFormSubmissionEmails(formType, payload) {
   `;
 
   await Promise.all([
-    transporter.sendMail({
+    sendMail({
       from: mailFrom,
       to: adminEmail,
       subject: template.adminSubject,
       html: adminHtml,
       text: `${template.adminSubject}\n\n${template.adminRows.map((row) => `${row.label}: ${row.value}`).join('\n')}`,
     }),
-    transporter.sendMail({
+    sendMail({
       from: mailFrom,
       to: payload.email,
       subject: template.userSubject,
@@ -176,7 +256,7 @@ export async function sendAdminBroadcastEmails(input) {
   let sent = 0;
   for (const recipient of recipients) {
     // Sequential sends avoid provider throttling spikes on smaller SMTP accounts.
-    await transporter.sendMail({
+    await sendMail({
       from: mailFrom,
       to: recipient,
       subject,
