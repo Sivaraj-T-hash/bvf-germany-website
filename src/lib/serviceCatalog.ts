@@ -67,6 +67,7 @@ export interface ServiceCatalogItem {
   checklistTitle: string;
   checklist: string[];
   requiredDocuments: string[];
+  emoji: string;
   disciplineShortlists?: Array<{
     title: string;
     summary: string;
@@ -107,6 +108,7 @@ export const serviceCatalog: ServiceCatalogItem[] = [
     checklistTitle: 'What you get',
     checklist: ['Profile review', 'Eligibility clarity', 'Route recommendation', 'Smarter next-step planning'],
     requiredDocuments: ['Academic transcripts', 'Resume or CV', 'Passport copy', 'Current language-score status'],
+    emoji: '🔍',
     faqs: [
       { q: 'How long does this usually take?', a: 'Most profile reviews are completed quickly once the student shares the needed academic details.' },
       { q: 'Is this personalized?', a: 'Yes. The service is based on your actual profile, not a generic eligibility template.' },
@@ -144,6 +146,7 @@ export const serviceCatalog: ServiceCatalogItem[] = [
     checklistTitle: 'What you get',
     checklist: ['Branch-wise shortlist', 'Public-university fit check', 'Language and intake alignment', 'Balanced shortlist grouping'],
     requiredDocuments: ['Academic transcripts', 'Current degree and branch', 'Language-score status', 'Budget and intake preference'],
+    emoji: '🏛️',
     disciplineShortlists: [
       {
         title: 'Mechanical Engineering',
@@ -213,6 +216,7 @@ export const serviceCatalog: ServiceCatalogItem[] = [
     checklistTitle: 'What you get',
     checklist: ['APS checklist', 'Document-order clarity', 'Submission readiness', 'Planning support alongside admissions'],
     requiredDocuments: ['Passport copy', 'Academic transcripts', 'Degree certificates', 'Any APS preparation notes'],
+    emoji: '📜',
     faqs: [
       { q: 'Should APS be planned early?', a: 'Yes. APS timing can affect later admissions and visa stages, so it should not be left too late.' },
       { q: 'What usually causes APS delays?', a: 'Most delays come from weak document preparation or missing requirements, not from APS alone.' },
@@ -250,6 +254,7 @@ export const serviceCatalog: ServiceCatalogItem[] = [
     checklistTitle: 'What you get',
     checklist: ['Band-target strategy', 'Prep structure', 'Requirement matching', 'Exam-timing guidance'],
     requiredDocuments: ['Current IELTS or mock score if available', 'Target intake', 'Target programme type'],
+    emoji: '🗣️',
     faqs: [
       { q: 'Can IELTS affect shortlist quality?', a: 'Yes. A stronger score often improves your shortlist flexibility for English-taught programmes.' },
       { q: 'Is this only for beginners?', a: 'No. It also helps students who need to move from an average score to a safer one.' },
@@ -287,6 +292,7 @@ export const serviceCatalog: ServiceCatalogItem[] = [
     checklistTitle: 'What you get',
     checklist: ['GRE requirement mapping', 'Score-target strategy', 'Prep planning', 'Exam-timing support'],
     requiredDocuments: ['Target programmes', 'Current GRE status or mock score if available', 'Preferred intake'],
+    emoji: '📝',
     faqs: [
       { q: 'Do all Germany programmes require GRE?', a: 'No. Many do not. That is why a shortlist-based requirement check matters first.' },
       { q: 'Who benefits most from GRE support?', a: 'Usually students applying to more competitive technical or analytics pathways.' },
@@ -324,6 +330,7 @@ export const serviceCatalog: ServiceCatalogItem[] = [
     checklistTitle: 'What you get',
     checklist: ['Level roadmap', 'Goal-based planning', 'Speaking support direction', 'Test guidance where relevant'],
     requiredDocuments: ['Current German level if any', 'Target route or programme type', 'Preferred timeline'],
+    emoji: '🇩🇪',
     faqs: [
       { q: 'Is German necessary for every route?', a: 'No, but it becomes very important for German-taught programmes, Ausbildung, and smoother daily life.' },
       { q: 'Can I start from zero?', a: 'Yes. The support can begin at A1 and build upward step by step.' },
@@ -361,6 +368,7 @@ export const serviceCatalog: ServiceCatalogItem[] = [
     checklistTitle: 'What you get',
     checklist: ['Visa checklist review', 'Blocked-account planning', 'Interview guidance', 'Final readiness support'],
     requiredDocuments: ['Passport copy', 'APS certificate', 'Admit letter', 'Blocked-account proof', 'Insurance details'],
+    emoji: '🛂',
     faqs: [
       { q: 'Is the visa process hard?', a: 'It usually feels hard when the process is unclear. Strong structure reduces a lot of that stress.' },
       { q: 'Do Indian students usually need APS first?', a: 'Yes. APS is often a key prerequisite before the later stages.' },
@@ -398,6 +406,7 @@ export const serviceCatalog: ServiceCatalogItem[] = [
     checklistTitle: 'What you get',
     checklist: ['Arrival-week support', 'Practical setup reminders', 'Early settlement help', 'First-step clarity'],
     requiredDocuments: ['Passport and visa copy', 'Accommodation details', 'Insurance details', 'Travel details if relevant'],
+    emoji: '✈️',
     faqs: [
       { q: 'Is this only about the airport and travel day?', a: 'No. It is mainly about the first phase of settling in after arrival.' },
       { q: 'What kinds of issues does it help with?', a: 'Students usually need support with first-week priorities, setup, and practical orientation.' },
@@ -435,6 +444,7 @@ export const serviceCatalog: ServiceCatalogItem[] = [
     checklistTitle: 'What you get',
     checklist: ['Housing strategy', 'Scam-awareness review', 'Rental expectation clarity', 'Decision support before booking'],
     requiredDocuments: ['Target city', 'Budget range', 'Preferred move-in date', 'Any shortlisted listings if available'],
+    emoji: '🏠',
     faqs: [
       { q: 'Do you guarantee housing?', a: 'No. The support improves search quality and decision-making, not unrealistic guarantees.' },
       { q: 'Can this help before visa approval?', a: 'Yes. It is useful for planning, budgeting, and avoiding risky prepayments early.' },
@@ -472,6 +482,7 @@ export const serviceCatalog: ServiceCatalogItem[] = [
     checklistTitle: 'What you get',
     checklist: ['Route comparison', 'Language-readiness check', 'Field-direction clarity', 'A more realistic plan'],
     requiredDocuments: ['Academic background details', 'Current German level if any', 'Target field interest', 'Preferred timeline'],
+    emoji: '🛠️',
     faqs: [
       { q: 'Is Ausbildung the same as a degree?', a: 'No. It is a vocational training route, not a traditional academic university degree.' },
       { q: 'Does German matter for Ausbildung?', a: 'Yes. German is usually central because the route involves practical training and workplace communication.' },

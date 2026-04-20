@@ -7,6 +7,8 @@ import Footer from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
 import TextType from '@/components/ui/TextType';
 import CountUp from '@/components/ui/CountUp';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useSeo } from '@/lib/useSeo';
 import { getBlogPosts, type BlogPost } from '@/lib/blogStore';
 import { serviceCatalog } from '@/lib/serviceCatalog';
@@ -67,12 +69,12 @@ const benefits = [
 const germanyStats = [
   {
     value: 'EUR 45,000 – EUR 50,000',
-    label: 'Average Income in Germany',
+    label: 'Average Income in Germany 💶',
     detail: 'per year',
   },
   {
     value: '70 Lakhs',
-    label: 'Skilled Job Vacancies',
+    label: 'Skilled Job Vacancies 📈',
     detail: '(7 Million) open positions',
   },
 ];
@@ -109,6 +111,7 @@ const upcomingWebinar = { topic: 'APS + Visa Roadmap for Indian Students', date:
 const reveal = { hidden: { opacity: 0, y: 28 }, show: (delay = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.65, ease: 'easeOut', delay } }) };
 const dateFormatter = new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 const estimateReadTime = (content: string) => `${Math.max(1, Math.round(content.replace(/[#*_]/g, '').trim().split(/\s+/).length / 180))} min read`;
+const welcomePopupStorageKey = 'bvf_welcome_popup_seen';
 const universityPreviewCards: UniversityItem[] = [
   {
     id: 'preview-tu-berlin',
@@ -194,6 +197,7 @@ export default function HomePage() {
   const [testimonials, setTestimonials] = useState<TestimonialItem[]>([]);
   const [universities, setUniversities] = useState<UniversityItem[]>([]);
   const [plans, setPlans] = useState<PricingPlan[]>([]);
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
 
   useEffect(() => {
     void (async () => {
@@ -205,6 +209,24 @@ export default function HomePage() {
       setPlans(nextPlans.filter((plan) => plan.published).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)).slice(0, 3));
     })();
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const hasSeenWelcomePopup = window.sessionStorage.getItem(welcomePopupStorageKey) === 'true';
+    if (!hasSeenWelcomePopup) {
+      setIsWelcomeOpen(true);
+    }
+  }, []);
+
+  const closeWelcomePopup = () => {
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.setItem(welcomePopupStorageKey, 'true');
+    }
+    setIsWelcomeOpen(false);
+  };
 
   const repeatedUniversityLogos = [...universityLogos, ...universityLogos];
   const repeatedTestimonials = [...testimonials, ...testimonials];
@@ -228,6 +250,29 @@ export default function HomePage() {
   return (
     <div className="site-shell home-showcase">
       <Navbar />
+      <Dialog open={isWelcomeOpen} onOpenChange={(nextOpen) => (nextOpen ? setIsWelcomeOpen(true) : closeWelcomePopup())}>
+        <DialogContent className="max-w-md border-[#f0d9b8] bg-[linear-gradient(145deg,#fffef9,#fff7ea)] p-0 shadow-[0_24px_80px_rgba(15,23,38,0.26)]">
+          <div className="rounded-t-lg bg-[#132033] px-6 py-5 text-white">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#facc15]">Welcome to BVF Germany</p>
+            <DialogTitle className="mt-2 text-2xl font-extrabold leading-tight text-white">Your Study-in-Germany Journey Starts Here</DialogTitle>
+          </div>
+          <div className="space-y-5 px-6 py-6">
+            <DialogHeader className="space-y-0 text-left">
+              <DialogDescription className="text-sm leading-7 text-[#4b5563]">
+                Explore public university options, get profile guidance, and book a free consultation with the BVF team.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex-row justify-end gap-3 sm:space-x-0">
+              <Button variant="outline" onClick={closeWelcomePopup}>
+                Maybe Later
+              </Button>
+              <Button asChild onClick={closeWelcomePopup}>
+                <Link to="/bookings">Book Free Consultation</Link>
+              </Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
       <main>
         <section className="relative min-h-screen overflow-hidden bg-[#0f1726] text-white">
           <video className="absolute inset-0 h-full w-full object-cover" autoPlay muted loop playsInline poster={germanCampus} aria-hidden="true"><source src={heroVideoUrl} type="video/mp4" /></video>
@@ -252,7 +297,7 @@ export default function HomePage() {
                 Public university experts for Indian students, guiding you from profile review to your first step in Germany.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Link to="/tools" className="font-home-body inline-flex items-center justify-center rounded-full bg-[#facc15] px-6 py-3 text-sm font-bold text-[#0f1726] transition hover:-translate-y-0.5">Check My Eligibility</Link>
+                <Link to="/tools" className="font-home-body inline-flex items-center justify-center rounded-full bg-[#facc15] px-6 py-3 text-sm font-bold text-[#0f1726] transition hover:-translate-y-0.5">🚀 Check My Eligibility</Link>
                 <a href={settings?.youtubeUrl || 'https://youtube.com'} target="_blank" rel="noreferrer" className="font-home-body inline-flex items-center justify-center rounded-full border border-white/25 px-6 py-3 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-white/10">Watch Our Story</a>
               </div>
             </motion.div>
