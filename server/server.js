@@ -8,6 +8,7 @@ const app = express();
 const port = Number(process.env.PORT || 5000);
 
 const normalizeOrigin = (value) => String(value || '').trim().replace(/\/+$/, '').toLowerCase();
+const normalizeUrl = (value) => String(value || '').trim().replace(/\/+$/, '');
 const allowedOrigins = Array.from(
   new Set(
     String(process.env.CORS_ORIGIN || '')
@@ -15,6 +16,9 @@ const allowedOrigins = Array.from(
       .map((value) => normalizeOrigin(value))
       .filter(Boolean),
   ),
+);
+const publicSiteUrl = normalizeUrl(
+  process.env.PUBLIC_SITE_URL || String(process.env.CORS_ORIGIN || '').split(/[,\n]/).map((value) => value.trim()).find(Boolean) || '',
 );
 
 app.use(
@@ -40,6 +44,19 @@ app.use(
   ),
 );
 app.use(express.json());
+
+app.get('/', (_req, res) => {
+  if (publicSiteUrl) {
+    res.redirect(302, publicSiteUrl);
+    return;
+  }
+
+  res.json({
+    ok: true,
+    service: 'BVF Website Auth API',
+    health: '/api/health',
+  });
+});
 
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true });

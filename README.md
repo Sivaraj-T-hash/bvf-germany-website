@@ -112,6 +112,7 @@ Backend deploy (Render):
    - `CORS_ORIGIN=https://www.bvfgermany.com,https://<your-firebase-site>.web.app,https://<your-firebase-site>.firebaseapp.com`
    - `FIREBASE_DATABASE_URL=https://bvf-student-support-default-rtdb.firebaseio.com`
    - `FIREBASE_SERVICE_ACCOUNT_JSON={...}` (full JSON as one line) or `FIREBASE_SERVICE_ACCOUNT_KEY_PATH=/etc/secrets/serviceAccountKey.json`
+   - `PUBLIC_SITE_URL=https://www.bvfgermany.com` (optional but recommended so `https://<your-render-service>.onrender.com/` redirects to the public site)
    - `MAIL_TRANSPORT=resend`
    - `RESEND_API_KEY=<your-resend-api-key>`
    - `MAIL_FROM=BVF Support <admin@bvfgermany.com>`
