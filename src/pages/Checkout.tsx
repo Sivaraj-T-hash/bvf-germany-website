@@ -82,7 +82,7 @@ const DEFAULT_PLAN: PlanConfig = {
 };
 
 export default function CheckoutPage() {
-  useSeo({ title: 'Checkout | BVF Germany', description: 'Secure your bundle or webinar seat with mock Razorpay checkout.' });
+  useSeo({ title: 'Checkout | BVF Germany', description: 'Secure your bundle or webinar seat with mock Razorpay checkout.', noindex: true });
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();

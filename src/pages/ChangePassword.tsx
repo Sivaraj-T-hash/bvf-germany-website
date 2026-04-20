@@ -14,6 +14,7 @@ export default function ChangePasswordPage() {
   useSeo({
     title: 'Change Password | BVF Germany',
     description: 'Change your temporary BVF student password.',
+    noindex: true,
   });
 
   const navigate = useNavigate();

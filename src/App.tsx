@@ -73,6 +73,8 @@ const AnimatedRoutes = () => {
           <Route path="/resources" element={<PageTransition><Resources /></PageTransition>} />
           <Route path="/universities" element={<PageTransition><Universities /></PageTransition>} />
           <Route path="/tools" element={<PageTransition><FreeTools /></PageTransition>} />
+          <Route path="/tools/cgpa-to-german-grade-converter" element={<PageTransition><FreeTools /></PageTransition>} />
+          <Route path="/tools/ielts-bank-requirements-checker" element={<PageTransition><FreeTools /></PageTransition>} />
           <Route path="/webinars" element={<PageTransition><Webinars /></PageTransition>} />
           <Route path="/about-germany" element={<PageTransition><AboutGermany /></PageTransition>} />
           <Route path="/about-germany/bachelor" element={<PageTransition><BachelorGermany /></PageTransition>} />

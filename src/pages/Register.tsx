@@ -15,6 +15,7 @@ export default function RegisterPage() {
   useSeo({
     title: 'Register | BVF Germany',
     description: 'Create your BVF Germany student account to track bookings, service progress, and your study journey.',
+    noindex: true,
   });
 
   const navigate = useNavigate();

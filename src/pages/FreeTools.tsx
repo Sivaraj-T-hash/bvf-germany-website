@@ -10,7 +10,7 @@ import {
   Landmark,
   Send,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,6 +19,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
 import { hasNewUserReviewAccess } from '@/lib/authSession';
+import { DEFAULT_OG_IMAGE_PATH, SITE_NAME, SITE_URL, type StructuredData } from '@/lib/seo';
 import { getSiteSettings, type SiteSettings } from '@/lib/siteContentStore';
 import { useSeo } from '@/lib/useSeo';
 import { createLeadRecord } from '@/lib/leadStore';
@@ -128,6 +129,196 @@ const ownerRules: Record<string, string[]> = {
   'Education loan': ['Self', 'Parent', 'Joint'],
 };
 
+type ToolVariant = 'hub' | 'cgpa' | 'ielts';
+type ToolExplainer = { title: string; body: string };
+type ToolFaq = { question: string; answer: string };
+type ToolPageContent = {
+  path: string;
+  title: string;
+  description: string;
+  keywords: string[];
+  heroEyebrow: string;
+  heroTitle: string;
+  heroCopy: string;
+  sideTitle: string;
+  sideCopy: string;
+  explainerTitle: string;
+  explainers: ToolExplainer[];
+  faqTitle: string;
+  faqs: ToolFaq[];
+};
+
+const toolDirectoryLinks = [
+  { to: '/tools', label: 'All tools hub' },
+  { to: '/tools/cgpa-to-german-grade-converter', label: 'CGPA to German Grade Converter' },
+  { to: '/tools/ielts-bank-requirements-checker', label: 'IELTS Bank Requirements Checker' },
+];
+
+const toolPageContent: Record<ToolVariant, ToolPageContent> = {
+  hub: {
+    path: '/tools',
+    title: 'Free Study Abroad Tools | CGPA to German Grade Converter & IELTS Bank Requirements Checker | BVF Germany',
+    description:
+      'Use BVF Germany free tools to convert CGPA to German grade, check IELTS and bank fund readiness, and plan your next study-abroad step.',
+    keywords: [
+      'free study abroad tools',
+      'CGPA to German Grade Converter',
+      'IELTS Bank Requirements Checker',
+      'German grade calculator',
+      'study abroad funds checker',
+    ],
+    heroEyebrow: 'Free Tools',
+    heroTitle: 'CGPA to German Grade Converter and IELTS Bank Requirements Checker',
+    heroCopy:
+      'Use these free BVF Germany tools to estimate your German grade, review IELTS and funding readiness, and move into shortlisting or visa planning with more clarity.',
+    sideTitle: 'Built for real planning',
+    sideCopy:
+      'Students usually use the CGPA to German Grade Converter first, then move into the IELTS Bank Requirements Checker to review language, tuition, funds, and document strength in one flow.',
+    explainerTitle: 'Why these tools work well together',
+    explainers: [
+      {
+        title: 'Start with academics',
+        body: 'The CGPA to German Grade Converter gives you a fast academic benchmark before you shortlist public universities or compare programme fit.',
+      },
+      {
+        title: 'Then test your funding story',
+        body: 'The IELTS Bank Requirements Checker combines IELTS scores, sponsor fit, living-cost estimates, and bank evidence so you can spot gaps early.',
+      },
+      {
+        title: 'Move from score to action',
+        body: 'Both tools are designed to push you toward the next move: refine the shortlist, improve language scores, fix fund gaps, or book a counselor review.',
+      },
+    ],
+    faqTitle: 'Common questions about these Germany-study tools',
+    faqs: [
+      {
+        question: 'Which tool should I use first?',
+        answer:
+          'Most students start with the CGPA to German Grade Converter to benchmark academics, then use the IELTS Bank Requirements Checker to review language and funding readiness.',
+      },
+      {
+        question: 'Are these tools only for Germany?',
+        answer:
+          'The CGPA converter is Germany-focused, while the IELTS and bank checker currently supports Germany, the UK, and Canada for planning comparisons.',
+      },
+      {
+        question: 'Do these tools guarantee admission or visa approval?',
+        answer:
+          'No. They are guidance tools that highlight profile, IELTS, funding, and document gaps before you move into expert review.',
+      },
+      {
+        question: 'Can I share these tools with parents or sponsors?',
+        answer:
+          'Yes. The funding and bank checker is especially useful when students and sponsors need one simple place to review balance, maintenance, and document strength together.',
+      },
+    ],
+  },
+  cgpa: {
+    path: '/tools/cgpa-to-german-grade-converter',
+    title: 'CGPA to German Grade Converter | Bavarian Formula Calculator | BVF Germany',
+    description:
+      "Convert CGPA to German grade online with BVF Germany's free Bavarian formula calculator for Germany admissions shortlisting and profile evaluation.",
+    keywords: ['CGPA to German Grade Converter', 'Bavarian formula calculator', 'German grade calculator', 'convert CGPA to German grade'],
+    heroEyebrow: 'CGPA Tool',
+    heroTitle: 'CGPA to German Grade Converter',
+    heroCopy:
+      'Convert your CGPA into an estimated German grade using the modified Bavarian formula that many students use while comparing Germany admissions options.',
+    sideTitle: 'Best used for',
+    sideCopy:
+      'Academic shortlisting, profile verification, and quick comparisons between Indian CGPA systems and the German grading scale before you speak with a counselor.',
+    explainerTitle: 'How this CGPA to German Grade Converter helps',
+    explainers: [
+      {
+        title: 'Uses the modified Bavarian formula',
+        body: 'The calculator uses a widely referenced conversion approach to estimate how your CGPA may look in the German grading system.',
+      },
+      {
+        title: 'Helps you read the score faster',
+        body: 'The result is paired with a simple quality band so you can quickly tell whether the number looks excellent, good, average, or needs more support.',
+      },
+      {
+        title: 'Connects the score to the next step',
+        body: 'Once you have the estimate, you can move into shortlist planning, profile verification, or use the funding checker to review the rest of the journey.',
+      },
+    ],
+    faqTitle: 'Questions about the CGPA to German Grade Converter',
+    faqs: [
+      {
+        question: 'What formula does this CGPA to German Grade Converter use?',
+        answer:
+          'It uses the modified Bavarian formula to estimate a German grade from your CGPA and maximum scale.',
+      },
+      {
+        question: 'Is the converted grade always the final official grade?',
+        answer:
+          'No. Universities can evaluate transcripts differently, so this tool should be used as a planning estimate rather than a guaranteed official conversion.',
+      },
+      {
+        question: 'Who should use this German grade calculator?',
+        answer:
+          'Students comparing bachelor, master, MBA, or public university routes in Germany can use it to benchmark academic fit before shortlisting.',
+      },
+      {
+        question: 'Can I use this tool with CGPA scales other than 10?',
+        answer:
+          'Yes. Enter your CGPA and the maximum CGPA scale so the formula can estimate the corresponding German grade.',
+      },
+    ],
+  },
+  ielts: {
+    path: '/tools/ielts-bank-requirements-checker',
+    title: 'IELTS Bank Requirements Checker | Study Abroad Funds & IELTS Tool | BVF Germany',
+    description:
+      "Check IELTS scores, tuition, bank balance, sponsor details, and funding readiness with BVF Germany's free IELTS Bank Requirements Checker.",
+    keywords: ['IELTS Bank Requirements Checker', 'IELTS bank checker', 'study abroad funds checker', 'IELTS eligibility tool'],
+    heroEyebrow: 'IELTS & Funding Tool',
+    heroTitle: 'IELTS Bank Requirements Checker',
+    heroCopy:
+      'Review IELTS score thresholds, tuition balance, sponsor fit, maintenance period, and bank-document strength before you move into admission or visa filing.',
+    sideTitle: 'What it reviews',
+    sideCopy:
+      'The checker combines IELTS readiness with bank-fund planning, sponsor ownership, document quality, and destination-specific rules so you can see the real gap instead of a single score.',
+    explainerTitle: 'What the IELTS Bank Requirements Checker reviews',
+    explainers: [
+      {
+        title: 'Language thresholds',
+        body: 'The tool compares your IELTS overall and section scores with route-based thresholds so you can see whether the gap is language-based or not.',
+      },
+      {
+        title: 'Tuition and living-cost math',
+        body: 'It adds remaining tuition to estimated living costs so you can see the practical fund target before a counselor review.',
+      },
+      {
+        title: 'Banking and document strength',
+        body: 'Maintenance days, account owner, institution type, and document selection are checked separately because many students miss the risk in those details.',
+      },
+    ],
+    faqTitle: 'Questions about the IELTS Bank Requirements Checker',
+    faqs: [
+      {
+        question: 'Does the IELTS Bank Requirements Checker guarantee visa approval?',
+        answer:
+          'No. It is a planning tool that helps you identify score, funds, or document gaps before an official university, embassy, or visa review.',
+      },
+      {
+        question: 'Which countries are supported in the checker right now?',
+        answer:
+          'The current guided checker supports Germany, the UK, and Canada for first-pass planning.',
+      },
+      {
+        question: 'Can parents or guardians sponsor the funds checked here?',
+        answer:
+          'Yes. The tool supports self-funding, parent sponsorship, guardian sponsorship, third-party sponsors, and education-loan routes.',
+      },
+      {
+        question: 'What documents are usually stronger for bank proof?',
+        answer:
+          'Formal bank statements, bank letters, fixed deposit certificates, and loan sanction letters are generally stronger than simple balance certificates.',
+      },
+    ],
+  },
+};
+
 function convertToGermanGrade(cgpa: number, max: number, pass = 4) {
   return (1 + (3 * (max - cgpa)) / (max - pass)).toFixed(2);
 }
@@ -159,12 +350,124 @@ function statusTone(status: EligibilityStatus) {
   return 'bg-rose-500/12 text-rose-700 ring-1 ring-rose-500/20';
 }
 
+function buildToolStructuredData(variant: ToolVariant, page: ToolPageContent): StructuredData[] {
+  const pageUrl = `${SITE_URL}${page.path}`;
+  const basePage: StructuredData = {
+    '@context': 'https://schema.org',
+    '@type': variant === 'hub' ? 'CollectionPage' : 'WebPage',
+    name: page.heroTitle,
+    description: page.description,
+    url: pageUrl,
+    inLanguage: 'en-IN',
+    isPartOf: {
+      '@type': 'WebSite',
+      name: SITE_NAME,
+      url: `${SITE_URL}/`,
+    },
+    primaryImageOfPage: {
+      '@type': 'ImageObject',
+      url: `${SITE_URL}${DEFAULT_OG_IMAGE_PATH}`,
+    },
+    keywords: page.keywords.join(', '),
+  };
+
+  if (variant === 'hub') {
+    return [
+      {
+        ...basePage,
+        mainEntity: {
+          '@type': 'ItemList',
+          name: 'BVF Germany free study abroad tools',
+          itemListElement: toolDirectoryLinks.slice(1).map((item, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: item.label,
+            url: `${SITE_URL}${item.to}`,
+          })),
+        },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: `${SITE_URL}/`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Free Study Abroad Tools',
+            item: pageUrl,
+          },
+        ],
+      },
+    ];
+  }
+
+  return [
+    {
+      ...basePage,
+      mainEntity: {
+        '@type': 'WebApplication',
+        name: page.heroTitle,
+        applicationCategory: 'EducationalApplication',
+        operatingSystem: 'Any',
+        isAccessibleForFree: true,
+        offers: {
+          '@type': 'Offer',
+          price: 0,
+          priceCurrency: 'USD',
+        },
+        url: pageUrl,
+        description: page.description,
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: `${SITE_URL}/`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Free Study Abroad Tools',
+          item: `${SITE_URL}/tools`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: page.heroTitle,
+          item: pageUrl,
+        },
+      ],
+    },
+  ];
+}
+
 export default function FreeToolsPage() {
+  const location = useLocation();
+  const activeTool: ToolVariant = location.pathname.includes('/tools/cgpa-to-german-grade-converter')
+    ? 'cgpa'
+    : location.pathname.includes('/tools/ielts-bank-requirements-checker')
+      ? 'ielts'
+      : 'hub';
+  const currentPage = toolPageContent[activeTool];
+
   useSeo({
-    title: 'Free Tools | BVF Germany',
-    description: 'Use free Germany-study tools including a CGPA converter and an IELTS Bank Requirements Checker.',
-    url: 'https://bvf-student-support.web.app/tools',
-    image: '/hero-og.png',
+    title: currentPage.title,
+    description: currentPage.description,
+    url: `${SITE_URL}${currentPage.path}`,
+    image: DEFAULT_OG_IMAGE_PATH,
+    keywords: currentPage.keywords,
+    structuredData: buildToolStructuredData(activeTool, currentPage),
   });
 
   const { user } = useAuth();
@@ -357,7 +660,7 @@ export default function FreeToolsPage() {
       }
       await createLeadRecord({
         source: 'tool',
-        sourcePage: '/tools',
+        sourcePage: location.pathname,
         name: 'Tool Lead',
         email: data.email,
         phone: '',
@@ -383,14 +686,30 @@ export default function FreeToolsPage() {
           <div className="page-hero-inner">
             <div className="poster-grid items-end">
               <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="col-span-12 lg:col-span-8">
-                <p className="eyebrow-chip">Free Tools</p>
-                <h1 className="hero-display mt-7">Eligibility and funding tools for study-abroad planning</h1>
-                <p className="hero-copy">Check your academic conversion, IELTS readiness, and bank-proof strength before you move into application or visa support.</p>
+                <p className="eyebrow-chip">{currentPage.heroEyebrow}</p>
+                <h1 className="hero-display mt-7">{currentPage.heroTitle}</h1>
+                <p className="hero-copy">{currentPage.heroCopy}</p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {toolDirectoryLinks.map((item) => {
+                    const isActive = item.to === currentPage.path;
+                    return (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        className={`inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold transition ${
+                          isActive ? 'bg-primary text-white' : 'bg-white text-foreground ring-1 ring-border hover:bg-[#fff8ee]'
+                        }`}
+                      >
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
               </motion.div>
               <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.06 }} className="col-span-12 lg:col-span-4">
                 <div className="surface-panel p-6">
-                  <p className="section-kicker">Guided Assessment</p>
-                  <p className="mt-3 text-sm leading-7 text-muted-foreground">The IELTS Bank Requirements Checker now works as a step-based assessment with country rules, fund validation, and action-focused results.</p>
+                  <p className="section-kicker">{currentPage.sideTitle}</p>
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">{currentPage.sideCopy}</p>
                 </div>
               </motion.div>
             </div>
@@ -399,7 +718,14 @@ export default function FreeToolsPage() {
 
         <section className="px-4 pb-12 md:px-8 md:pb-16">
           <div className="container-narrow grid gap-6 lg:grid-cols-2">
-            <motion.article initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={spring} className="surface-panel p-7">
+            <motion.article
+              id="cgpa-to-german-grade-converter"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={spring}
+              className={`surface-panel p-7 ${activeTool === 'ielts' ? 'lg:order-2' : 'lg:order-1'}`}
+            >
               <div className="flex items-center gap-3">
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
                   <Calculator className="h-6 w-6 text-primary" aria-hidden="true" />
@@ -425,9 +751,19 @@ export default function FreeToolsPage() {
                 <p className="mt-3 text-4xl font-semibold text-secondary">{germanGrade ? germanGrade.value.toFixed(2) : '--'}</p>
                 <p className="mt-2 text-sm text-white/78">{germanGrade ? `Meaning: ${germanGrade.meaning}` : 'Enter valid values to estimate your German grade.'}</p>
               </div>
+              <div className="mt-5 rounded-[20px] border border-border bg-muted/40 p-4 text-sm leading-7 text-foreground">
+                This CGPA to German Grade Converter uses the modified Bavarian formula to estimate how your score may translate into the German grading system for planning and shortlist discussions.
+              </div>
             </motion.article>
 
-            <motion.article initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ ...spring, delay: 0.06 }} className="surface-panel p-7">
+            <motion.article
+              id="ielts-bank-requirements-checker"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ ...spring, delay: 0.06 }}
+              className={`surface-panel p-7 ${activeTool === 'ielts' ? 'lg:order-1' : 'lg:order-2'}`}
+            >
               <div className="flex items-center gap-3">
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
                   <GraduationCap className="h-6 w-6 text-primary" aria-hidden="true" />
@@ -599,7 +935,7 @@ export default function FreeToolsPage() {
                   {!user ? (
                     <Link
                       to="/login"
-                      state={{ from: '/tools' }}
+                      state={{ from: location.pathname }}
                       className="mt-4 inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-95"
                     >
                       Login to unlock review result
@@ -626,6 +962,36 @@ export default function FreeToolsPage() {
                 </button>
               </div>
             </motion.article>
+          </div>
+        </section>
+
+        <section className="px-4 pb-12 md:px-8 md:pb-16">
+          <div className="container-narrow grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="surface-panel p-8">
+              <p className="section-kicker">Tool Guide</p>
+              <h2 className="mt-3 font-heading text-3xl font-semibold text-foreground">{currentPage.explainerTitle}</h2>
+              <div className="mt-6 space-y-4">
+                {currentPage.explainers.map((item) => (
+                  <div key={item.title} className="rounded-[22px] border border-border bg-white/80 p-5">
+                    <h3 className="text-lg font-semibold text-foreground">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-7 text-muted-foreground">{item.body}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="surface-panel p-8">
+              <p className="section-kicker">Common Questions</p>
+              <h2 className="mt-3 font-heading text-3xl font-semibold text-foreground">{currentPage.faqTitle}</h2>
+              <div className="mt-6 space-y-4">
+                {currentPage.faqs.map((item) => (
+                  <div key={item.question} className="rounded-[22px] border border-border bg-muted/30 p-5">
+                    <h3 className="text-lg font-semibold text-foreground">{item.question}</h3>
+                    <p className="mt-2 text-sm leading-7 text-muted-foreground">{item.answer}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 

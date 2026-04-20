@@ -13,6 +13,7 @@ export default function ForgotPasswordPage() {
   useSeo({
     title: 'Forgot Password | BVF Germany',
     description: 'Request a BVF Germany one-time password reset code by email.',
+    noindex: true,
   });
 
   const [form, setForm] = useState({

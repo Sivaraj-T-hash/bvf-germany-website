@@ -6,9 +6,11 @@
   "scripts": {
     "start": "node scripts/dev-all.js",
     "start:all": "node scripts/dev-all.js",
+    "prebuild": "node scripts/prepare-seo.mjs",
     "dev": "vite",
     "server": "node server/server.js",
     "build": "vite build",
+    "postbuild": "node scripts/postbuild-seo.mjs",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",

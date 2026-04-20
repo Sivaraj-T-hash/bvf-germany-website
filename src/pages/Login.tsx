@@ -35,6 +35,7 @@ export default function LoginPage() {
   useSeo({
     title: 'Login | BVF Germany',
     description: 'Sign in to your BVF Germany student dashboard to view bookings, service progress, and your profile.',
+    noindex: true,
   });
 
   const navigate = useNavigate();

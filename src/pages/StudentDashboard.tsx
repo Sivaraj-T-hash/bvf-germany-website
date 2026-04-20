@@ -108,7 +108,7 @@ const highlightText = (text: string, queryText: string) => {
 };
 
 export default function StudentDashboardPage() {
-  useSeo({ title: 'Student Dashboard | BVF Germany', description: 'Track your Germany journey progress, docs, webinars, and mentor support.' });
+  useSeo({ title: 'Student Dashboard | BVF Germany', description: 'Track your Germany journey progress, docs, webinars, and mentor support.', noindex: true });
   const { user, loading, studentApproved, studentStatus } = useAuth();
   const navigate = useNavigate();
 

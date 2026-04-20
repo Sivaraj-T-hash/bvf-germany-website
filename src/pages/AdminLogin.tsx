@@ -12,8 +12,15 @@ import { ShieldCheck } from 'lucide-react';
 import { auth } from '@/lib/firebase';
 import { getAdminProfile, touchAdminLogin } from '@/lib/adminStore';
 import { getRememberMePreference, setRememberMePreference } from '@/lib/authSession';
+import { useSeo } from '@/lib/useSeo';
 
 export default function AdminLogin() {
+  useSeo({
+    title: 'Admin Login | BVF Germany',
+    description: 'Private admin access for BVF Germany.',
+    noindex: true,
+  });
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(getRememberMePreference());

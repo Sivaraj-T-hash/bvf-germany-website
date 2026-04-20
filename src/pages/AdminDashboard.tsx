@@ -19,6 +19,7 @@ import { createStudentNotification, markStudentNotificationRead, subscribeToStud
 import { getResourceCatalogItem } from '@/lib/resourceCatalog';
 import { deleteResourcePackage, saveResourcePackage, subscribeToResourceCatalog, type ResourcePackage } from '@/lib/resourceCatalogStore';
 import { sendAdminBroadcastEmails } from '@/lib/submissionEmailApi';
+import { useSeo } from '@/lib/useSeo';
 
 interface Lead { id: string; name: string; email: string; status: string; createdAt: string; phone?: string }
 interface Booking { id: string; name: string; email: string; preferredDate: string; preferredTime: string; status: string; createdAt: string }
@@ -95,6 +96,12 @@ const tabs: Array<{ key: Tab; label: string; icon: typeof LayoutDashboard }> = [
 ];
 
 export default function AdminDashboard() {
+  useSeo({
+    title: 'Admin Dashboard | BVF Germany',
+    description: 'Private admin dashboard for BVF Germany operations.',
+    noindex: true,
+  });
+
   const navigate = useNavigate();
   const { user } = useAuth();
   const searchInputRef = useRef<HTMLInputElement | null>(null);

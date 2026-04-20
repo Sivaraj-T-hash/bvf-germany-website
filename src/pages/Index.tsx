@@ -300,6 +300,10 @@ export default function HomePage() {
                 <Link to="/tools" className="font-home-body inline-flex items-center justify-center rounded-full bg-[#facc15] px-6 py-3 text-sm font-bold text-[#0f1726] transition hover:-translate-y-0.5">🚀 Check My Eligibility</Link>
                 <a href={settings?.youtubeUrl || 'https://youtube.com'} target="_blank" rel="noreferrer" className="font-home-body inline-flex items-center justify-center rounded-full border border-white/25 px-6 py-3 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-white/10">Watch Our Story</a>
               </div>
+              <div className="mt-5 flex flex-wrap gap-3 text-sm font-semibold text-white/80">
+                <Link to="/tools/cgpa-to-german-grade-converter" className="transition hover:text-[#facc15]">CGPA to German Grade Converter</Link>
+                <Link to="/tools/ielts-bank-requirements-checker" className="transition hover:text-[#facc15]">IELTS Bank Requirements Checker</Link>
+              </div>
             </motion.div>
 
           </div>
