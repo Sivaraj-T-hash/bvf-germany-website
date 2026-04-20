@@ -35,6 +35,15 @@ export async function requestPasswordResetEmail(email: string): Promise<ApiRespo
   return postJson<ApiResponse>('/api/auth/forgot-password', { email });
 }
 
+export async function resetPasswordWithOtp(input: {
+  email: string;
+  otp: string;
+  newPassword: string;
+  confirmPassword: string;
+}): Promise<ApiResponse> {
+  return postJson<ApiResponse>('/api/auth/reset-password-with-otp', input);
+}
+
 export async function getPasswordResetStatus(idToken: string): Promise<PasswordStatusResponse> {
   return postJson<PasswordStatusResponse>('/api/auth/password-status', { idToken });
 }

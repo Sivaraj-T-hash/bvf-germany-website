@@ -1,6 +1,6 @@
 import { auth, firestore } from '../firebaseAdmin.js';
-import { sendTemporaryPasswordEmail, sendWelcomeEmail } from '../services/mailService.js';
-import { generateTempPassword, hashPassword, verifyPassword } from '../services/tempPasswordService.js';
+import { sendPasswordResetOtpEmail, sendWelcomeEmail } from '../services/mailService.js';
+import { generateResetOtp, hashPassword, verifyPassword } from '../services/tempPasswordService.js';
 import { isStudentAccount } from '../services/studentAccessService.js';
 
 const PASSWORD_RESET_FLAGS_COLLECTION = 'passwordResetFlags';
@@ -9,7 +9,7 @@ const TEMP_PASSWORD_TTL_MS = 15 * 60 * 1000;
 
 const FORGOT_PASSWORD_RESPONSE = {
   success: true,
-  message: 'If the account exists, a temporary password has been sent.',
+  message: 'If the account exists, a one-time password has been sent.',
 };
 
 function getIdTokenFromRequest(req) {
@@ -76,27 +76,23 @@ export async function forgotPassword(req, res) {
       return res.json(FORGOT_PASSWORD_RESPONSE);
     }
 
-    const temporaryPassword = generateTempPassword();
-    const { salt, hash } = hashPassword(temporaryPassword);
+    const resetOtp = generateResetOtp();
+    const { salt, hash } = hashPassword(resetOtp);
     const expiresAt = Date.now() + TEMP_PASSWORD_TTL_MS;
-
-    await auth.updateUser(userRecord.uid, {
-      password: temporaryPassword,
-    });
 
     await firestore.collection(PASSWORD_RESET_FLAGS_COLLECTION).doc(userRecord.uid).set(
       {
         email,
-        mustChangePassword: true,
-        tempPasswordHash: hash,
-        tempPasswordSalt: salt,
-        tempPasswordExpiresAt: expiresAt,
+        resetOtpHash: hash,
+        resetOtpSalt: salt,
+        resetOtpExpiresAt: expiresAt,
+        resetRequestedAt: Date.now(),
         updatedAt: Date.now(),
       },
       { merge: true },
     );
 
-    await sendTemporaryPasswordEmail(email, temporaryPassword);
+    await sendPasswordResetOtpEmail(email, resetOtp);
 
     return res.json(FORGOT_PASSWORD_RESPONSE);
   } catch (error) {
@@ -105,6 +101,91 @@ export async function forgotPassword(req, res) {
       success: false,
       message: 'Unable to process forgot password request.',
     });
+  }
+}
+
+export async function resetPasswordWithOtp(req, res) {
+  try {
+    const email = String(req.body.email || '').trim().toLowerCase();
+    const otp = String(req.body.otp || '').trim();
+    const newPassword = String(req.body.newPassword || '');
+    const confirmPassword = String(req.body.confirmPassword || '');
+
+    if (!email || !otp || !newPassword || !confirmPassword) {
+      return res.status(400).json({ success: false, message: 'All fields are required.' });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ success: false, message: 'Passwords do not match.' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters.' });
+    }
+
+    let userRecord;
+    try {
+      userRecord = await auth.getUserByEmail(email);
+    } catch (error) {
+      if (error?.code === 'auth/user-not-found') {
+        return res.status(400).json({ success: false, message: 'Invalid or expired code.' });
+      }
+      throw error;
+    }
+
+    const studentAccount = await isStudentAccount(userRecord.uid);
+    if (!studentAccount) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired code.' });
+    }
+
+    const flagsRef = firestore.collection(PASSWORD_RESET_FLAGS_COLLECTION).doc(userRecord.uid);
+    const flagsSnapshot = await flagsRef.get();
+
+    if (!flagsSnapshot.exists) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired code.' });
+    }
+
+    const flags = flagsSnapshot.data();
+    const expiresAt = Number(flags?.resetOtpExpiresAt || 0);
+    const isExpired = !Number.isFinite(expiresAt) || expiresAt <= 0 || Date.now() > expiresAt;
+
+    if (isExpired || !flags?.resetOtpSalt || !flags?.resetOtpHash) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired code.' });
+    }
+
+    const otpMatches = verifyPassword(
+      otp,
+      String(flags.resetOtpSalt),
+      String(flags.resetOtpHash),
+    );
+
+    if (!otpMatches) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired code.' });
+    }
+
+    await auth.updateUser(userRecord.uid, {
+      password: newPassword,
+    });
+
+    await flagsRef.set(
+      {
+        mustChangePassword: false,
+        tempPasswordHash: null,
+        tempPasswordSalt: null,
+        tempPasswordExpiresAt: null,
+        resetOtpHash: null,
+        resetOtpSalt: null,
+        resetOtpExpiresAt: null,
+        passwordChangedAt: Date.now(),
+        updatedAt: Date.now(),
+      },
+      { merge: true },
+    );
+
+    return res.json({ success: true, message: 'Password updated successfully. Please sign in.' });
+  } catch (error) {
+    console.error('resetPasswordWithOtp failed:', error);
+    return res.status(500).json({ success: false, message: 'Unable to update password.' });
   }
 }
 

@@ -183,6 +183,22 @@ export async function sendTemporaryPasswordEmail(to, tempPassword) {
   });
 }
 
+export async function sendPasswordResetOtpEmail(to, otp) {
+  return sendMail({
+    from: mailFrom,
+    to,
+    subject: 'Your BVF Germany password reset code',
+    text: `Your BVF Germany password reset code is: ${otp}. It expires in 15 minutes.`,
+    html: `
+      <p>You requested a password reset for your BVF Germany student account.</p>
+      <p>Your one-time code is:</p>
+      <h2 style="letter-spacing:0.3em;">${escapeHtml(otp)}</h2>
+      <p>Enter this code on the BVF Germany forgot-password page to set a new password.</p>
+      <p>This code expires in 15 minutes.</p>
+    `,
+  });
+}
+
 export async function sendPasswordResetEmail(to, resetLink) {
   return sendMail({
     from: mailFrom,
