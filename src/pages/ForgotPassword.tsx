@@ -9,7 +9,7 @@ import WhatsAppFloat from '@/components/WhatsAppFloat';
 export default function ForgotPasswordPage() {
   useSeo({
     title: 'Forgot Password | BVF Germany',
-    description: 'Request a BVF Germany password reset link by email.',
+    description: 'Request a BVF Germany temporary password by email.',
   });
 
   const [email, setEmail] = useState('');
@@ -25,9 +25,9 @@ export default function ForgotPasswordPage() {
     try {
       setSubmitting(true);
       await requestPasswordResetEmail(email.trim().toLowerCase());
-      setSuccess('If your student account exists, a password reset link has been sent to your email.');
+      setSuccess('If your student account exists, a temporary password has been sent to your email. Use it to sign in, then set a new password.');
     } catch (caughtError) {
-      const message = caughtError instanceof Error ? caughtError.message : 'Unable to request a password reset link.';
+      const message = caughtError instanceof Error ? caughtError.message : 'Unable to request a temporary password.';
       setError(message);
     } finally {
       setSubmitting(false);
@@ -43,7 +43,7 @@ export default function ForgotPasswordPage() {
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-secondary">Student Password Help</p>
             <h1 className="mt-3 text-3xl font-extrabold text-foreground">Forgot your password?</h1>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Enter your student email address. We will send a secure password reset link through email.
+              Enter your student email address. We will send a temporary password through email so you can sign in and set a new one.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-4">
@@ -71,7 +71,7 @@ export default function ForgotPasswordPage() {
                 disabled={submitting}
                 className="w-full rounded-xl bg-gradient-cta px-4 py-3 text-sm font-bold text-primary-foreground transition hover:opacity-90 disabled:opacity-60"
               >
-                {submitting ? 'Sending...' : 'Send Reset Link'}
+                {submitting ? 'Sending...' : 'Send Temporary Password'}
               </button>
             </form>
 
