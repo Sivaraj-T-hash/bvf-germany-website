@@ -31,7 +31,7 @@ async function postJson<T>(path: string, body: Record<string, unknown>): Promise
   return json;
 }
 
-export async function requestTemporaryPassword(email: string): Promise<ApiResponse> {
+export async function requestPasswordResetEmail(email: string): Promise<ApiResponse> {
   return postJson<ApiResponse>('/api/auth/forgot-password', { email });
 }
 

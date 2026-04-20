@@ -183,6 +183,29 @@ export async function sendTemporaryPasswordEmail(to, tempPassword) {
   });
 }
 
+export async function sendPasswordResetEmail(to, resetLink) {
+  return sendMail({
+    from: mailFrom,
+    to,
+    subject: 'Reset your BVF Germany password',
+    text: `Use this secure link to reset your BVF Germany password: ${resetLink}`,
+    html: `
+      <p>You requested a password reset for your BVF Germany student account.</p>
+      <p>
+        <a
+          href="${escapeHtml(resetLink)}"
+          style="display:inline-block;padding:12px 20px;border-radius:999px;background:#0f766e;color:#ffffff;text-decoration:none;font-weight:700;"
+        >
+          Reset your password
+        </a>
+      </p>
+      <p>If the button does not open, copy and paste this link into your browser:</p>
+      <p style="word-break:break-all;">${escapeHtml(resetLink)}</p>
+      <p>If you did not request this, you can safely ignore this email.</p>
+    `,
+  });
+}
+
 export async function sendWelcomeEmail(to, name = 'Student') {
   return sendMail({
     from: mailFrom,
@@ -190,7 +213,7 @@ export async function sendWelcomeEmail(to, name = 'Student') {
     subject: 'Welcome to BVF Germany',
     text: `Hi ${name}, your account was created successfully. Welcome to BVF Germany.`,
     html: `
-      <p>Hi ${name},</p>
+      <p>Hi ${escapeHtml(name)},</p>
       <p>Your account was created successfully.</p>
       <p>Welcome to <strong>BVF Germany</strong>. We are excited to support your Germany study journey.</p>
     `,
