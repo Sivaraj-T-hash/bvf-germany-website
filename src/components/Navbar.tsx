@@ -35,7 +35,6 @@ const navLinks = [
   { label: 'Tools', to: '/tools' },
   { label: 'Resources', to: '/resources' },
   { label: 'Webinars', to: '/webinars' },
-  { label: 'Pricing', to: '/pricing' },
   { label: 'Blog', to: '/blog' },
   { label: 'Contact', to: '/contact' },
 ];
@@ -132,8 +131,8 @@ export default function Navbar() {
           </div>
         </Link>
 
-        <nav aria-label="Primary" className="hidden min-w-0 flex-1 items-center justify-end gap-2 md:flex">
-          <div className="flex min-w-0 flex-1 items-center justify-end gap-0.5">
+        <nav aria-label="Primary" className="hidden min-w-0 flex-1 items-center justify-end gap-4 md:flex">
+          <div className="flex min-w-0 flex-1 items-center justify-end gap-1">
             <Link to="/" className={`${linkClass(location.pathname === '/')} font-home-body text-[12px] font-bold normal-case tracking-normal`}>
               Home
             </Link>

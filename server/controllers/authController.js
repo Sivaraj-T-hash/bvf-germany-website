@@ -1,15 +1,14 @@
 import { auth, firestore } from '../firebaseAdmin.js';
-import { sendTemporaryPasswordEmail, sendWelcomeEmail } from '../services/mailService.js';
-import { generateTempPassword, hashPassword, verifyPassword } from '../services/tempPasswordService.js';
+import { sendPasswordResetEmail, sendWelcomeEmail } from '../services/mailService.js';
+import { verifyPassword } from '../services/tempPasswordService.js';
 import { isStudentAccount } from '../services/studentAccessService.js';
 
 const PASSWORD_RESET_FLAGS_COLLECTION = 'passwordResetFlags';
 const WELCOME_EMAIL_FLAGS_COLLECTION = 'welcomeEmailFlags';
-const TEMP_PASSWORD_TTL_MS = 15 * 60 * 1000;
 
 const FORGOT_PASSWORD_RESPONSE = {
   success: true,
-  message: 'If the account exists, a temporary password has been sent.',
+  message: 'If the account exists, a password reset link has been sent.',
 };
 
 function getIdTokenFromRequest(req) {
@@ -53,6 +52,20 @@ function buildPasswordStatus(docData) {
   };
 }
 
+function getPasswordResetContinueUrl() {
+  const explicitUrl = String(process.env.PASSWORD_RESET_CONTINUE_URL || '').trim();
+  if (explicitUrl) {
+    return explicitUrl;
+  }
+
+  const firstConfiguredOrigin = String(process.env.CORS_ORIGIN || '')
+    .split(/[,\n]/)
+    .map((value) => value.trim())
+    .find(Boolean);
+
+  return firstConfiguredOrigin || 'https://www.bvfgermany.com/login';
+}
+
 export async function forgotPassword(req, res) {
   try {
     const email = String(req.body.email || '').trim().toLowerCase();
@@ -76,26 +89,12 @@ export async function forgotPassword(req, res) {
       return res.json(FORGOT_PASSWORD_RESPONSE);
     }
 
-    const tempPassword = generateTempPassword();
-    const { salt, hash } = hashPassword(tempPassword);
-    const issuedAt = Date.now();
-    const expiresAt = issuedAt + TEMP_PASSWORD_TTL_MS;
-
-    await auth.updateUser(userRecord.uid, {
-      password: tempPassword,
+    const resetLink = await auth.generatePasswordResetLink(email, {
+      url: getPasswordResetContinueUrl(),
+      handleCodeInApp: false,
     });
 
-    await firestore.collection(PASSWORD_RESET_FLAGS_COLLECTION).doc(userRecord.uid).set({
-      email,
-      mustChangePassword: true,
-      tempPasswordIssuedAt: issuedAt,
-      tempPasswordExpiresAt: expiresAt,
-      tempPasswordSalt: salt,
-      tempPasswordHash: hash,
-      updatedAt: issuedAt,
-    });
-
-    await sendTemporaryPasswordEmail(email, tempPassword);
+    await sendPasswordResetEmail(email, resetLink);
 
     return res.json(FORGOT_PASSWORD_RESPONSE);
   } catch (error) {

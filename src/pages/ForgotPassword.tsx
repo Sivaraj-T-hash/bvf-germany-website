@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { requestTemporaryPassword } from '@/lib/passwordResetApi';
+import { requestPasswordResetEmail } from '@/lib/passwordResetApi';
 import { useSeo } from '@/lib/useSeo';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -9,7 +9,7 @@ import WhatsAppFloat from '@/components/WhatsAppFloat';
 export default function ForgotPasswordPage() {
   useSeo({
     title: 'Forgot Password | BVF Germany',
-    description: 'Request a temporary BVF student login password by email.',
+    description: 'Request a BVF Germany password reset link by email.',
   });
 
   const [email, setEmail] = useState('');
@@ -24,10 +24,10 @@ export default function ForgotPasswordPage() {
 
     try {
       setSubmitting(true);
-      await requestTemporaryPassword(email.trim().toLowerCase());
-      setSuccess('If your student account exists, a temporary password has been sent to your email.');
+      await requestPasswordResetEmail(email.trim().toLowerCase());
+      setSuccess('If your student account exists, a password reset link has been sent to your email.');
     } catch (caughtError) {
-      const message = caughtError instanceof Error ? caughtError.message : 'Unable to request a temporary password.';
+      const message = caughtError instanceof Error ? caughtError.message : 'Unable to request a password reset link.';
       setError(message);
     } finally {
       setSubmitting(false);
@@ -43,7 +43,7 @@ export default function ForgotPasswordPage() {
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-secondary">Student Password Help</p>
             <h1 className="mt-3 text-3xl font-extrabold text-foreground">Forgot your password?</h1>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Enter your student email address. We will send a temporary password you can use to sign in.
+              Enter your student email address. We will send a secure password reset link through email.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-4">
@@ -71,7 +71,7 @@ export default function ForgotPasswordPage() {
                 disabled={submitting}
                 className="w-full rounded-xl bg-gradient-cta px-4 py-3 text-sm font-bold text-primary-foreground transition hover:opacity-90 disabled:opacity-60"
               >
-                {submitting ? 'Sending...' : 'Send Temporary Password'}
+                {submitting ? 'Sending...' : 'Send Reset Link'}
               </button>
             </form>
 

@@ -7,13 +7,34 @@ import { notificationRoutes } from './routes/notificationRoutes.js';
 const app = express();
 const port = Number(process.env.PORT || 5000);
 
-const corsOrigin = process.env.CORS_ORIGIN;
+const normalizeOrigin = (value) => String(value || '').trim().replace(/\/+$/, '').toLowerCase();
+const allowedOrigins = Array.from(
+  new Set(
+    String(process.env.CORS_ORIGIN || '')
+      .split(/[,\n]/)
+      .map((value) => normalizeOrigin(value))
+      .filter(Boolean),
+  ),
+);
 
 app.use(
   cors(
-    corsOrigin
+    allowedOrigins.length
       ? {
-          origin: corsOrigin,
+          origin(origin, callback) {
+            if (!origin) {
+              callback(null, true);
+              return;
+            }
+
+            const requestOrigin = normalizeOrigin(origin);
+            if (allowedOrigins.includes(requestOrigin)) {
+              callback(null, true);
+              return;
+            }
+
+            callback(new Error('Not allowed by CORS'), false);
+          },
         }
       : undefined,
   ),

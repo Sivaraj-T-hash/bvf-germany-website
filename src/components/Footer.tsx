@@ -7,7 +7,6 @@ const quickLinks = [
   { label: 'Services', to: '/services' },
   { label: 'About', to: '/about' },
   { label: 'About Germany', to: '/about-germany' },
-  { label: 'Pricing', to: '/pricing' },
   { label: 'Tools', to: '/tools' },
   { label: 'Resources', to: '/resources' },
   { label: 'Webinars', to: '/webinars' },

@@ -109,13 +109,16 @@ Backend deploy (Render):
    - Start Command: `node server/server.js`
 4. Add environment variables in Render:
    - `PORT=10000`
-   - `CORS_ORIGIN=https://<your-firebase-site>.web.app`
+   - `CORS_ORIGIN=https://www.bvfgermany.com,https://<your-firebase-site>.web.app,https://<your-firebase-site>.firebaseapp.com`
    - `FIREBASE_DATABASE_URL=https://bvf-student-support-default-rtdb.firebaseio.com`
-   - `FIREBASE_SERVICE_ACCOUNT_JSON={...}` (full JSON as one line)
+   - `FIREBASE_SERVICE_ACCOUNT_JSON={...}` (full JSON as one line) or `FIREBASE_SERVICE_ACCOUNT_KEY_PATH=/etc/secrets/serviceAccountKey.json`
    - `MAIL_TRANSPORT=resend`
    - `RESEND_API_KEY=<your-resend-api-key>`
-   - `MAIL_FROM=BVF Support <your-verified-sender-domain-email>`
-   - `ADMIN_NOTIFICATION_EMAIL=<your-email>`
+   - `MAIL_FROM=BVF Support <admin@bvfgermany.com>`
+   - `ADMIN_NOTIFICATION_EMAIL=admin@bvfgermany.com`
+   - `RESEND_API_BASE=https://api.resend.com`
+   - `PASSWORD_RESET_CONTINUE_URL=https://www.bvfgermany.com/login`
+   - exact copy-ready template: `render.env.example`
 
    Optional SMTP mode (for local dev or environments where SMTP egress is allowed):
    - `MAIL_TRANSPORT=smtp`
@@ -128,7 +131,7 @@ Backend deploy (Render):
    - `SMTP_CONNECTION_TIMEOUT=10000`
    - `SMTP_GREETING_TIMEOUT=10000`
    - `SMTP_SOCKET_TIMEOUT=20000`
-Note: Render free web services block outbound SMTP ports, so `MAIL_TRANSPORT=resend` is recommended there.
+Note: Render free web services block outbound SMTP ports, so `MAIL_TRANSPORT=resend` is recommended there. Resend must have the `bvfgermany.com` domain verified before `MAIL_FROM=BVF Support <admin@bvfgermany.com>` can deliver successfully.
 
 5. Verify backend health URL:
    - `https://<your-render-service>.onrender.com/api/health`
@@ -137,6 +140,7 @@ Frontend deploy (Firebase Hosting):
 
 1. Set production API URL in `.env.production`:
    - `VITE_AUTH_API_BASE_URL=https://<your-render-service>.onrender.com`
+   - keep `VITE_AUTH_API_BASE_URL` on the frontend build only; do not put `VITE_` variables in the Render backend service
 2. Build and deploy:
 
 ```bash
@@ -147,7 +151,9 @@ npx firebase-tools deploy --only hosting
 Final Firebase auth setting:
 
 - Firebase Console -> Authentication -> Settings -> Authorized domains
-- Add `https://<your-firebase-site>.web.app` (and custom domain if used)
+- Add `https://<your-firebase-site>.web.app`
+- Add `https://<your-firebase-site>.firebaseapp.com`
+- Add `https://www.bvfgermany.com`
 
 ## 5. Environment Variables
 
