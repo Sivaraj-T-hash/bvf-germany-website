@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CalendarDays, Clock3, MessageCircle, PlayCircle, Send, Users } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { CalendarDays, Clock3, PlayCircle, Send, Users } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +16,7 @@ import { getStudentProfile } from '@/lib/studentStore';
 import { getWebinarCatalog, type WebinarCatalogItem } from '@/lib/webinarCatalogStore';
 import { notifyAdminUsers, createStudentNotification } from '@/lib/notificationStore';
 import { sendSubmissionEmails } from '@/lib/submissionEmailApi';
+import { buildWhatsappHref } from '@/lib/whatsapp';
 
 const spring = { type: 'spring' as const, stiffness: 280, damping: 28 };
 
@@ -82,6 +83,7 @@ type WebinarForm = z.infer<typeof webinarSchema>;
 export default function WebinarsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   useSeo({
     title: 'Webinars | BVF Germany',
     description: 'Register for BVF Germany webinars and watch replay sessions on admissions, visas, and student life in Germany.',
@@ -119,13 +121,15 @@ export default function WebinarsPage() {
       setTestimonials(nextTestimonials.filter((item) => item.published).slice(0, 3));
       const liveCatalog = catalog.filter((item) => item.status === 'upcoming' || item.status === 'live');
       setWebinarCatalog(liveCatalog);
-      setSelectedWebinarId((prev) => prev || liveCatalog[0]?.id || '');
+      const requestedWebinarId = searchParams.get('webinarId') || '';
+      const requestedExists = requestedWebinarId && liveCatalog.some((item) => item.id === requestedWebinarId);
+      setSelectedWebinarId((prev) => prev || (requestedExists ? requestedWebinarId : liveCatalog[0]?.id || ''));
     };
     void load();
     return () => {
       active = false;
     };
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -140,9 +144,14 @@ export default function WebinarsPage() {
     void hydrateForm();
   }, [setValue, user]);
 
-  const whatsappHref = `https://wa.me/${settings?.whatsappNumber || '919999999999'}?text=${encodeURIComponent(
-    'Hi BVF Germany, I want to register for the upcoming webinar.',
-  )}`;
+  useEffect(() => {
+    const requestedWebinarId = searchParams.get('webinarId') || '';
+    if (!requestedWebinarId) return;
+    if (!webinarCatalog.some((item) => item.id === requestedWebinarId)) return;
+    setSelectedWebinarId(requestedWebinarId);
+  }, [searchParams, webinarCatalog]);
+
+  const whatsappHref = buildWhatsappHref(settings);
 
   const countdownText = useMemo(() => {
     const target = webinarCatalog[0]?.scheduleAt
@@ -289,7 +298,7 @@ export default function WebinarsPage() {
                 </p>
                 <div className="mt-8 flex flex-wrap gap-4">
                   <a href="#register-webinar" className="button-primary">
-                    Register for Next Webinar
+                    Book Free Consultation Now
                   </a>
                   <a href="#past-sessions" className="button-secondary">
                     Watch Past Sessions
@@ -404,7 +413,7 @@ export default function WebinarsPage() {
                   <div>
                     <p className="section-kicker">Registration Form</p>
                     <h2 className="mt-3 font-heading text-3xl font-semibold text-foreground">
-                      {selectedCatalogItem?.accessType === 'paid' ? `Register & Pay INR ${selectedCatalogItem.priceValue}` : 'Register Now for Free'}
+                      {selectedCatalogItem?.accessType === 'paid' ? `Register & Pay INR ${selectedCatalogItem.priceValue}` : 'Get Free Evaluation'}
                     </h2>
                     <p className="mt-2 text-sm leading-7 text-muted-foreground">
                       Use the same email you plan to use with BVF so follow-ups, payment, and webinar links stay connected.
@@ -466,7 +475,7 @@ export default function WebinarsPage() {
                   </div>
 
                   <button type="submit" disabled={isSubmitting} className="button-primary w-full disabled:opacity-50">
-                    {isSubmitting ? 'Processing...' : selectedCatalogItem?.accessType === 'paid' ? 'Continue to Checkout' : 'Register Now (Free)'}
+                    {isSubmitting ? 'Processing...' : selectedCatalogItem?.accessType === 'paid' ? 'Continue to Checkout' : 'Get Free Evaluation'}
                   </button>
                   <p className={`text-xs ${submitError ? 'text-destructive' : 'text-muted-foreground'}`}>
                     {submitError || (selectedCatalogItem?.accessType === 'paid'
@@ -575,7 +584,7 @@ export default function WebinarsPage() {
               </div>
               <div className="flex flex-col gap-4 lg:items-start">
                 <a href="#register-webinar" className="button-primary">
-                  Register Now
+                  Book Free Consultation Now
                 </a>
                 <a href={whatsappHref} target="_blank" rel="noreferrer" className="button-secondary">
                   WhatsApp
