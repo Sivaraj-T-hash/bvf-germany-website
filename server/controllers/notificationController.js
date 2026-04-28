@@ -1,10 +1,23 @@
 import { auth, rtdb } from '../firebaseAdmin.js';
 import { sendAdminBroadcastEmails, sendFormSubmissionEmails } from '../services/mailService.js';
 
-const allowedTypes = new Set(['contact', 'booking', 'webinar']);
+const allowedTypes = new Set(['contact', 'booking', 'webinar', 'profile_evaluation']);
+const allowedLeadSources = new Set(['contact', 'pricing', 'tool']);
 
 function requireString(value) {
   return String(value || '').trim();
+}
+
+function sanitizeMetadata(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(value)
+      .map(([key, entry]) => [String(key).trim(), requireString(entry)])
+      .filter(([key, entry]) => key && entry),
+  );
 }
 
 function validatePayload(formType, payload) {
@@ -28,6 +41,10 @@ function validatePayload(formType, payload) {
     return 'Webinar title is required for webinar form.';
   }
 
+  if (formType === 'profile_evaluation' && (!payload.interestedProgram || !payload.currentEducation)) {
+    return 'Interested program and current education are required for profile evaluation.';
+  }
+
   return '';
 }
 
@@ -47,6 +64,9 @@ export async function sendSubmissionEmails(req, res) {
       qualification: requireString(req.body.qualification),
       intake: requireString(req.body.intake),
       planningYear: requireString(req.body.planningYear),
+      subject: requireString(req.body.subject),
+      interestedProgram: requireString(req.body.interestedProgram),
+      currentEducation: requireString(req.body.currentEducation),
     };
 
     const validationError = validatePayload(formType, payload);
@@ -60,6 +80,82 @@ export async function sendSubmissionEmails(req, res) {
   } catch (error) {
     console.error('sendSubmissionEmails failed:', error);
     return res.status(500).json({ success: false, message: 'Unable to send notification emails.' });
+  }
+}
+
+async function createLeadRecord(payload) {
+  const leadRef = rtdb.ref('leads').push();
+  const lead = {
+    id: leadRef.key || `lead_${Date.now()}`,
+    source: payload.source,
+    sourcePage: payload.sourcePage,
+    name: payload.name,
+    email: payload.email,
+    phone: payload.phone || '',
+    subject: payload.subject,
+    message: payload.message,
+    ownerType: 'public',
+    userId: null,
+    studentEmail: payload.email,
+    metadata: payload.metadata,
+    status: 'new',
+    createdAt: new Date().toISOString(),
+  };
+
+  await leadRef.set(lead);
+  return lead;
+}
+
+export async function sendPublicLeadSubmission(req, res) {
+  try {
+    const website = requireString(req.body.website);
+    if (website) {
+      return res.status(400).json({ success: false, message: 'Invalid submission.' });
+    }
+
+    const formType = requireString(req.body.formType);
+    const source = requireString(req.body.source) || 'contact';
+    if (!allowedLeadSources.has(source)) {
+      return res.status(400).json({ success: false, message: 'Invalid lead source.' });
+    }
+
+    const payload = {
+      source,
+      sourcePage: requireString(req.body.sourcePage) || '/',
+      name: requireString(req.body.name),
+      email: requireString(req.body.email).toLowerCase(),
+      phone: requireString(req.body.phone),
+      subject: requireString(req.body.subject),
+      message: requireString(req.body.message),
+      interestedProgram: requireString(req.body.interestedProgram),
+      currentEducation: requireString(req.body.currentEducation),
+      metadata: sanitizeMetadata(req.body.metadata),
+    };
+
+    const validationError = validatePayload(formType, payload);
+    if (validationError) {
+      return res.status(400).json({ success: false, message: validationError });
+    }
+
+    const lead = await createLeadRecord(payload);
+
+    let emailSent = true;
+    try {
+      await sendFormSubmissionEmails(formType, payload);
+    } catch (error) {
+      emailSent = false;
+      console.error('sendPublicLeadSubmission email failed:', error);
+    }
+
+    return res.json({
+      success: true,
+      message: emailSent ? 'Lead submitted successfully.' : 'Lead saved successfully, but email delivery failed.',
+      emailSent,
+      leadId: lead.id,
+    });
+  } catch (error) {
+    console.error('sendPublicLeadSubmission failed:', error);
+    return res.status(500).json({ success: false, message: 'Unable to save lead submission.' });
   }
 }
 
