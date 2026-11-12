@@ -15,37 +15,43 @@ const dropdowns = [
     matchPrefixes: ['/study-in-germany', '/about-germany'],
     items: [
       { label: "Bachelor's", to: '/study-in-germany/bachelor' },
+      { label: "Master's (MS)", to: '/study-in-germany/ms' },
       { label: "Master's Engineering", to: '/study-in-germany/engineering' },
       { label: "Master's Business", to: '/study-in-germany/mba' },
       { label: 'Ausbildung', to: '/study-in-germany/ausbildung' },
+      { label: 'dMAT Exam (Master’s applicants)', to: '/dmat' },
     ],
   },
   {
     label: 'Services',
     to: '/services',
-    matchPrefixes: ['/services'],
+    matchPrefixes: ['/services', '/german-language', '/dmat'],
     panelClassName: 'w-80',
     items: [
       { label: 'University Shortlisting', to: '/services/university-shortlist' },
+      { label: 'SOP & LOR Writing', to: '/services/sop-lor-writing' },
+      { label: 'CV Writing', to: '/services/cv-writing' },
       { label: 'APS Support', to: '/services/aps-application' },
-      { label: 'IELTS Prep', to: '/services/ielts-preparation' },
-      { label: 'GRE Prep', to: '/services/gre-preparation' },
-      { label: 'German Language', to: '/services/germany-language' },
+      { label: 'IELTS Prep (add-on)', to: '/services/ielts-preparation' },
+      { label: 'GRE Prep (add-on)', to: '/services/gre-preparation' },
+      { label: 'GMAT Prep (add-on)', to: '/services/gmat-preparation' },
+      { label: 'German Classes (add-on)', to: '/german-language' },
+      { label: 'University Application', to: '/services/university-application' },
       { label: 'Study Loan', to: '/services/study-loan' },
       { label: 'Blocked Account', to: '/services/blocked-account' },
       { label: 'Health Insurance', to: '/services/health-insurance' },
-      { label: 'Univ App Support', to: '/services/university-application' },
       { label: 'Visa Guidance', to: '/services/visa-guidance' },
+      { label: 'Accommodation (add-on)', to: '/services/accommodation-help' },
       { label: 'On Arrival', to: '/services/on-arrival-support' },
-      { label: 'Accommodation', to: '/services/accommodation-help' },
-      { label: 'SOP & LOR', to: '/services/sop-lor-writing' },
-      { label: 'CV Writing', to: '/services/cv-writing' },
+      { label: 'dMAT Exam Guidance', to: '/dmat' },
     ],
   },
 ];
 
 const navLinks = [
   { label: 'About', to: '/about' },
+  { label: 'Pricing', to: '/pricing' },
+  { label: 'Success Stories', to: '/success-stories' },
   { label: 'Tools', to: '/tools' },
   { label: 'Resources', to: '/resources' },
   { label: 'Webinars', to: '/webinars' },
@@ -146,7 +152,7 @@ export default function Navbar() {
           </div>
         </Link>
 
-        <nav aria-label="Primary" className="hidden min-w-0 flex-1 items-center justify-end gap-4 md:flex">
+        <nav aria-label="Primary" className="hidden min-w-0 flex-1 items-center justify-end gap-4 xl:flex">
           <div className="flex min-w-0 flex-1 items-center justify-end gap-1">
             <Link to="/" className={`${linkClass(location.pathname === '/')} font-home-body text-[12px] font-bold normal-case tracking-normal`}>
               Home
@@ -172,7 +178,7 @@ export default function Navbar() {
                   </button>
                 </div>
                 <div
-                  className={`absolute left-0 top-full mt-3 ${dropdown.panelClassName ?? 'w-72'} rounded-[24px] border border-white/70 bg-white/90 p-2 shadow-card backdrop-blur transition ${openDropdown === dropdown.label ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+                  className={`absolute left-0 top-full mt-3 ${dropdown.panelClassName ?? 'w-72'} max-h-[70vh] overflow-y-auto rounded-[24px] border border-white/70 bg-white/90 p-2 shadow-card backdrop-blur transition ${openDropdown === dropdown.label ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
                     }`}
                   role="menu"
                 >
@@ -191,7 +197,11 @@ export default function Navbar() {
               </div>
             ))}
             {navLinks.map((link) => (
-              <Link key={link.to} to={link.to} className={`${linkClass(location.pathname === link.to)} font-home-body text-[12px] font-bold normal-case tracking-normal`}>
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`${linkClass(location.pathname === link.to)} font-home-body text-[12px] font-bold normal-case tracking-normal`}
+              >
                 {link.label}
               </Link>
             ))}
@@ -267,7 +277,7 @@ export default function Navbar() {
 
         <button
           type="button"
-          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/75 bg-white/80 text-foreground shadow-sm md:hidden"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/75 bg-white/80 text-foreground shadow-sm xl:hidden"
           onClick={() => setOpen(!open)}
           aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
           aria-expanded={open}
@@ -282,7 +292,7 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
-            className="container-narrow mt-3 md:hidden"
+            className="container-narrow mt-3 xl:hidden"
           >
             <div className="glass-panel overflow-hidden px-4 py-4">
               <nav aria-label="Mobile" className="flex max-h-[75vh] flex-col gap-2 overflow-y-auto">

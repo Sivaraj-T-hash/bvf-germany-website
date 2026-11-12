@@ -18,6 +18,8 @@ export interface LeadRecord {
   studentEmail: string;
   metadata: Record<string, string>;
   status: 'new' | 'contacted' | 'qualified' | 'closed';
+  /** When the visitor ticked the privacy consent box. */
+  consentAt?: string;
   createdAt: string;
 }
 
@@ -31,6 +33,7 @@ interface CreateLeadInput {
   message: string;
   userId?: string | null;
   metadata?: Record<string, string>;
+  consentAt?: string;
 }
 
 export async function createLeadRecord(input: CreateLeadInput): Promise<LeadRecord> {
@@ -49,6 +52,7 @@ export async function createLeadRecord(input: CreateLeadInput): Promise<LeadReco
     studentEmail: input.email,
     metadata: input.metadata || {},
     status: 'new',
+    ...(input.consentAt ? { consentAt: input.consentAt } : {}),
     createdAt: new Date().toISOString(),
   };
 

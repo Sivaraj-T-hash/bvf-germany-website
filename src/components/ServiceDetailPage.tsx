@@ -4,18 +4,21 @@ import { Link, useLocation } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
+import WhatsAppCta from '@/components/WhatsAppCta';
+import BrandVisual from '@/components/BrandVisual';
 import { useSeo } from '@/lib/useSeo';
 import { buildFaqStructuredData } from '@/lib/seo';
 
 type Feature = { title: string; text: string; link?: string; linkText?: string };
 type FaqItem = { q: string; a: string };
 type LogoSection = { title: string; logos: string[]; ctaLabel?: string; ctaTo?: string };
+/** Images must be genuine BVF photographs; leave them out to show the branded graphic. */
 type StoryBlock = { title: string; text: string; image?: string; align?: 'left' | 'right' };
 
 type ServiceDetailPageProps = {
   title: string;
   subtitle: string;
-  heroImage: string;
+  heroImage?: string;
   ctaLabel: string;
   ctaTo: string;
   introTitle?: string;
@@ -27,7 +30,7 @@ type ServiceDetailPageProps = {
   storyBlocks?: StoryBlock[];
   faqs?: FaqItem[];
   logoSection?: LogoSection;
-  banner?: { title: string; subtitle: string; image: string; ctaLabel: string; ctaTo: string };
+  banner?: { title: string; subtitle: string; image?: string; ctaLabel: string; ctaTo: string };
 };
 
 function ReadMore({ text, maxChars = 280 }: { text: string; maxChars?: number }) {
@@ -90,24 +93,29 @@ export default function ServiceDetailPage({
             <p className="text-xs uppercase tracking-[0.3em] text-secondary mb-4">Services</p>
             <h1 className="text-3xl md:text-5xl font-extrabold leading-tight">{title}</h1>
             <p className="mt-4 text-muted-foreground text-lg max-w-xl">{subtitle}</p>
-            <div className="mt-6">
+            <div className="mt-6 flex flex-wrap items-center gap-3">
               <Link
                 to={ctaTo}
                 className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-5 py-2.5 rounded-lg text-sm font-semibold hover:brightness-95 transition"
               >
                 {ctaLabel} <ArrowRight className="w-4 h-4" />
               </Link>
+              <WhatsAppCta variant="outline" label="Enquire on WhatsApp" message={`Hi BVF Germany, I would like to know more about: ${title}.`} />
             </div>
           </div>
           <div className="relative">
             <div className="absolute -left-6 -top-6 h-36 w-36 rounded-[45%_55%_65%_35%] bg-[#f2c94c]/35 blur-[1px]" />
             <div className="absolute -right-8 -bottom-8 h-52 w-52 rounded-[55%_45%_40%_60%] bg-[#f2c94c]/25 blur-[1px]" />
-            <img
-              src={heroImage}
-              alt=""
-              className="relative w-full h-[300px] object-cover rounded-[28px] border border-border shadow-lg"
-              loading="lazy"
-            />
+            {heroImage ? (
+              <img
+                src={heroImage}
+                alt=""
+                className="relative w-full h-[300px] object-cover rounded-[28px] border border-border shadow-lg"
+                loading="lazy"
+              />
+            ) : (
+              <BrandVisual title={title} kicker="BVF Germany Services" className="relative h-[300px] w-full rounded-[28px] border border-border shadow-lg" />
+            )}
           </div>
         </div>
       </section>
@@ -185,31 +193,36 @@ export default function ServiceDetailPage({
       {storyBlocks && storyBlocks.length > 0 && (
         <section className="py-10">
           <div className="container-narrow px-4 md:px-8 space-y-12">
-            {storyBlocks.map((block, index) => (
-              <div
-                key={block.title}
-                className={`grid grid-cols-1 lg:grid-cols-2 gap-10 items-center ${
-                  block.align === 'right' || index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
-                }`}
-              >
-                <div className={block.align === 'right' || index % 2 === 1 ? 'lg:col-start-2' : ''}>
-                  <h3 className="text-2xl font-bold text-secondary">{block.title}</h3>
-                  <div className="mt-4">
-                    <ReadMore text={block.text} maxChars={320} />
+            {storyBlocks.map((block, index) =>
+              block.image ? (
+                <div
+                  key={block.title}
+                  className={`grid grid-cols-1 lg:grid-cols-2 gap-10 items-center ${
+                    block.align === 'right' || index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
+                  }`}
+                >
+                  <div className={block.align === 'right' || index % 2 === 1 ? 'lg:col-start-2' : ''}>
+                    <h3 className="text-2xl font-bold text-secondary">{block.title}</h3>
+                    <div className="mt-4">
+                      <ReadMore text={block.text} maxChars={320} />
+                    </div>
+                  </div>
+                  <div className={block.align === 'right' || index % 2 === 1 ? 'lg:col-start-1' : ''}>
+                    <img src={block.image} alt="" className="w-full h-[280px] object-cover rounded-2xl border border-border shadow-md" loading="lazy" />
                   </div>
                 </div>
-                {block.image && (
-                  <div className={block.align === 'right' || index % 2 === 1 ? 'lg:col-start-1' : ''}>
-                    <img
-                      src={block.image}
-                      alt=""
-                      className="w-full h-[280px] object-cover rounded-2xl border border-border shadow-md"
-                      loading="lazy"
-                    />
+              ) : (
+                <div key={block.title} className="grid grid-cols-1 gap-6 rounded-3xl border border-border bg-card p-6 shadow-sm md:grid-cols-[72px_1fr] md:p-8">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#132033] font-numeric text-xl text-[#facc15]">
+                    {String(index + 1).padStart(2, '0')}
                   </div>
-                )}
-              </div>
-            ))}
+                  <div>
+                    <h3 className="text-2xl font-bold text-secondary">{block.title}</h3>
+                    <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{block.text}</p>
+                  </div>
+                </div>
+              ),
+            )}
           </div>
         </section>
       )}
@@ -240,15 +253,12 @@ export default function ServiceDetailPage({
 
       {banner && (
         <section className="py-12">
-          <div className="container-narrow px-4 md:px-8 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center bg-[linear-gradient(120deg,#fff8e1,#fff1b8)] rounded-3xl p-8">
-            <div>
-              <img
-                src={banner.image}
-                alt=""
-                className="w-full h-[220px] object-cover rounded-2xl border border-border shadow-md"
-                loading="lazy"
-              />
-            </div>
+          <div className={`container-narrow px-4 md:px-8 grid grid-cols-1 gap-10 items-center bg-[linear-gradient(120deg,#fff8e1,#fff1b8)] rounded-3xl p-8 ${banner.image ? 'lg:grid-cols-2' : ''}`}>
+            {banner.image ? (
+              <div>
+                <img src={banner.image} alt="" className="w-full h-[220px] object-cover rounded-2xl border border-border shadow-md" loading="lazy" />
+              </div>
+            ) : null}
             <div>
               <h3 className="text-2xl md:text-3xl font-extrabold text-foreground">{banner.title}</h3>
               <p className="mt-3 text-muted-foreground">{banner.subtitle}</p>

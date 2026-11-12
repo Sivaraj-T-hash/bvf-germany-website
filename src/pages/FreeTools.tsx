@@ -19,7 +19,11 @@ import Footer from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
 import { hasNewUserReviewAccess } from '@/lib/authSession';
 import { DEFAULT_OG_IMAGE_PATH, SITE_NAME, SITE_URL, type StructuredData } from '@/lib/seo';
-import { getSiteSettings, type SiteSettings } from '@/lib/siteContentStore';
+import { useSiteSettings } from '@/hooks/use-site-settings';
+import ConsentCheckbox from '@/components/ConsentCheckbox';
+import { useFormGuard } from '@/lib/formGuard';
+import { sendSubmissionEmails } from '@/lib/submissionEmailApi';
+import { whatsappLink } from '@/lib/contact';
 import { useSeo } from '@/lib/useSeo';
 import { createLeadRecord } from '@/lib/leadStore';
 import { buildWhatsappHref } from '@/lib/whatsapp';
@@ -28,6 +32,7 @@ const spring = { type: 'spring' as const, stiffness: 280, damping: 28 };
 
 const leadSchema = z.object({
   email: z.string().trim().email('Enter a valid email'),
+  consent: z.boolean().refine((value) => value, 'Please agree so we can send you the evaluation.'),
   website: z.string().optional(),
 });
 
@@ -116,6 +121,8 @@ const countryRules: Record<string, CountryRule> = {
   },
 };
 
+const NEXT_YEAR = new Date().getFullYear() + 1;
+const intakeOptions = [NEXT_YEAR, NEXT_YEAR + 1].flatMap((year) => ['Spring', 'Summer', 'Fall', 'Winter'].map((season) => `${season} ${year}`));
 const wizardSteps = ['Profile and destination', 'IELTS score input', 'Tuition and funding', 'Bank and sponsor details', 'Eligibility result and action plan'];
 const fundingSources = ['Self-funding', 'Parent sponsorship', 'Guardian sponsorship', 'Third-party sponsor', 'Education loan'];
 const accountOwners = ['Self', 'Parent', 'Guardian', 'Sponsor', 'Joint'];
@@ -676,14 +683,15 @@ export default function FreeToolsPage() {
   });
 
   const { user } = useAuth();
-  const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const settings = useSiteSettings();
+  const guard = useFormGuard('tool');
   const [cgpa, setCgpa] = useState('8.2');
   const [maxCgpa, setMaxCgpa] = useState('10');
   const [step, setStep] = useState(1);
   const [country, setCountry] = useState('germany');
   const [visaType, setVisaType] = useState('Student Visa');
   const [courseLevel, setCourseLevel] = useState("Master's");
-  const [intake, setIntake] = useState('Fall 2026');
+  const [intake, setIntake] = useState(`Fall ${NEXT_YEAR}`);
   const [listening, setListening] = useState('6.5');
   const [reading, setReading] = useState('6.0');
   const [writing, setWriting] = useState('6.0');
@@ -705,23 +713,11 @@ export default function FreeToolsPage() {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<LeadForm>({ resolver: zodResolver(leadSchema) });
+  } = useForm<LeadForm>({ resolver: zodResolver(leadSchema), defaultValues: { consent: false } });
 
   const canViewReviewResult = Boolean(user) && hasNewUserReviewAccess();
   const maxAssessmentStep = canViewReviewResult ? 5 : 4;
   const visibleWizardSteps = canViewReviewResult ? wizardSteps : wizardSteps.slice(0, 4);
-
-  useEffect(() => {
-    let active = true;
-    const load = async () => {
-      const siteSettings = await getSiteSettings();
-      if (active) setSettings(siteSettings);
-    };
-    void load();
-    return () => {
-      active = false;
-    };
-  }, []);
 
   useEffect(() => {
     if (step > maxAssessmentStep) {
@@ -855,12 +851,13 @@ export default function FreeToolsPage() {
 
   const whatsappHref = buildWhatsappHref(settings);
 
-  const onSubmit = async (data: LeadForm & { website?: string }) => {
+  const onSubmit = async (data: LeadForm) => {
+    const guardError = guard.check(data.website);
+    if (guardError) {
+      setSubmitError(guardError);
+      return;
+    }
     try {
-      if (data.website) {
-        setSubmitError('Submission failed. Please try again.');
-        return;
-      }
       await createLeadRecord({
         source: 'tool',
         sourcePage: location.pathname,
@@ -870,10 +867,17 @@ export default function FreeToolsPage() {
         subject: 'Free profile evaluation request',
         message: 'Requested FREE Profile Evaluation Report from Tools page.',
         metadata: { toolsUsed: 'cgpa-converter,ielts-bank-checker' },
+        consentAt: new Date().toISOString(),
       });
+      try {
+        await sendSubmissionEmails({ formType: 'tool', name: 'Tools page visitor', email: data.email, source: location.pathname });
+      } catch (mailError) {
+        console.warn('Tool lead email notifications skipped', mailError);
+      }
+      guard.markSubmitted();
       setSubmitted(true);
       setSubmitError('');
-      reset();
+      reset({ email: '', consent: false });
       setTimeout(() => setSubmitted(false), 5000);
     } catch (error) {
       console.error('Failed to save tool lead:', error);
@@ -1035,12 +1039,13 @@ export default function FreeToolsPage() {
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <input type="text" tabIndex={-1} autoComplete="off" className="hidden" {...register('website')} />
+                    <input type="text" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" {...register('website')} />
                     <div>
                       <label htmlFor="tool-email" className="mb-1.5 block text-sm font-semibold text-white">Email</label>
                       <input id="tool-email" type="email" className="input-premium bg-white/95" placeholder="name@example.com" {...register('email')} />
                       {errors.email ? <p className="mt-1 text-xs text-red-200">{errors.email.message}</p> : null}
                     </div>
+                    <ConsentCheckbox id="tool-consent" tone="dark" error={errors.consent?.message} {...register('consent')} />
                     <button type="submit" disabled={isSubmitting} className="button-primary w-full disabled:opacity-50">{isSubmitting ? 'Sending...' : 'Get Free Profile Evaluation'}</button>
                     <p className={`text-xs ${submitError ? 'text-red-200' : 'text-white/70'}`}>{submitError || 'This is a guided support tool, not a guaranteed admission or visa decision.'}</p>
                   </form>
@@ -1075,7 +1080,7 @@ export default function FreeToolsPage() {
               <p className="mt-4 text-sm leading-7 text-white/76">Once you know whether the issue is IELTS, funds, or documents, the next step is a proper counselor review.</p>
               <div className="mt-6 flex flex-col gap-3">
                 <Link to="/bookings" className="button-primary">Book Free Consultation</Link>
-                <a href={whatsappHref} target="_blank" rel="noreferrer" className="button-secondary">Chat on WhatsApp</a>
+                {whatsappHref ? (<a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="button-secondary">Chat on WhatsApp</a>) : null}
               </div>
             </div>
           </div>

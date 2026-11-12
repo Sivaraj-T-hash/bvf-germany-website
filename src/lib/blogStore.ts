@@ -1,7 +1,6 @@
 import { db } from '@/lib/firebase';
 import { get, onValue, ref, remove, set } from 'firebase/database';
 import { DB_PATHS } from '@/lib/dbPaths';
-import germanyLandmark from '@/assets/germany-landmark.jpg';
 
 export interface BlogPost {
   id: string;
@@ -34,10 +33,10 @@ const defaultPosts: BlogPost[] = [
     category: 'Admissions',
     tags: ['Germany admissions', 'Public universities', 'Indian students'],
     keywords: ['study in germany for indian students', 'free education in germany', 'public universities germany'],
-    featuredImage: germanyLandmark,
+    featuredImage: '',
     authorName: 'Bratlin',
     authorRole: 'Founder, BVF Germany',
-    authorImage: '/src/assets/founder.jpg',
+    authorImage: '',
     authorBio: 'Bratlin helps Indian students navigate the public-university path to Germany with practical, profile-based guidance.',
     readTime: '8 min read',
     popularity: 95,
@@ -61,8 +60,6 @@ Germany attracts students because the combination is unusually strong: respected
 - Many master programs are taught in English
 - Students can work part-time while studying
 - Graduates can stay back to search for jobs
-
-![Students on a German university campus](https://images.unsplash.com/photo-1467269204594-9661b134dd2b?q=80&w=1400&auto=format&fit=crop)
 
 ## Eligibility Criteria
 
@@ -109,7 +106,7 @@ Public universities are usually tuition-free, but students still need to plan fo
 - Tuition: EUR0 at most public universities
 - Semester fee: EUR150-EUR350
 - Living costs: EUR850-EUR1,200 per month
-- Blocked account: roughly EUR11,208 per year
+- Blocked account: €11,904 per year (€992 a month, rules as of 2026)
 
 ## Final Advice
 
@@ -125,10 +122,10 @@ Germany is one of the best options for students who want affordability and quali
     category: 'Visa',
     tags: ['APS', 'Germany visa', 'Documents'],
     keywords: ['aps certificate germany', 'germany student visa process', 'aps for indian students'],
-    featuredImage: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=1400&auto=format&fit=crop',
+    featuredImage: '',
     authorName: 'Bratlin',
     authorRole: 'Founder, BVF Germany',
-    authorImage: '/src/assets/founder.jpg',
+    authorImage: '',
     authorBio: 'Bratlin works closely with students on APS, applications, and visa planning for Germany.',
     readTime: '7 min read',
     popularity: 90,
@@ -160,8 +157,6 @@ IMPORTANT: Delaying APS can delay your intake, even when everything else is read
 - CV or resume
 - Payment proof
 
-![Academic paperwork for admissions](https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1400&auto=format&fit=crop)
-
 ## Common APS Mistakes
 
 Students often face trouble because documents are inconsistent, the timeline is underestimated, or the rest of the application plan is built without APS reality in mind.
@@ -186,10 +181,10 @@ APS is not just another formality. It is a timing-sensitive step that should be 
     category: 'SOP & IELTS',
     tags: ['IELTS', 'English requirements', 'Germany applications'],
     keywords: ['ielts requirement for germany', 'germany english programs', 'ielts score germany universities'],
-    featuredImage: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1400&auto=format&fit=crop',
+    featuredImage: '',
     authorName: 'Bratlin',
     authorRole: 'Founder, BVF Germany',
-    authorImage: '/src/assets/founder.jpg',
+    authorImage: '',
     authorBio: 'Bratlin guides students on IELTS planning and how language scores shape admissions strategy.',
     readTime: '6 min read',
     popularity: 76,
@@ -239,10 +234,10 @@ Do not guess. Match your target universities against your current score and deci
     category: 'Universities',
     tags: ['Public universities', 'Rankings', 'Germany colleges'],
     keywords: ['top public universities in germany', 'best german universities for indian students'],
-    featuredImage: 'https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=1400&auto=format&fit=crop',
+    featuredImage: '',
     authorName: 'Bratlin',
     authorRole: 'Founder, BVF Germany',
-    authorImage: '/src/assets/founder.jpg',
+    authorImage: '',
     authorBio: 'Bratlin helps students shortlist universities based on profile fit, not just rankings.',
     readTime: '7 min read',
     popularity: 82,
@@ -267,8 +262,6 @@ Popular for technical depth and strong industry connection.
 ### Heidelberg University
 
 Highly respected for research and broad academic strength.
-
-![German university architecture](https://images.unsplash.com/photo-1519452575417-564c1401ecc0?q=80&w=1400&auto=format&fit=crop)
 
 ## How To Choose Properly
 
@@ -297,10 +290,10 @@ Public universities should be chosen with strategy, not just reputation.`,
     category: 'Student Life',
     tags: ['Student life', 'Living in Germany', 'Budget'],
     keywords: ['student life in germany', 'living in germany for indian students'],
-    featuredImage: 'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?q=80&w=1400&auto=format&fit=crop',
+    featuredImage: '',
     authorName: 'Bratlin',
     authorRole: 'Founder, BVF Germany',
-    authorImage: '/src/assets/founder.jpg',
+    authorImage: '',
     authorBio: 'Bratlin regularly mentors students on the shift from admissions into actual life in Germany.',
     readTime: '6 min read',
     popularity: 68,
@@ -345,10 +338,10 @@ Students who prepare for lifestyle changes early tend to settle faster and feel 
     category: 'Accommodation',
     tags: ['Accommodation', 'Housing', 'Scam awareness'],
     keywords: ['accommodation in germany for students', 'student housing germany', 'germany rental scams'],
-    featuredImage: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1400&auto=format&fit=crop',
+    featuredImage: '',
     authorName: 'Bratlin',
     authorRole: 'Founder, BVF Germany',
-    authorImage: '/src/assets/founder.jpg',
+    authorImage: '',
     authorBio: 'Bratlin helps students plan housing with less panic and better risk-awareness before arrival.',
     readTime: '5 min read',
     popularity: 71,
@@ -382,8 +375,6 @@ IMPORTANT: Never rush into payments without verifying the listing and contract p
 - Check whether the listing looks too good for the city and price
 - Ask for proper documentation and verification
 
-![Apartment search and housing planning](https://images.unsplash.com/photo-1484154218962-a197022b5858?q=80&w=1400&auto=format&fit=crop)
-
 ## Better Housing Strategy
 
 Students make better decisions when housing is planned alongside visa timing, city budget, and arrival date.
@@ -410,7 +401,7 @@ const normalizeBlogPost = (post: Partial<BlogPost> & Pick<BlogPost, 'id' | 'titl
   featuredImage: post.featuredImage || '',
   authorName: post.authorName || 'Bratlin',
   authorRole: post.authorRole || 'Founder, BVF Germany',
-  authorImage: post.authorImage || '/src/assets/founder.jpg',
+  authorImage: post.authorImage || '',
   authorBio:
     post.authorBio ||
     'Bratlin shares practical guidance for Indian students planning public-university admissions in Germany.',

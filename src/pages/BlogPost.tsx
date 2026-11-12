@@ -8,26 +8,56 @@ import ScrollReveal from '@/components/ScrollReveal';
 import { BlogPost, getBlogPosts } from '@/lib/blogStore';
 import { useSeo } from '@/lib/useSeo';
 
+/** Renders **bold** and [links](url) inside a line without injecting HTML. */
+function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
+  const nodes: React.ReactNode[] = [];
+  const pattern = /\*\*(.+?)\*\*|\[([^\]]+)\]\(([^)\s]+)\)/g;
+  let last = 0;
+  let match: RegExpExecArray | null;
+  let index = 0;
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > last) nodes.push(text.slice(last, match.index));
+    const key = `${keyPrefix}-${index++}`;
+    if (match[1] !== undefined) {
+      nodes.push(<strong key={key} className="font-semibold text-foreground">{match[1]}</strong>);
+    } else {
+      const [label, href] = [match[2], match[3]];
+      nodes.push(
+        href.startsWith('/') ? (
+          <Link key={key} to={href} className="font-semibold text-primary underline underline-offset-2">{label}</Link>
+        ) : /^https?:\/\//.test(href) ? (
+          <a key={key} href={href} target="_blank" rel="noopener noreferrer" className="font-semibold text-primary underline underline-offset-2">{label}</a>
+        ) : (
+          label
+        ),
+      );
+    }
+    last = pattern.lastIndex;
+  }
+  if (last < text.length) nodes.push(text.slice(last));
+  return nodes;
+}
+
 function renderMarkdown(md: string) {
-  // Simple markdown renderer
   const lines = md.split('\n');
   const elements: React.ReactNode[] = [];
 
   lines.forEach((line, i) => {
-    if (line.startsWith('### ')) {
-      elements.push(<h3 key={i} className="text-xl font-bold text-foreground mt-6 mb-3">{line.slice(4)}</h3>);
+    const image = /^!\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)\s*$/.exec(line.trim());
+    if (image) {
+      elements.push(<img key={i} src={image[2]} alt={image[1]} className="my-6 w-full rounded-xl object-cover" loading="lazy" />);
+    } else if (line.startsWith('### ')) {
+      elements.push(<h3 key={i} className="text-xl font-bold text-foreground mt-6 mb-3">{renderInline(line.slice(4), `h3-${i}`)}</h3>);
     } else if (line.startsWith('## ')) {
-      elements.push(<h2 key={i} className="text-2xl font-bold text-foreground mt-8 mb-4">{line.slice(3)}</h2>);
+      elements.push(<h2 key={i} className="text-2xl font-bold text-foreground mt-8 mb-4">{renderInline(line.slice(3), `h2-${i}`)}</h2>);
     } else if (line.startsWith('# ')) {
-      elements.push(<h1 key={i} className="text-3xl font-extrabold text-foreground mt-8 mb-4">{line.slice(2)}</h1>);
+      elements.push(<h2 key={i} className="text-3xl font-extrabold text-foreground mt-8 mb-4">{renderInline(line.slice(2), `h1-${i}`)}</h2>);
     } else if (line.startsWith('- ')) {
-      elements.push(<li key={i} className="text-muted-foreground ml-4 mb-1">• {line.slice(2)}</li>);
+      elements.push(<li key={i} className="text-muted-foreground ml-4 mb-1 list-none">• {renderInline(line.slice(2), `li-${i}`)}</li>);
     } else if (line.trim() === '') {
       elements.push(<br key={i} />);
     } else {
-      // Handle bold
-      const formatted = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      elements.push(<p key={i} className="text-muted-foreground leading-relaxed mb-2" dangerouslySetInnerHTML={{ __html: formatted }} />);
+      elements.push(<p key={i} className="text-muted-foreground leading-relaxed mb-2">{renderInline(line, `p-${i}`)}</p>);
     }
   });
 

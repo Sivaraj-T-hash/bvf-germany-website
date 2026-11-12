@@ -6,7 +6,6 @@ export default function MsGermanyPage() {
       title="MS in Germany"
       subtitle="Germany is especially attractive for master's students who want research depth, strong technical ecosystems, and more English-taught options than at the bachelor's level. The key decision is whether your earlier degree, language route, and career goal line up with a realistic master's shortlist."
       heroBadge="Master's pathway"
-      heroImage="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1600&auto=format&fit=crop"
       heroHighlights={['More English options', 'Strong research links', 'Academic fit matters most']}
       primaryCta={{
         label: 'Check eligibility',

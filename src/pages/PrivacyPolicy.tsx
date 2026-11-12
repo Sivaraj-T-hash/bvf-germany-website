@@ -1,102 +1,110 @@
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import WhatsAppFloat from '@/components/WhatsAppFloat';
 import { useSeo } from '@/lib/useSeo';
+import { useSiteSettings } from '@/hooks/use-site-settings';
+import { emailLink } from '@/lib/contact';
+import { businessInfo } from '@/config/business';
 
-const sections = [
-  {
-    title: 'Information We Collect',
-    points: [
-      'Contact details such as name, email address, phone number, and WhatsApp number when you fill forms or request guidance.',
-      'Academic and application details you choose to share for university shortlisting, APS, visa, SOP, CV, or related services.',
-      'Basic usage information collected through analytics and site tools to improve the website experience.',
-    ],
-  },
-  {
-    title: 'How We Use Information',
-    points: [
-      'To respond to your enquiries and guide you on study options in Germany.',
-      'To deliver services such as shortlisting, document support, language guidance, visa help, and on-arrival support.',
-      'To improve our website, tools, and communication quality.',
-    ],
-  },
-  {
-    title: 'Data Sharing',
-    points: [
-      'We do not sell personal information.',
-      'Information may be shared only with service providers, technology platforms, or official process partners where needed to deliver the requested service.',
-      'We may disclose information where required by law or to protect our legal rights.',
-    ],
-  },
-  {
-    title: 'Your Choices',
-    points: [
-      'You may request updates or correction of the information you have shared with us.',
-      'You may contact BVF Germany to ask about deletion of data that is no longer needed for service delivery or compliance.',
-      'You may opt out of promotional communication at any time.',
-    ],
-  },
-];
+// Describes the data flows that exist in this codebase. Have it reviewed before launch and keep it in
+// step with the site: update it whenever a new form, tool or service provider is added.
+const LAST_UPDATED = '11 November 2026';
 
 export default function PrivacyPolicyPage() {
   useSeo({
     title: 'Privacy Policy | BVF Germany',
-    description: 'Read the BVF Germany privacy policy for details on how student data, enquiries, and website information are handled.',
-    url: '/privacy-policy',
+    description: 'How BVF Germany collects, uses and protects your personal information.',
   });
+  const settings = useSiteSettings();
+  const operator = businessInfo.legalName || 'BVF Germany';
+  const mailHref = emailLink(settings.contactEmail);
 
   return (
-    <div className="site-shell home-showcase">
+    <div className="site-shell">
       <Navbar />
+      <main className="px-4 pb-20 pt-28 md:px-8">
+        <article className="container-narrow max-w-3xl space-y-8 text-sm leading-7 text-muted-foreground md:text-base">
+          <header>
+            <p className="section-kicker">Legal</p>
+            <h1 className="mt-3 text-4xl font-extrabold text-foreground">Privacy Policy</h1>
+            <p className="mt-3">Last updated: {LAST_UPDATED}</p>
+          </header>
 
-      <main>
-        <section className="page-hero">
-          <div className="page-hero-inner">
-            <div className="poster-grid items-end">
-              <div className="col-span-12 lg:col-span-7">
-                <p className="eyebrow-chip">Legal</p>
-                <h1 className="hero-display mt-7">Privacy Policy</h1>
-                <p className="hero-copy max-w-3xl">
-                  This page explains how BVF Germany collects, uses, and protects the information students share through the website and related guidance services.
-                </p>
-              </div>
-              <div className="col-span-12 lg:col-span-5">
-                <div className="surface-panel p-6">
-                  <p className="section-kicker">Quick Note</p>
-                  <p className="mt-4 text-sm leading-7 text-muted-foreground">
-                    If you have questions about your data or want a record updated, contact us through the main contact page or WhatsApp support.
-                  </p>
-                  <Link to="/contact" className="button-primary mt-6">
-                    Contact BVF Germany
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+          <section>
+            <h2 className="text-xl font-semibold text-foreground">Who we are</h2>
+            <p className="mt-2">
+              This website is operated by {operator}. We help Indian students plan their studies in Germany.
+              {settings.address ? ` Our address is ${settings.address}.` : ''}
+            </p>
+            {mailHref ? (
+              <p className="mt-2">
+                For any privacy question or request, email us at <a href={mailHref} className="font-semibold text-foreground underline">{settings.contactEmail}</a>.
+              </p>
+            ) : (
+              <p className="mt-2">
+                For any privacy question or request, <Link to="/contact" className="font-semibold text-foreground underline">contact us</Link>.
+              </p>
+            )}
+          </section>
 
-        <section className="px-4 pb-20 md:px-8 md:pb-24">
-          <div className="container-narrow space-y-6">
-            {sections.map((section) => (
-              <article key={section.title} className="surface-panel p-8">
-                <h2 className="text-2xl font-semibold text-foreground">{section.title}</h2>
-                <div className="mt-5 space-y-3">
-                  {section.points.map((point) => (
-                    <div key={point} className="flex items-start gap-3 rounded-[22px] border border-border/70 bg-background/70 px-4 py-4">
-                      <span className="mt-2 h-2 w-2 rounded-full bg-primary" />
-                      <p className="text-sm leading-7 text-foreground">{point}</p>
-                    </div>
-                  ))}
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
+          <section>
+            <h2 className="text-xl font-semibold text-foreground">What we collect</h2>
+            <ul className="mt-2 list-disc space-y-2 pl-5">
+              <li><span className="font-semibold text-foreground">Enquiries and bookings:</span> your name, email address, phone number and message, and for consultations your preferred date and time. Webinar registrations also include your qualification, target intake and planning year.</li>
+              <li><span className="font-semibold text-foreground">Student accounts:</span> your name, email, phone, university preference, an optional profile photo link, links to documents you submit, your service progress, notes from our team, bookings, webinar registrations and orders. Passwords are handled by Google Firebase Authentication; we never see them.</li>
+              <li><span className="font-semibold text-foreground">Orders:</span> the item you order, its price, and the details needed to confirm your payment.</li>
+              <li><span className="font-semibold text-foreground">Free tools:</span> the CGPA and IELTS calculators run in your browser and their inputs are not stored. If you request a free profile evaluation, we store the email address you enter.</li>
+              <li><span className="font-semibold text-foreground">Browser storage:</span> we keep your sign-in session and a few settings (such as “remember me” and form timing used for spam protection) in your browser.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-foreground">Why we use it</h2>
+            <ul className="mt-2 list-disc space-y-2 pl-5">
+              <li>To answer your enquiries and arrange consultations and webinars.</li>
+              <li>To provide the services you sign up for, and to manage your student account and dashboard.</li>
+              <li>To send service emails, such as confirmations, password reset codes, order updates and, for registered students, notices about new guides and webinars.</li>
+              <li>To protect the website against spam and misuse.</li>
+            </ul>
+            <p className="mt-2">We do not sell your personal information.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-foreground">Service providers</h2>
+            <p className="mt-2">We use these providers to run the website. They process data on our behalf:</p>
+            <ul className="mt-2 list-disc space-y-2 pl-5">
+              <li>Google Firebase: sign-in, database and website hosting.</li>
+              <li>Render: the server that sends our emails and handles password resets.</li>
+              <li>Our email delivery provider: sending confirmation and service emails.</li>
+              <li>Calendly: only if you book a consultation through the embedded calendar.</li>
+              <li>YouTube: only if you play an embedded video.</li>
+              <li>WhatsApp (Meta): only if you choose to contact us on WhatsApp.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-foreground">How long we keep it</h2>
+            <p className="mt-2">
+              We keep your information for as long as we need it to answer your enquiry, provide our services and meet our legal
+              obligations. You can ask us to delete it at any time.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-foreground">Your choices</h2>
+            <p className="mt-2">
+              You can ask us for a copy of your information, ask us to correct it, or ask us to delete it. Students can also update
+              their profile details in the dashboard. You can unsubscribe from announcement emails by contacting us.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-foreground">Changes</h2>
+            <p className="mt-2">We will update this page if the way we handle personal information changes, and show the date of the latest update above.</p>
+          </section>
+        </article>
       </main>
-
       <Footer />
-      <WhatsAppFloat />
     </div>
   );
 }

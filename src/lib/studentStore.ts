@@ -202,16 +202,24 @@ export function subscribeToStudents(callback: (students: StudentProfile[]) => vo
   return () => unsubscribe();
 }
 
-export function subscribeToStudentProfile(uid: string, callback: (student: StudentProfile | null) => void): () => void {
+export function subscribeToStudentProfile(
+  uid: string,
+  callback: (student: StudentProfile | null) => void,
+  onError?: (error: Error) => void,
+): () => void {
   const studentRef = dbRef(db, `${STUDENTS_PATH}/${uid}`);
-  const unsubscribe = onValue(studentRef, (snapshot) => {
-    if (!snapshot.exists()) {
-      callback(null);
-      return;
-    }
+  const unsubscribe = onValue(
+    studentRef,
+    (snapshot) => {
+      if (!snapshot.exists()) {
+        callback(null);
+        return;
+      }
 
-    callback(normalizeProfile(snapshot.val() as Partial<StudentProfile>, uid));
-  });
+      callback(normalizeProfile(snapshot.val() as Partial<StudentProfile>, uid));
+    },
+    (error) => onError?.(error),
+  );
 
   return () => unsubscribe();
 }

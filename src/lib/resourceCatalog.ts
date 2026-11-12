@@ -1,7 +1,3 @@
-import germanyLandmark from '@/assets/germany-landmark.jpg';
-import germanCampus from '@/assets/german-campus.jpg';
-import studentsGroup from '@/assets/students-group.jpg';
-
 export type ResourceCatalogItem = {
   id: string;
   title: string;
@@ -9,11 +5,13 @@ export type ResourceCatalogItem = {
   department?: string;
   priceValue: number;
   originalPriceValue: number;
+  /** Show only genuine figures (e.g. real review averages). Leave empty to hide. */
   rating: string;
   reviews: string;
   viewed: string;
   badge?: string;
   duration?: string;
+  /** Genuine product image URL, or empty to show the branded graphic. */
   image: string;
   tagline: string;
   description: string;
@@ -41,6 +39,8 @@ export const RESOURCE_DEPARTMENTS = [
   'Career & CV',
 ] as const;
 
+// Built-in packages, used until the admin saves packages in the dashboard.
+// Prices must be confirmed by BVF before launch.
 export const resourceCatalog: ResourceCatalogItem[] = [
   {
     id: 'bachelor',
@@ -48,21 +48,20 @@ export const resourceCatalog: ResourceCatalogItem[] = [
     shortLabel: 'Course Bundle',
     department: 'Studienkolleg',
     priceValue: 2499,
-    originalPriceValue: 5499,
-    rating: '4.8/5',
-    reviews: '420 reviews',
-    viewed: '3.2k students viewed',
-    image: germanyLandmark,
+    originalPriceValue: 2499,
+    rating: '',
+    reviews: '',
+    viewed: '',
+    image: '',
     tagline: 'A compact academic toolkit for students planning their bachelor journey in Germany.',
     description:
-      'Get all the core tools needed to shortlist, prepare, and apply for bachelor programs in Germany. Built for fast clarity, stronger shortlisting, and cleaner next-step planning.',
+      'Get the core tools needed to shortlist, prepare, and apply for bachelor programs in Germany: clearer shortlisting and cleaner next-step planning.',
     ctaLabel: 'Buy Bachelor Bundle',
-    previewNote: 'Pricing for UI preview only. Replace with live checkout once the payment gateway is ready.',
     bullets: [
-      'A unique mix of great universities and high quality of life.',
-      'One of the most popular study-abroad destinations.',
-      "Bachelor's degrees are respected worldwide.",
-      'Strong focus on technology, research, and innovation.',
+      'Studienkolleg and direct-admission routes explained',
+      'Shortlisting support for bachelor programs',
+      'Application preparation checklist',
+      'Document readiness worksheet',
     ],
     deliverables: [
       'Studienkolleg bundle sheet',
@@ -79,12 +78,12 @@ export const resourceCatalog: ResourceCatalogItem[] = [
     department: 'Visa & Documentation',
     priceValue: 1450,
     originalPriceValue: 1450,
-    rating: '4.5/5',
-    reviews: '520+ Reviews',
-    viewed: 'Top Selling',
-    image: studentsGroup,
+    rating: '',
+    reviews: '',
+    viewed: '',
+    image: '',
     tagline: 'A guided planning tool for students who want a more independent preparation path.',
-    description: 'Streamline your education abroad journey with a personalized roadmap and clear action order.',
+    description: 'Plan your Germany application with a personalized roadmap and a clear order of actions.',
     ctaLabel: 'Buy Now',
     bullets: [
       'Personal planning prompts',
@@ -99,12 +98,12 @@ export const resourceCatalog: ResourceCatalogItem[] = [
     department: 'Masters in Engineering',
     priceValue: 499,
     originalPriceValue: 499,
-    rating: '4.7/5',
-    reviews: '2.5k+ Reviews',
-    viewed: 'Top Selling',
-    image: germanCampus,
+    rating: '',
+    reviews: '',
+    viewed: '',
+    image: '',
     tagline: 'A shortlist-ready dataset to speed up research and comparison.',
-    description: 'Access a curated Excel of German universities and simplify your search.',
+    description: 'A curated Excel sheet of German universities to simplify your search.',
     ctaLabel: 'Buy Now',
     bullets: [
       'Curated university list',
@@ -120,13 +119,13 @@ export const resourceCatalog: ResourceCatalogItem[] = [
     department: 'Career & CV',
     priceValue: 999,
     originalPriceValue: 999,
-    rating: '4.7/5',
-    reviews: 'Focused guidance',
-    viewed: '30 Min - 60 Min',
+    rating: '',
+    reviews: '',
+    viewed: '',
     duration: '30 Min - 60 Min',
-    image: studentsGroup,
+    image: '',
     tagline: 'One clear conversation to unblock your current study-abroad decision.',
-    description: 'Streamline your education abroad journey with one focused guidance session.',
+    description: 'One focused one-on-one guidance session on your current stage.',
     ctaLabel: 'Buy Now',
     bullets: [
       'One-on-one session',

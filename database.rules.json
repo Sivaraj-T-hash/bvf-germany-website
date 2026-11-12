@@ -76,25 +76,18 @@
       ".indexOn": ["email", "studentEmail", "status", "createdAt"],
       "$leadId": {
         ".read": "auth != null && root.child('admins').child(auth.uid).child('isAdmin').val() === true",
-        ".write": "(auth != null && root.child('admins').child(auth.uid).child('isAdmin').val() === true) || (!data.exists() && newData.child('ownerType').val() === 'public') || (!data.exists() && auth != null && newData.child('ownerType').val() === 'user' && newData.child('userId').val() === auth.uid)",
-        "id": { ".validate": "newData.isString()" },
-        "source": { ".validate": "newData.val() === 'contact' || newData.val() === 'pricing' || newData.val() === 'tool'" },
-        "sourcePage": { ".validate": "newData.isString()" },
-        "name": { ".validate": "newData.isString()" },
-        "email": { ".validate": "newData.isString()" },
-        "phone": { ".validate": "newData.isString()" },
-        "subject": { ".validate": "newData.isString()" },
-        "message": { ".validate": "newData.isString()" },
-        "ownerType": { ".validate": "newData.val() === 'public' || newData.val() === 'user'" },
-        "userId": { ".validate": "!newData.exists() || newData.isString() || newData.val() === null" },
-        "studentEmail": { ".validate": "newData.isString()" },
-        "metadata": {
-          ".validate": "!newData.exists() || newData.hasChildren() || newData.val() === null",
-          "$other": { ".validate": "newData.isString()" }
-        },
+        ".write": "(auth != null && root.child('admins').child(auth.uid).child('isAdmin').val() === true) || (!data.exists() && newData.exists() && newData.child('status').val() === 'new' && (!newData.child('userId').exists() || (auth != null && newData.child('userId').val() === auth.uid)))",
+        ".validate": "newData.hasChildren(['source', 'name', 'email', 'status', 'createdAt'])",
+        "source": { ".validate": "newData.isString() && newData.val().length <= 40" },
+        "sourcePage": { ".validate": "newData.isString() && newData.val().length <= 200" },
+        "name": { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 120" },
+        "email": { ".validate": "newData.isString() && newData.val().length <= 254 && newData.val().matches(/^[^@ ]+@[^@ ]+[.][^@ ]+$/)" },
+        "phone": { ".validate": "newData.isString() && newData.val().length <= 30" },
+        "subject": { ".validate": "newData.isString() && newData.val().length <= 200" },
+        "message": { ".validate": "newData.isString() && newData.val().length <= 2000" },
         "status": { ".validate": "newData.val() === 'new' || newData.val() === 'contacted' || newData.val() === 'qualified' || newData.val() === 'closed'" },
         "createdAt": { ".validate": "newData.isString()" },
-        "$other": { ".validate": false }
+        "$other": { ".validate": true }
       }
     },
 
@@ -103,7 +96,16 @@
       ".indexOn": ["email", "studentEmail", "createdAt", "status", "preferredDate"],
       "$bookingId": {
         ".read": "auth != null && (root.child('admins').child(auth.uid).child('isAdmin').val() === true || data.child('email').val() === auth.token.email || data.child('studentEmail').val() === auth.token.email)",
-        ".write": "auth != null && (root.child('admins').child(auth.uid).child('isAdmin').val() === true || (!data.exists() && (newData.child('email').val() === auth.token.email || newData.child('studentEmail').val() === auth.token.email)))"
+        ".write": "(auth != null && root.child('admins').child(auth.uid).child('isAdmin').val() === true) || (!data.exists() && newData.exists() && newData.child('status').val() === 'pending' && (!newData.child('userId').exists() || (auth != null && newData.child('userId').val() === auth.uid)))",
+        ".validate": "newData.hasChildren(['name', 'email', 'preferredDate', 'preferredTime', 'status', 'createdAt'])",
+        "name": { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 120" },
+        "email": { ".validate": "newData.isString() && newData.val().length <= 254 && newData.val().matches(/^[^@ ]+@[^@ ]+[.][^@ ]+$/)" },
+        "phone": { ".validate": "newData.isString() && newData.val().length <= 30" },
+        "preferredDate": { ".validate": "newData.isString() && newData.val().length <= 20" },
+        "preferredTime": { ".validate": "newData.isString() && newData.val().length <= 20" },
+        "notes": { ".validate": "newData.isString() && newData.val().length <= 2000" },
+        "status": { ".validate": "newData.val() === 'pending' || newData.val() === 'confirmed' || newData.val() === 'completed' || newData.val() === 'cancelled'" },
+        "$other": { ".validate": true }
       }
     },
 
@@ -112,12 +114,13 @@
       ".indexOn": ["email", "studentEmail", "createdAt", "webinarId", "status", "attendanceStatus", "userId"],
       "$registrationId": {
         ".read": "auth != null && (root.child('admins').child(auth.uid).child('isAdmin').val() === true || data.child('email').val() === auth.token.email || data.child('studentEmail').val() === auth.token.email)",
-        ".write": "auth != null && (root.child('admins').child(auth.uid).child('isAdmin').val() === true || (!data.exists() && (newData.child('email').val() === auth.token.email || newData.child('studentEmail').val() === auth.token.email)))",
+        ".write": "(auth != null && root.child('admins').child(auth.uid).child('isAdmin').val() === true) || (!data.exists() && newData.exists() && newData.child('status').val() === 'new' && newData.child('attendanceStatus').val() === 'registered' && (!newData.child('userId').exists() || (auth != null && newData.child('userId').val() === auth.uid)) && (newData.child('webinarAccessType').val() !== 'paid' || (auth != null && newData.child('orderId').isString() && root.child('orders').child(newData.child('orderId').val()).child('userId').val() === auth.uid)))",
+        ".validate": "newData.hasChildren(['webinarId', 'name', 'email', 'createdAt'])",
         "id": { ".validate": "!newData.exists() || newData.isString()" },
-        "webinarId": { ".validate": "newData.isString()" },
-        "webinarTitle": { ".validate": "!newData.exists() || newData.isString()" },
-        "name": { ".validate": "!newData.exists() || newData.isString()" },
-        "email": { ".validate": "!newData.exists() || newData.isString()" },
+        "webinarId": { ".validate": "newData.isString() && newData.val().length <= 120" },
+        "webinarTitle": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 200)" },
+        "name": { ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 120" },
+        "email": { ".validate": "newData.isString() && newData.val().length <= 254 && newData.val().matches(/^[^@ ]+@[^@ ]+[.][^@ ]+$/)" },
         "studentEmail": { ".validate": "!newData.exists() || newData.isString()" },
         "status": { ".validate": "!newData.exists() || newData.isString()" },
         "attendanceStatus": { ".validate": "!newData.exists() || newData.val() === 'registered' || newData.val() === 'attended' || newData.val() === 'missed'" },
@@ -134,7 +137,7 @@
       ".indexOn": ["email", "createdAt", "status", "itemType", "userId"],
       "$orderId": {
         ".read": "auth != null && (root.child('admins').child(auth.uid).child('isAdmin').val() === true || data.child('email').val() === auth.token.email)",
-        ".write": "auth != null && (root.child('admins').child(auth.uid).child('isAdmin').val() === true || (!data.exists() && newData.child('email').val() === auth.token.email) || (data.exists() && data.child('userId').val() === auth.uid && newData.child('id').val() === data.child('id').val() && newData.child('userId').val() === data.child('userId').val() && newData.child('name').val() === data.child('name').val() && newData.child('email').val() === data.child('email').val() && newData.child('phone').val() === data.child('phone').val() && newData.child('itemType').val() === data.child('itemType').val() && newData.child('itemId').val() === data.child('itemId').val() && newData.child('title').val() === data.child('title').val() && newData.child('amountLabel').val() === data.child('amountLabel').val() && newData.child('amountValue').val() === data.child('amountValue').val() && newData.child('paymentMode').val() === data.child('paymentMode').val() && newData.child('resourceDriveUrl').val() === data.child('resourceDriveUrl').val() && newData.child('resourceDriveLabel').val() === data.child('resourceDriveLabel').val() && newData.child('resourceDeliveredAt').val() === data.child('resourceDeliveredAt').val() && newData.child('resourceDeliveredBy').val() === data.child('resourceDeliveredBy').val() && newData.child('createdAt').val() === data.child('createdAt').val() && data.child('status').val() === 'pending' && (newData.child('status').val() === 'paid' || newData.child('status').val() === 'cancelled')))",
+        ".write": "auth != null && (root.child('admins').child(auth.uid).child('isAdmin').val() === true || (!data.exists() && newData.child('email').val() === auth.token.email && newData.child('userId').val() === auth.uid && newData.child('status').val() === 'pending' && !newData.child('resourceDriveUrl').exists()))",
         "id": { ".validate": "!newData.exists() || newData.isString()" },
         "userId": { ".validate": "!newData.exists() || newData.isString() || newData.val() === null" },
         "name": { ".validate": "!newData.exists() || newData.isString()" },

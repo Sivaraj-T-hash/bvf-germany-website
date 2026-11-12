@@ -1,12 +1,17 @@
 import type { SiteSettings } from '@/lib/siteContentStore';
+import { businessInfo } from '@/config/business';
+import { cleanContactValue } from '@/lib/contact';
 
-export const DEFAULT_WHATSAPP_MESSAGE = 'Hi BVF Germany! I want to know more about studying in Germany';
-export const DEFAULT_WHATSAPP_NUMBER = '919999999999';
+export const DEFAULT_WHATSAPP_MESSAGE = businessInfo.whatsappMessage;
+/** Official BVF WhatsApp Business number (from src/config/business.ts). */
+export const DEFAULT_WHATSAPP_NUMBER = businessInfo.whatsappNumber;
 
 type WhatsappSettings = Pick<SiteSettings, 'whatsappNumber' | 'prefilledWhatsappMessage'> | null | undefined;
 
+/** Number saved in Admin → Settings, unless it is empty or a placeholder; otherwise the official number. */
 export function getWhatsappNumber(settings?: WhatsappSettings): string {
-  return (settings?.whatsappNumber || DEFAULT_WHATSAPP_NUMBER).replace(/\D/g, '');
+  const saved = cleanContactValue(settings?.whatsappNumber || '');
+  return (saved || DEFAULT_WHATSAPP_NUMBER).replace(/\D/g, '');
 }
 
 export function getWhatsappMessage(settings?: WhatsappSettings, overrideMessage?: string): string {

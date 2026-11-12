@@ -6,7 +6,6 @@ export default function AusbildungGermanyPage() {
       title="Ausbildung in Germany"
       subtitle="Ausbildung is Germany's vocational training route for students who want paid practical training, German workplace exposure, and a skills-first path into employment."
       heroBadge="Vocational training"
-      heroImage="https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1600&auto=format&fit=crop"
       heroHighlights={[
         'Duration: 2-3 years',
         'German B1-B2 mandatory',
@@ -58,7 +57,7 @@ export default function AusbildungGermanyPage() {
           audience: 'Decision 2',
           summary: 'German is mandatory for Ausbildung, so language planning should start before field-specific applications.',
           bullets: [
-            'German B1 to B2 is the key requirement from your brief.',
+            'German B1 to B2 is usually required.',
             'Workplace communication makes language more important than students often expect.',
             'A stronger language base usually creates more options and smoother settlement.',
           ],
@@ -96,7 +95,7 @@ export default function AusbildungGermanyPage() {
           title: 'German B1-B2 is mandatory, not optional',
           text: 'Because the route is practical and workplace-focused, students need German for both training and everyday life.',
           bullets: [
-            'German B1 to B2 is the language requirement in your brief.',
+            'German B1 to B2 is the usual language requirement.',
             'Communication comfort affects training performance directly.',
             'Students should treat German prep as a core step, not a side task.',
           ],
@@ -106,7 +105,7 @@ export default function AusbildungGermanyPage() {
           title: 'Ausbildung is paid, but budgeting still matters',
           text: 'Students receive a stipend, but they should still plan for housing, transport, food, and first-month setup in Germany.',
           bullets: [
-            'The typical stipend range in your brief is EUR 600 to EUR 1,200 per month.',
+            'Training pay is typically about EUR 600 to EUR 1,200 per month, depending on the field.',
             'Living costs still change by city.',
             'A better budget plan helps students pick the right training location.',
           ],
@@ -168,7 +167,7 @@ export default function AusbildungGermanyPage() {
           title: 'A stipend helps, but life still needs budgeting',
           text: 'The monthly stipend can support the route, but students still need to budget carefully for housing, food, transport, and personal expenses.',
           bullets: [
-            'The stipend range in your brief is EUR 600 to EUR 1,200 per month.',
+            'Training pay is typically about EUR 600 to EUR 1,200 per month, depending on the field.',
             'Major cities can still be expensive to live in.',
             'A clearer financial plan makes the route more sustainable.',
           ],
@@ -224,7 +223,7 @@ export default function AusbildungGermanyPage() {
         },
         {
           q: 'Do I need a degree for Ausbildung?',
-          a: 'No. The eligibility route in your brief says 10th to 12th Grade is enough and no degree is required.',
+          a: 'No. Many Ausbildung routes accept students after 10th to 12th grade, and no degree is required.',
         },
         {
           q: 'How much German do I need?',

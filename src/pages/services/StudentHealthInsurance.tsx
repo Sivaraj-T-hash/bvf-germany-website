@@ -5,7 +5,6 @@ export default function StudentHealthInsurancePage() {
     <ServiceDetailPage
       title="Student Health Insurance"
       subtitle="Mandatory health coverage that meets university and visa requirements."
-      heroImage="https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=1400&auto=format&fit=crop"
       ctaLabel="Book Free Consultation Now"
       ctaTo="/contact"
       features={[
@@ -26,7 +25,6 @@ export default function StudentHealthInsurancePage() {
           title: 'Public vs Private Options',
           text:
             'We explain which insurance types are accepted by universities and embassies, and help you choose the right plan.',
-          image: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=1400&auto=format&fit=crop',
         },
       ]}
       faqs={[

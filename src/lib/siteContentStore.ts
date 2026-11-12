@@ -1,9 +1,10 @@
 import { get, onValue, push, ref, remove, set } from 'firebase/database';
 import { db } from '@/lib/firebase';
-import { DEFAULT_WHATSAPP_MESSAGE } from '@/lib/whatsapp';
-import germanyLandmark from '@/assets/germany-landmark.jpg';
-import germanCampus from '@/assets/german-campus.jpg';
-import studentsGroup from '@/assets/students-group.jpg';
+import { businessInfo } from '@/config/business';
+import { cleanContactValue } from '@/lib/contact';
+import tumLogo from '@/assets/Technical University of Munich.png';
+import rwthLogo from '@/assets/RWTH Aachen University .png';
+import tuBerlinLogo from '@/assets/Technical University of Berlin.png';
 
 export interface UniversityItem {
   id: string;
@@ -50,6 +51,7 @@ export interface SiteSettings {
   facebookUrl?: string;
   tiktokUrl?: string;
   address: string;
+  workingHours: string;
 }
 
 const UNIVERSITIES_PATH = 'siteContent/universities';
@@ -66,7 +68,7 @@ const defaultUniversities: UniversityItem[] = [
     website: 'https://www.tum.de',
     programs: ['Engineering', 'Computer Science', 'Management'],
     description: 'A strong fit for ambitious students targeting research-led public university outcomes.',
-    image: germanyLandmark,
+    image: tumLogo,
     published: true,
     sortOrder: 1,
     createdAt: '2026-01-01T00:00:00.000Z',
@@ -81,7 +83,7 @@ const defaultUniversities: UniversityItem[] = [
     website: 'https://www.rwth-aachen.de',
     programs: ['Mechanical Engineering', 'Data Science', 'Robotics'],
     description: 'Popular with Indian students seeking technical depth and a strong employer brand.',
-    image: germanCampus,
+    image: rwthLogo,
     published: true,
     sortOrder: 2,
     createdAt: '2026-01-01T00:00:00.000Z',
@@ -96,7 +98,7 @@ const defaultUniversities: UniversityItem[] = [
     website: 'https://www.tu.berlin',
     programs: ['AI', 'Urban Systems', 'Electrical Engineering'],
     description: 'An attractive option for students who want city access, tech energy, and public-university value.',
-    image: studentsGroup,
+    image: tuBerlinLogo,
     published: true,
     sortOrder: 3,
     createdAt: '2026-01-01T00:00:00.000Z',
@@ -104,65 +106,52 @@ const defaultUniversities: UniversityItem[] = [
   },
 ];
 
-const defaultTestimonials: TestimonialItem[] = [
-  {
-    id: 'aditi',
-    name: 'Aditi Sharma',
-    university: 'TU Munich',
-    quote: 'BVF Germany helped me move from confusion to a clear public-university plan. The dashboard kept everything visible.',
-    course: 'MS in Data Engineering',
-    result: 'Admit + visa guidance completed',
-    photo: '',
-    published: true,
-    sortOrder: 1,
-    createdAt: '2026-01-01T00:00:00.000Z',
-    updatedAt: '2026-01-01T00:00:00.000Z',
-  },
-  {
-    id: 'rohit',
-    name: 'Rohit Verma',
-    university: 'RWTH Aachen',
-    quote: 'The team was structured and practical. I always knew what was pending and what the next milestone was.',
-    course: 'MSc Mechanical Engineering',
-    result: 'APS + application support completed',
-    photo: '',
-    published: true,
-    sortOrder: 2,
-    createdAt: '2026-01-01T00:00:00.000Z',
-    updatedAt: '2026-01-01T00:00:00.000Z',
-  },
-  {
-    id: 'sneha',
-    name: 'Sneha Iyer',
-    university: 'University of Stuttgart',
-    quote: 'The shortlist strategy saved me from weak applications and the profile support made the process much calmer.',
-    course: 'MS in Automotive Systems',
-    result: 'Shortlist + SOP + application support',
-    photo: '',
-    published: true,
-    sortOrder: 3,
-    createdAt: '2026-01-01T00:00:00.000Z',
-    updatedAt: '2026-01-01T00:00:00.000Z',
-  },
-];
+// Testimonials must be genuine and authorised, so there are no built-in examples.
+// Detailed student stories live in src/content/successStories.ts.
+const defaultTestimonials: TestimonialItem[] = [];
 
 const defaultSettings: SiteSettings = {
   heroBadge: 'India to Germany, with public-university clarity',
   heroTitle: 'A more credible Germany journey for ambitious Indian students.',
   heroDescription:
     'BVF Germany combines practical mentorship, transparent milestones, and a live dashboard across applications, APS, visa, bookings, and student support.',
-  founderEmail: 'hello@bvfgermany.com',
-  contactEmail: 'hello@bvfgermany.com',
-  contactPhone: '+91 99999 99999',
-  whatsappNumber: '919999999999',
-  prefilledWhatsappMessage: DEFAULT_WHATSAPP_MESSAGE,
-  instagramUrl: 'https://www.instagram.com/bratlins_view?igsh=OHBzemJpZWhkYnVu&utm_source=qr',
-  youtubeUrl: 'https://youtube.com/@bvfgermany',
-  linkedinUrl: 'https://www.linkedin.com/company/bvfgermany',
-  facebookUrl: 'https://facebook.com/bvfgermany',
-  tiktokUrl: 'https://tiktok.com/@bvfgermany',
-  address: 'India & Germany',
+  founderEmail: businessInfo.email,
+  contactEmail: businessInfo.email,
+  contactPhone: businessInfo.phone,
+  whatsappNumber: businessInfo.whatsappNumber,
+  prefilledWhatsappMessage: businessInfo.whatsappMessage,
+  instagramUrl: businessInfo.instagramUrl,
+  youtubeUrl: businessInfo.youtubeUrl,
+  address: businessInfo.address,
+  workingHours: businessInfo.workingHours,
+  // Not shown until BVF confirms the accounts (the earlier guesses were not verified).
+  linkedinUrl: '',
+  facebookUrl: '',
+  tiktokUrl: '',
 };
+
+/** Confirmed defaults, used before the database responds. */
+export const defaultSiteSettings: SiteSettings = defaultSettings;
+
+const CONTACT_FIELDS = ['founderEmail', 'contactEmail', 'contactPhone', 'whatsappNumber', 'instagramUrl', 'youtubeUrl', 'linkedinUrl', 'facebookUrl', 'tiktokUrl', 'address', 'workingHours'] as const;
+
+/**
+ * Merges saved settings over the defaults. Empty saved values never wipe a confirmed default,
+ * and placeholder values from older versions (e.g. +91 99999 99999) are dropped.
+ */
+function cleanSettings(saved: Partial<SiteSettings> | null | undefined): SiteSettings {
+  const merged: SiteSettings = { ...defaultSettings };
+  for (const [key, value] of Object.entries(saved || {})) {
+    if (typeof value === 'string' && value.trim()) {
+      (merged as unknown as Record<string, string>)[key] = value.trim();
+    }
+  }
+  for (const field of CONTACT_FIELDS) {
+    merged[field] = cleanContactValue(merged[field]);
+  }
+  if (!merged.prefilledWhatsappMessage) merged.prefilledWhatsappMessage = businessInfo.whatsappMessage;
+  return merged;
+}
 
 const toMap = <T extends { id: string }>(items: T[]) =>
   items.reduce<Record<string, T>>((acc, item) => {
@@ -230,29 +219,21 @@ export async function deleteTestimonial(id: string): Promise<void> {
 }
 
 export async function getSiteSettings(): Promise<SiteSettings> {
-  const snapshot = await get(ref(db, SETTINGS_PATH));
-  if (!snapshot.exists()) {
-    return defaultSettings;
+  try {
+    const snapshot = await get(ref(db, SETTINGS_PATH));
+    return cleanSettings(snapshot.exists() ? (snapshot.val() as Partial<SiteSettings>) : null);
+  } catch (error) {
+    console.warn('Site settings could not be loaded; using defaults.', error);
+    return cleanSettings(null);
   }
-
-  return {
-    ...defaultSettings,
-    ...(snapshot.val() as Partial<SiteSettings>),
-  };
 }
 
 export function subscribeToSiteSettings(callback: (settings: SiteSettings) => void): () => void {
-  return onValue(ref(db, SETTINGS_PATH), async (snapshot) => {
-    if (!snapshot.exists()) {
-      callback(await getSiteSettings());
-      return;
-    }
-
-    callback({
-      ...defaultSettings,
-      ...(snapshot.val() as Partial<SiteSettings>),
-    });
-  });
+  return onValue(
+    ref(db, SETTINGS_PATH),
+    (snapshot) => callback(cleanSettings(snapshot.exists() ? (snapshot.val() as Partial<SiteSettings>) : null)),
+    () => callback(cleanSettings(null)),
+  );
 }
 
 export async function saveSiteSettings(settings: SiteSettings): Promise<void> {

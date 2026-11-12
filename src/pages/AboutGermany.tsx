@@ -7,16 +7,13 @@ import WhatsAppFloat from '@/components/WhatsAppFloat';
 import { getSiteSettings, type SiteSettings } from '@/lib/siteContentStore';
 import { useSeo } from '@/lib/useSeo';
 import { buildWhatsappHref } from '@/lib/whatsapp';
-import germanyLandmark from '@/assets/germany-landmark.jpg';
-import germanCampus from '@/assets/german-campus.jpg';
-import studentsGroup from '@/assets/students-group.jpg';
-import heroStudent from '@/assets/hero-student.png';
+import SceneIllustration from '@/components/SceneIllustration';
 
 const studyPrograms = [
   {
     title: "Bachelor's Degree",
     to: '/study-in-germany/bachelor',
-    image: germanyLandmark,
+    scene: 'city' as const,
     duration: '3-4 years',
     eligibility: 'A-Levels / 12th Grade (PCM/PCB/Commerce)',
     language: 'IELTS 6.0-6.5 or German B2',
@@ -27,7 +24,7 @@ const studyPrograms = [
   {
     title: "Master's in Engineering",
     to: '/study-in-germany/engineering',
-    image: germanCampus,
+    scene: 'campus' as const,
     duration: '2 years (4 semesters)',
     eligibility: 'B.Tech / B.E. in relevant field (min 55-60%)',
     language: 'IELTS 6.5-7.0 or German B2/C1',
@@ -38,7 +35,7 @@ const studyPrograms = [
   {
     title: "Master's in Business Management",
     to: '/study-in-germany/mba',
-    image: studentsGroup,
+    scene: 'finance' as const,
     duration: '1.5-2 years',
     eligibility: 'BBA / B.Com / MBA-equivalent (min 55%)',
     language: 'IELTS 6.5-7.0, sometimes GMAT',
@@ -49,7 +46,7 @@ const studyPrograms = [
   {
     title: 'Ausbildung',
     to: '/study-in-germany/ausbildung',
-    image: heroStudent,
+    scene: 'study' as const,
     duration: '2-3 years',
     eligibility: '10th-12th Grade, no degree required',
     language: 'German B1-B2 (mandatory)',
@@ -61,34 +58,24 @@ const studyPrograms = [
 
 const whyGermanyStats = [
   {
-    value: '426',
-    label: 'Public Universities',
-    detail: 'Tuition-free for all international students',
+    value: '€0',
+    label: 'Tuition at most public universities',
+    detail: 'You pay only a small semester contribution. Some states, such as Baden-Württemberg, charge non-EU students tuition.',
   },
   {
-    value: 'EUR 0',
-    label: 'Tuition',
-    detail: 'Pay only semester fee (EUR 150-350 per semester)',
+    value: '€992',
+    label: 'A month in your blocked account',
+    detail: '€11,904 for a year (rules as of 2026). This is your own money for living costs.',
   },
   {
-    value: 'EUR 45,000-EUR 50,000',
-    label: 'Average Annual Living Cost',
-    detail: 'Accommodation + food + transport',
+    value: '20 hrs',
+    label: 'Part-time work a week',
+    detail: 'Allowed during the semester to support yourself.',
   },
   {
-    value: '70 Lakh+',
-    label: 'Skilled Job Vacancies',
-    detail: 'Federal Employment Agency figure used in your brief',
-  },
-  {
-    value: '18 Months',
-    label: 'Post-Study Work Visa',
-    detail: 'Job seeker visa after graduation',
-  },
-  {
-    value: '42,000+',
-    label: 'Indian Students',
-    detail: 'Studying in Germany annually',
+    value: '18 months',
+    label: 'Post-study job search',
+    detail: 'Stay after graduating to look for a job in Germany. Rules can change; we share the latest in your consultation.',
   },
 ];
 
@@ -227,13 +214,8 @@ export default function AboutGermanyPage() {
               >
                 {/* Image Header wrapper */}
                 <div className="relative h-[280px] w-full overflow-hidden sm:h-[320px]">
-                  <div className="absolute inset-0 z-10 bg-black/20 transition-opacity duration-300 group-hover:bg-black/10" />
-                  <img 
-                    src={program.image} 
-                    alt={program.title} 
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                    loading="lazy" 
-                  />
+                  <div className="absolute inset-0 z-10 bg-black/10 transition-opacity duration-300 group-hover:bg-black/0" />
+                  <SceneIllustration scene={program.scene} className="transition-transform duration-700 group-hover:scale-105" />
                   
                   {/* Floating Title Card */}
                   <div className="absolute bottom-6 left-6 right-6 z-20 overflow-hidden rounded-[24px] border border-white/20 bg-white/10 p-5 backdrop-blur-xl transition-all duration-300 group-hover:bg-white/20">
@@ -348,7 +330,7 @@ export default function AboutGermanyPage() {
           <div className="container-narrow rounded-[36px] border border-border/70 bg-white/86 p-8 shadow-card md:p-10">
             <div className="max-w-3xl">
               <p className="section-kicker">Germany Jobs / Career</p>
-              <h2 className="section-title">70 Lakh+ Skilled Job Vacancies in Germany</h2>
+              <h2 className="section-title">Skilled workers are in demand in Germany</h2>
               <p className="mt-4 text-base leading-8 text-muted-foreground">
                 Germany remains attractive not only for study, but also for the long-term career path that comes after graduation.
               </p>

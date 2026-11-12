@@ -14,6 +14,8 @@ type PublicLeadSubmissionInput = {
   message: string;
   userId?: string | null;
   metadata?: Record<string, string>;
+  /** When the visitor ticked the consent box (ISO time). */
+  consentAt?: string;
 };
 
 type PublicLeadSubmissionResult = {
@@ -58,6 +60,7 @@ export async function submitPublicLead(input: PublicLeadSubmissionInput): Promis
     message: input.message,
     userId: input.userId || null,
     metadata: input.metadata,
+    consentAt: input.consentAt,
   });
 
   try {

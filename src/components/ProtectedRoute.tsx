@@ -2,10 +2,11 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/components/AuthProvider';
 
 export default function ProtectedRoute({ children }: { children: JSX.Element }) {
-  const { user, loading, studentApproved, studentStatus, mustChangePassword, passwordStatusLoading } = useAuth();
+  const { user, loading, studentProfileLoading, studentApproved, studentStatus, mustChangePassword, passwordStatusLoading } = useAuth();
   const location = useLocation();
 
-  if (loading || passwordStatusLoading) {
+  // Wait until the session, the student profile and the password status are all known.
+  if (loading || studentProfileLoading || passwordStatusLoading) {
     return <div className="min-h-screen bg-background" />;
   }
 

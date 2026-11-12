@@ -6,6 +6,8 @@ import { notificationRoutes } from './routes/notificationRoutes.js';
 
 const app = express();
 const port = Number(process.env.PORT || 5000);
+// Render sits behind one proxy; this makes req.ip the real visitor address for rate limiting.
+app.set('trust proxy', 1);
 
 const normalizeOrigin = (value) => String(value || '').trim().replace(/\/+$/, '').toLowerCase();
 const normalizeUrl = (value) => String(value || '').trim().replace(/\/+$/, '');
@@ -43,7 +45,7 @@ app.use(
       : undefined,
   ),
 );
-app.use(express.json());
+app.use(express.json({ limit: '20kb' }));
 
 app.get('/', (_req, res) => {
   if (publicSiteUrl) {

@@ -37,6 +37,7 @@ interface CreateWebinarRegistrationInput {
   planningYear: string;
   userId?: string | null;
   orderId?: string | null;
+  consentAt?: string;
 }
 
 export async function createWebinarRegistration(
@@ -61,6 +62,7 @@ export async function createWebinarRegistration(
     orderId: input.orderId || null,
     attendanceStatus: 'registered',
     status: 'new',
+    ...(input.consentAt ? { consentAt: input.consentAt } : {}),
     createdAt: new Date().toISOString(),
   };
 

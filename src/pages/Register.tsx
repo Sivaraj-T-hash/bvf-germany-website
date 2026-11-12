@@ -31,6 +31,7 @@ export default function RegisterPage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [googleSubmitting, setGoogleSubmitting] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   const getBlockedStatusMessage = (status: string | undefined) =>
     status === 'rejected'
@@ -84,6 +85,11 @@ export default function RegisterPage() {
 
     if (form.password !== form.confirmPassword) {
       setError('Passwords do not match.');
+      return;
+    }
+
+    if (!consent) {
+      setError('Please agree to the Privacy Policy to create your account.');
       return;
     }
 
@@ -145,6 +151,11 @@ export default function RegisterPage() {
   const handleGoogleSignup = async () => {
     setError('');
     setSuccessMessage('');
+
+    if (!consent) {
+      setError('Please agree to the Privacy Policy to create your account.');
+      return;
+    }
 
     try {
       setGoogleSubmitting(true);
@@ -276,7 +287,7 @@ export default function RegisterPage() {
                       type="tel"
                       required
                       className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-                      placeholder="+91 99999 99999"
+                      placeholder="Mobile number with country code"
                     />
                   </div>
                 </div>
@@ -308,6 +319,19 @@ export default function RegisterPage() {
                     />
                   </div>
                 </div>
+                <label htmlFor="student-register-consent" className="flex items-start gap-3 text-xs leading-6 text-muted-foreground">
+                  <input
+                    id="student-register-consent"
+                    type="checkbox"
+                    checked={consent}
+                    onChange={(event) => setConsent(event.target.checked)}
+                    className="mt-1 h-4 w-4 shrink-0 rounded border-border"
+                  />
+                  <span>
+                    I agree that BVF Germany may store my details to run my student account, as described in the{' '}
+                    <Link to="/privacy-policy" target="_blank" className="font-semibold text-foreground underline">Privacy Policy</Link>.
+                  </span>
+                </label>
                 {error && <p className="text-sm text-destructive">{error}</p>}
                 {successMessage && <p className="text-sm text-[#059669]">{successMessage}</p>}
                 <button

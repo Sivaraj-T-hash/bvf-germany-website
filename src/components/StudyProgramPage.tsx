@@ -3,6 +3,7 @@ import { ArrowRight, BadgeCheck, ChevronDown, ChevronUp, ExternalLink, ShieldChe
 import { Link, useLocation } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import BrandVisual from '@/components/BrandVisual';
 import { useSeo } from '@/lib/useSeo';
 import { buildFaqStructuredData } from '@/lib/seo';
 import technicalUniversityOfMunichLogo from '@/assets/Technical University of Munich.png';
@@ -75,7 +76,8 @@ type StudyProgramPageProps = {
   title: string;
   subtitle: string;
   heroBadge?: string;
-  heroImage: string;
+  /** Genuine photograph only; leave out to show the branded graphic. */
+  heroImage?: string;
   heroHighlights: string[];
   primaryCta: CTA;
   secondaryCta?: CTA;
@@ -307,12 +309,11 @@ export default function StudyProgramPage({
           </div>
 
           <div className="rounded-[34px] border border-white/18 bg-white/10 p-3 shadow-2xl backdrop-blur-md">
-            <img
-              src={heroImage}
-              alt=""
-              className="h-[280px] w-full rounded-[28px] object-cover md:h-[420px]"
-              loading="lazy"
-            />
+            {heroImage ? (
+              <img src={heroImage} alt="" className="h-[280px] w-full rounded-[28px] object-cover md:h-[420px]" loading="lazy" />
+            ) : (
+              <BrandVisual title={title} kicker="Study in Germany" className="h-[280px] w-full rounded-[28px] md:h-[420px]" />
+            )}
           </div>
         </div>
       </section>

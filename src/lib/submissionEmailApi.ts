@@ -2,7 +2,7 @@ import { createLeadRecord } from '@/lib/leadStore';
 
 const apiBase = (import.meta.env.VITE_AUTH_API_BASE_URL || '').replace(/\/$/, '');
 
-type FormType = 'contact' | 'booking' | 'webinar' | 'profile_evaluation';
+type FormType = 'contact' | 'booking' | 'webinar' | 'profile_evaluation' | 'pricing' | 'tool' | 'order';
 
 type SubmissionEmailInput = {
   formType: FormType;
@@ -21,6 +21,11 @@ type SubmissionEmailInput = {
   planningYear?: string;
   interestedProgram?: string;
   currentEducation?: string;
+  selectedPackage?: string;
+  source?: string;
+  orderTitle?: string;
+  amountLabel?: string;
+  orderId?: string;
 };
 
 export async function sendSubmissionEmails(input: SubmissionEmailInput): Promise<void> {
@@ -51,6 +56,7 @@ type PublicLeadSubmissionApiInput = {
   currentEducation: string;
   metadata?: Record<string, string>;
   website?: string;
+  consentAt?: string;
 };
 
 async function fallbackPublicLeadSubmission(
@@ -65,6 +71,7 @@ async function fallbackPublicLeadSubmission(
     subject: input.subject,
     message: input.message,
     metadata: input.metadata,
+    consentAt: input.consentAt,
   });
 
   try {

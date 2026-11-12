@@ -4,6 +4,8 @@ import { ChevronDown } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
+import WhatsAppCta from '@/components/WhatsAppCta';
+import { Link } from 'react-router-dom';
 import { useSeo } from '@/lib/useSeo';
 import { subscribeToSiteSettings, type SiteSettings } from '@/lib/siteContentStore';
 import { buildWhatsappHref } from '@/lib/whatsapp';
@@ -12,11 +14,12 @@ const faqs = [
   { q: 'What is APS?', a: 'APS (Akademische Prüfstelle) is the Academic Evaluation Centre. It verifies the authenticity of your academic certificates and is mandatory for Indian students applying to German universities. The process includes document verification and a personal interview.' },
   { q: 'How long does a Germany student visa take?', a: 'The German student visa processing typically takes 4-8 weeks from the date of your appointment at the German Embassy. However, we recommend starting the process at least 3-4 months before your intended departure date.' },
   { q: 'What documents are required for studying in Germany?', a: 'Key documents include: Academic transcripts, APS certificate, German language proficiency proof (TestDaF/DSH), English language proof (IELTS/TOEFL), blocked account confirmation (€11,904/year), health insurance, passport, admission letter, and motivation letter.' },
-  { q: 'When should I apply for universities in Germany?', a: 'For winter semester (October start): Apply by July 15. For summer semester (April start): Apply by January 15. We recommend starting your preparation 8-12 months before the intake.' },
+  { q: 'When should I apply for universities in Germany?', a: 'Many universities use 15 July for the winter semester (October start) and 15 January for the summer semester (April start), but every programme sets its own deadline, so always check the programme page. We recommend starting your preparation 8-12 months before the intake.' },
+  { q: 'What is the dMAT, and do I need it?', a: 'The dMAT (Digital Master Test) is an academic aptitude test run by g.a.s.t. It is becoming part of the APS documentation for many Indian Master\'s applicants, starting with intakes from summer semester 2027. See our dMAT page for who needs it and how to register.' },
   { q: 'How much money is required in a blocked account?', a: 'As of 2024, you need €11,904 in your blocked account for one year. This amounts to €992 per month that you can withdraw for living expenses. The blocked account proves you can financially support yourself during your studies.' },
   { q: 'Is studying in Germany really free?', a: 'Most public universities in Germany charge no tuition fees for undergraduate and many postgraduate programs. However, you need to pay a semester contribution (€150-350) which covers administrative fees, student union, and often a public transport ticket.' },
   { q: 'Do I need to know German to study in Germany?', a: 'It depends on your program. Many Master\'s programs are taught in English. However, for daily life and many Bachelor\'s programs, German language skills (B1-C1 level) are required. We recommend learning German regardless of your program language.' },
-  { q: 'What is BVF Premium Support?', a: 'BVF Premium Support is our all-inclusive package that covers university shortlisting, application support, APS preparation, blocked account setup, visa guidance, SOP/LOR review, and pre-departure orientation — all with a dedicated mentor and 24/7 WhatsApp support.' },
+  { q: 'What does the Full Consultation Package include?', a: 'It covers university verification and shortlisting, applications (uni-assist and direct), SOP and LOR writing, visa guidance, pre-departure support, accommodation assistance, and one-to-one expert consultation. Pricing depends on your profile; see the Pricing page or book a free consultation.' },
 ];
 
 function FAQItem({ q, a }: { q: string; a: string }) {

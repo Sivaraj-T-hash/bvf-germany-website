@@ -22,15 +22,20 @@ export async function getAdminProfile(uid: string): Promise<AdminProfile | null>
 export function subscribeToAdminProfile(
   uid: string,
   callback: (profile: AdminProfile | null) => void,
+  onError?: (error: Error) => void,
 ): () => void {
-  return onValue(ref(db, `${ADMINS_PATH}/${uid}`), (snapshot) => {
-    if (!snapshot.exists()) {
-      callback(null);
-      return;
-    }
+  return onValue(
+    ref(db, `${ADMINS_PATH}/${uid}`),
+    (snapshot) => {
+      if (!snapshot.exists()) {
+        callback(null);
+        return;
+      }
 
-    callback(snapshot.val() as AdminProfile);
-  });
+      callback(snapshot.val() as AdminProfile);
+    },
+    (error) => onError?.(error),
+  );
 }
 
 export async function saveAdminProfile(profile: AdminProfile): Promise<void> {

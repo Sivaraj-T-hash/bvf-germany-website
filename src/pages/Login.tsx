@@ -62,15 +62,15 @@ export default function LoginPage() {
       verificationNotice?: boolean;
       studentStatus?: StudentAccountStatus | null;
     } | null;
-    if (routeState?.requiresApproval && (routeState.studentStatus === 'rejected' || routeState.studentStatus === 'suspended')) {
+    if (routeState?.requiresApproval && routeState.studentStatus) {
       setNotice({
-        type: 'warning',
+        type: routeState.studentStatus === 'pending_approval' ? 'info' : 'warning',
         message:
           routeState.studentStatus === 'rejected'
             ? 'Your registration was not approved. Contact admin for support.'
             : routeState.studentStatus === 'suspended'
               ? 'Your account is suspended. Please contact admin.'
-              : '',
+              : 'Your account is waiting for approval by the BVF team. You will be able to open your dashboard once it is approved.',
       });
       return;
     }

@@ -6,7 +6,6 @@ export default function MbaGermanyPage() {
       title="Master's in Business Management in Germany"
       subtitle="Germany is a strong option for students who want a management degree with public-university value, international business exposure, and long-term employability in Europe."
       heroBadge="Business management master's"
-      heroImage="https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=1600&auto=format&fit=crop"
       heroHighlights={[
         'Duration: 1.5-2 years',
         'IELTS 6.5-7.0 and sometimes GMAT',
@@ -156,7 +155,7 @@ export default function MbaGermanyPage() {
         {
           eyebrow: 'Key fields',
           title: 'Business fields should connect to real career plans',
-          text: 'International Business, Supply Chain, Finance, and Marketing were the key fields highlighted in your brief and each one needs its own shortlist logic.',
+          text: 'International Business, Supply Chain, Finance, and Marketing are popular fields, and each one needs its own shortlist logic.',
           bullets: [
             'Finance and Supply Chain may reward different project or internship backgrounds.',
             'Marketing and International Business often need a different application story.',
@@ -228,7 +227,7 @@ export default function MbaGermanyPage() {
         },
         {
           q: 'What academic background is usually expected?',
-          a: 'A BBA, B.Com, or equivalent business-focused degree with at least 55 percent is the basic eligibility benchmark from your brief.',
+          a: 'A BBA, B.Com, or equivalent business-focused degree with at least 55 percent is a common basic eligibility benchmark. Requirements vary by university.',
         },
         {
           q: 'Do I always need GMAT?',

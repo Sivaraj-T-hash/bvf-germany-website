@@ -1,46 +1,32 @@
 import AboutStoryPage from '@/components/AboutStoryPage';
 
+// Only verified figures belong here. Add stats (with a source) once BVF has confirmed them.
 export default function AchievementsPage() {
   return (
     <AboutStoryPage
       title="Achievements"
       subtitle="Milestones that reflect our student-first promise and community impact."
-      heroImage="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1400&auto=format&fit=crop"
-      ctaLabel="View Success Stories"
-      ctaTo="/blog"
-      stats={[
-        { value: '5,000+', label: 'Visa Approvals' },
-        { value: '100K+', label: 'Student Community' },
-        { value: '98%', label: 'APS Success' },
-      ]}
+      ctaLabel="Read Student Stories"
+      ctaTo="/success-stories"
       sections={[
         {
-          title: 'Student Success Highlights',
+          title: 'Student Outcomes',
           text:
-            'Thousands of students have secured APS approvals and German university admissions with our guidance. Our structured process helps reduce uncertainty and improve outcomes.',
-          image: 'https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?q=80&w=1400&auto=format&fit=crop',
-          bullets: ['APS approvals', 'Visa successes', 'Top university admits'],
+            'Admissions, APS certificates, visas and arrivals in Germany are the milestones that matter to our students. We share individual outcomes on our Success Stories page, only with each student’s permission and only for services they actually received from BVF.',
+          bullets: ['APS certificates', 'University admissions', 'Student visas', 'Arrivals in Germany'],
         },
         {
-          title: 'Community Growth',
+          title: 'Community',
           text:
-            'A large and active student community shares experiences and helps new aspirants. We host events, sessions, and mentorship circles to keep students confident and informed.',
-          image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1400&auto=format&fit=crop',
-          bullets: ['Workshops and events', 'Mentorship circles', 'Online resources'],
+            'Students and applicants learn from each other through our webinars, sessions and online channels, where current students in Germany share practical experience with new applicants.',
+          bullets: ['Webinars and sessions', 'Mentorship', 'Online resources'],
         },
         {
-          title: 'Trusted Partnerships',
+          title: 'How We Measure Success',
           text:
-            'We collaborate with verified institutions and service providers to deliver consistent, transparent, and high‑quality support throughout the journey.',
-          image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1400&auto=format&fit=crop',
-          bullets: ['Banking partners', 'Accommodation networks', 'Career mentors'],
+            'Success is a student who reaches the right German programme with fewer avoidable mistakes. We do not guarantee admissions or visas: those decisions belong to universities and embassies.',
+          bullets: ['Realistic university choices', 'Complete, correct documents', 'Timely applications'],
         },
-      ]}
-      gallery={[
-        'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=900&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=900&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=900&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?q=80&w=900&auto=format&fit=crop',
       ]}
     />
   );

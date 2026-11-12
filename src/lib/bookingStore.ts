@@ -19,6 +19,7 @@ export interface BookingRecord {
   createdAt: string;
   meetingLink?: string;
   adminInstructions?: string;
+  consentAt?: string;
 }
 
 interface CreateBookingInput {
@@ -30,6 +31,7 @@ interface CreateBookingInput {
   notes?: string;
   userId?: string | null;
   source?: BookingRecord['source'];
+  consentAt?: string;
 }
 
 export async function createBookingRecord(input: CreateBookingInput): Promise<BookingRecord> {
@@ -47,6 +49,7 @@ export async function createBookingRecord(input: CreateBookingInput): Promise<Bo
     userId: input.userId || null,
     source: input.source || 'manual_request',
     status: 'pending',
+    ...(input.consentAt ? { consentAt: input.consentAt } : {}),
     createdAt: new Date().toISOString(),
   };
 

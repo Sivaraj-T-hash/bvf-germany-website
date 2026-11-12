@@ -9,7 +9,7 @@ import { useAuth } from '@/components/AuthProvider';
 import { DB_PATHS } from '@/lib/dbPaths';
 import { addStudentAdminNote, createDefaultStudentProfile, saveStudentProfileAsAdmin, setStudentStatus, subscribeToStudents, updateStudentService, type StudentProfile } from '@/lib/studentStore';
 import { serviceStatusLabels, type ServiceStatus } from '@/lib/serviceCatalog';
-import { subscribeToOrders, type OrderRecord, updateOrderResourceAccess } from '@/lib/orderStore';
+import { subscribeToOrders, type OrderRecord, updateOrderResourceAccess, updateOrderStatus } from '@/lib/orderStore';
 import { createLeadRecord } from '@/lib/leadStore';
 import { deleteBlogPost, estimateReadTime, generateSlug, getBlogPosts, saveBlogPost, type BlogPost } from '@/lib/blogStore';
 import { getSiteSettings, saveSiteSettings, type SiteSettings } from '@/lib/siteContentStore';
@@ -417,6 +417,10 @@ export default function AdminDashboard() {
   );
   const paidOrderIds = useMemo(
     () => new Set(orders.filter((order) => order.status === 'paid').map((order) => order.id)),
+    [orders],
+  );
+  const pendingPaymentOrders = useMemo(
+    () => orders.filter((order) => order.status === 'pending').sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     [orders],
   );
 
@@ -1219,9 +1223,10 @@ export default function AdminDashboard() {
       tagline: resourceForm.tagline.trim() || title,
       description,
       ctaLabel: resourceForm.ctaLabel.trim() || 'Buy Now',
-      rating: resourceForm.rating.trim() || '4.8/5',
-      reviews: resourceForm.reviews.trim() || '0 reviews',
-      viewed: resourceForm.viewed.trim() || 'New',
+      // Ratings and counts are shown only when BVF enters real figures.
+      rating: resourceForm.rating.trim(),
+      reviews: resourceForm.reviews.trim(),
+      viewed: resourceForm.viewed.trim(),
       duration: resourceForm.duration.trim() || undefined,
       badge: resourceForm.badge.trim() || undefined,
       priceValue,
@@ -1320,6 +1325,30 @@ export default function AdminDashboard() {
     );
 
     setActionNotice(`Meeting link shared for ${item.title}. Eligible students were notified.`);
+  };
+
+  const confirmOrderPayment = async (order: OrderRecord, status: 'paid' | 'cancelled') => {
+    const label = status === 'paid' ? 'paid' : 'cancelled';
+    const confirmed = window.confirm(
+      status === 'paid'
+        ? `Mark order "${order.title}" (${order.amountLabel}) from ${order.name} as paid? Do this only after the payment has reached BVF.`
+        : `Cancel order "${order.title}" from ${order.name}?`,
+    );
+    if (!confirmed) return;
+
+    await updateOrderStatus(order.id, { status });
+    if (order.userId) {
+      await createStudentNotification({
+        userId: order.userId,
+        title: status === 'paid' ? 'Payment confirmed' : 'Order cancelled',
+        message:
+          status === 'paid'
+            ? `Your payment for ${order.title} is confirmed.${order.itemType === 'plan' ? ' Your resource access will appear in your dashboard shortly.' : ''}`
+            : `Your order for ${order.title} was cancelled. Contact BVF Germany if you have questions.`,
+        type: 'system',
+      });
+    }
+    setActionNotice(`Order for ${order.title} (${order.name}) marked as ${label}.`);
   };
 
   const saveResourceDriveLink = async (order: OrderRecord) => {
@@ -1479,7 +1508,7 @@ export default function AdminDashboard() {
                       </div>
                       <div>
                         <label className="mb-1.5 block text-sm font-semibold text-slate-900">Phone</label>
-                        <input value={studentForm.phone} onChange={(e) => setStudentForm((prev) => ({ ...prev, phone: e.target.value }))} placeholder="+91 99999 99999" className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm" />
+                        <input value={studentForm.phone} onChange={(e) => setStudentForm((prev) => ({ ...prev, phone: e.target.value }))} placeholder="Student phone number" className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm" />
                       </div>
                       <div>
                         <label className="mb-1.5 block text-sm font-semibold text-slate-900">Password</label>
@@ -1700,9 +1729,9 @@ export default function AdminDashboard() {
 
           {tab === 'overview' && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3 xl:grid-cols-6">{[
+              <div className="grid grid-cols-2 gap-3 xl:grid-cols-6">{([
                 ['Active students', students.length, Users], ['New leads', openLeadCount, AlertTriangle], ['Pending docs', docQueue.filter((d) => d.doc.status === 'submitted').length, FileText], ['At-risk', students.filter((s) => s.status !== 'approved').length, AlertTriangle], ['Webinar regs', webinars.length, Video], ['Revenue orders', orders.length, CreditCard],
-              ].map(([label, value, Icon]) => <div key={String(label)} className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm"><p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{String(label)}</p><div className="mt-1 flex items-center gap-2"><Icon className="h-4 w-4 text-teal-700" /><p className="text-2xl font-semibold text-slate-900">{String(value)}</p></div></div>)}</div>
+              ] as Array<[string, number, typeof Users]>).map(([label, value, Icon]) => <div key={String(label)} className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm"><p className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{String(label)}</p><div className="mt-1 flex items-center gap-2"><Icon className="h-4 w-4 text-teal-700" /><p className="text-2xl font-semibold text-slate-900">{String(value)}</p></div></div>)}</div>
               <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
                 <div className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm xl:col-span-8"><h2 className="text-lg font-semibold">Pipeline stage summary</h2><div className="mt-3 grid gap-2 md:grid-cols-5">{Object.entries(stageBuckets).map(([k, v]) => <div key={k} className="rounded-lg border border-stone-200 bg-stone-50 p-3"><p className="text-xs text-slate-500">{k}</p><p className="text-2xl font-semibold text-slate-900">{v}</p></div>)}</div></div>
                 <div className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm xl:col-span-4"><h2 className="text-lg font-semibold">Urgent actions</h2><div className="mt-2 space-y-2 text-sm"><div className="rounded-lg bg-rose-50 px-3 py-2 text-rose-700">{students.filter((s) => s.status === 'pending_approval').length} students pending approval</div><div className="rounded-lg bg-amber-50 px-3 py-2 text-amber-700">{docQueue.filter((d) => d.doc.status === 'submitted').length} documents awaiting review</div><div className="rounded-lg bg-stone-100 px-3 py-2 text-slate-700">{openLeadCount} open leads need follow-up</div></div></div>
@@ -2079,6 +2108,31 @@ export default function AdminDashboard() {
 
           {tab === 'resources' && (
             <div className="space-y-4">
+              <div className="rounded-xl border border-amber-200 bg-white p-4 shadow-sm">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-lg font-semibold">Payments to confirm</h2>
+                    <p className="mt-1 text-xs text-slate-500">Orders for resources and paid webinars. Mark an order as paid only after the payment has reached BVF.</p>
+                  </div>
+                  <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">Pending {pendingPaymentOrders.length}</span>
+                </div>
+                <div className="mt-3 space-y-2">
+                  {pendingPaymentOrders.length ? pendingPaymentOrders.map((order) => (
+                    <div key={`pending-${order.id}`} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm">
+                      <div>
+                        <p className="font-semibold text-slate-900">{order.title} <span className="text-xs font-normal text-slate-500">({order.itemType === 'webinar' ? 'Paid webinar' : 'Resource'})</span></p>
+                        <p className="text-xs text-slate-500">{order.name} | {order.email} | {order.phone} | {order.amountLabel}</p>
+                        <p className="mt-1 text-[11px] text-slate-500">Order {order.id.slice(-8).toUpperCase()} | Placed {new Date(order.createdAt).toLocaleString()}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => void confirmOrderPayment(order, 'paid')} className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white">Mark as paid</button>
+                        <button onClick={() => void confirmOrderPayment(order, 'cancelled')} className="rounded-lg border border-rose-300 px-3 py-1.5 text-xs font-semibold text-rose-700">Cancel</button>
+                      </div>
+                    </div>
+                  )) : <p className="text-sm text-slate-500">No orders are waiting for payment confirmation.</p>}
+                </div>
+              </div>
+
               <div className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
@@ -2223,15 +2277,30 @@ export default function AdminDashboard() {
           {tab === 'settings' && settings && (
             <div className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
               <h2 className="text-lg font-semibold">Settings</h2>
-              <div className="mb-2 mt-2 flex gap-2 text-xs"><span className="rounded-full bg-stone-100 px-3 py-1">General</span><span className="rounded-full bg-stone-100 px-3 py-1">Branding</span><span className="rounded-full bg-stone-100 px-3 py-1">Roles</span><span className="rounded-full bg-stone-100 px-3 py-1">Security</span></div>
-              <div className="mt-3 grid gap-2 md:grid-cols-2">
-                <input value={settings.contactEmail} onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value, founderEmail: e.target.value })} placeholder="Contact email" className="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-                <input value={settings.contactPhone} onChange={(e) => setSettings({ ...settings, contactPhone: e.target.value })} placeholder="Contact phone" className="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-                <input value={settings.whatsappNumber} onChange={(e) => setSettings({ ...settings, whatsappNumber: e.target.value })} placeholder="WhatsApp" className="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-                <input value={settings.address} onChange={(e) => setSettings({ ...settings, address: e.target.value })} placeholder="Address" className="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
-                <textarea value={settings.heroTitle} onChange={(e) => setSettings({ ...settings, heroTitle: e.target.value })} className="rounded-lg border border-slate-300 px-3 py-2 text-sm md:col-span-2" />
+              <p className="mt-1 text-xs text-slate-500">Official contact details shown across the website. Leave a field empty to hide it. Placeholder values (such as +91 99999 99999) are never shown.</p>
+              <div className="mt-3 grid gap-3 md:grid-cols-2">
+                {([
+                  ['whatsappNumber', 'WhatsApp Business number', 'Digits with country code, e.g. 9198XXXXXXXX'],
+                  ['contactPhone', 'Phone number (as displayed)', 'e.g. +91 98XXX XXXXX'],
+                  ['contactEmail', 'Business email', 'e.g. info@yourdomain.com'],
+                  ['instagramUrl', 'Instagram profile URL', 'https://www.instagram.com/...'],
+                  ['youtubeUrl', 'YouTube channel URL', 'https://www.youtube.com/@...'],
+                  ['workingHours', 'Working hours', 'e.g. Mon–Sat, 10:00–18:00 IST'],
+                  ['address', 'Business address', 'Street, city, PIN code'],
+                  ['prefilledWhatsappMessage', 'Default WhatsApp message', 'Hi BVF Germany! ...'],
+                ] as const).map(([key, label, hint]) => (
+                  <label key={key} className={`block text-xs font-semibold text-slate-700 ${key === 'address' || key === 'prefilledWhatsappMessage' ? 'md:col-span-2' : ''}`}>
+                    {label}
+                    <input
+                      value={settings[key]}
+                      onChange={(e) => setSettings({ ...settings, [key]: e.target.value, ...(key === 'contactEmail' ? { founderEmail: e.target.value } : {}) })}
+                      placeholder={hint}
+                      className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-normal"
+                    />
+                  </label>
+                ))}
               </div>
-              <button onClick={saveSettings} className="mt-3 rounded-lg bg-teal-600 px-3 py-2 text-sm font-semibold text-white">Save settings</button>
+              <button onClick={() => void saveSettings().then(() => setActionNotice('Settings saved. The website now uses these contact details.'))} className="mt-3 rounded-lg bg-teal-600 px-3 py-2 text-sm font-semibold text-white">Save settings</button>
             </div>
           )}
 

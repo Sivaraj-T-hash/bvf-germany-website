@@ -5,7 +5,6 @@ export default function GermanBlockedAccountPage() {
     <ServiceDetailPage
       title="Blocked Account in Germany"
       subtitle="Complete guide to the mandatory German blocked account for 2026. Minimum amounts, top providers, required documents, and a seamless step‑by‑step opening process."
-      heroImage="/images/services/blocked_account_hero.png"
       ctaLabel="Book Free Consultation Now"
       ctaTo="/contact"
       introTitle="What is a Blocked Account (Sperrkonto)?"
@@ -17,7 +16,7 @@ export default function GermanBlockedAccountPage() {
         },
         {
           title: 'Minimum Amount Requirements (2026)',
-          text: 'The German government requires approx. EUR 11,208 per year, which translates to EUR 934 per month. This amount is calculated based on the standard BAföG rate for students.',
+          text: 'As of 2026, the German government requires €11,904 per year, which is €992 per month. The amount follows the standard BAföG rate for students and can change, so we confirm the latest official figure during your consultation.',
         },
         {
           title: 'Approved & Recommended Providers',
@@ -37,7 +36,7 @@ export default function GermanBlockedAccountPage() {
       storyBlocks={[
         {
           title: 'Step‑by‑Step Opening Process',
-          text: '1. Compare providers and select one that fits your needs.\n2. Complete the online application on the provider\'s portal (takes less than 10 minutes).\n3. Receive your IBAN details for the blocked account.\n4. Transfer the required amount (EUR 11,208 + setup fees) using standard bank transfer or platforms like Remitly/Wise.\n5. Wait for the funds to arrive (usually 3-5 days). Once confirmed, you will receive your "06 Blocked Amount Confirmation", which is the exact document the embassy needs for your visa.',
+          text: '1. Compare providers and select one that fits your needs.\n2. Complete the online application on the provider\'s portal (takes less than 10 minutes).\n3. Receive your IBAN details for the blocked account.\n4. Transfer the required amount (€11,904 for one year, as of 2026) using standard bank transfer or platforms like Remitly/Wise.\n5. Wait for the funds to arrive (usually 3-5 days). Once confirmed, you will receive your "06 Blocked Amount Confirmation", which is the exact document the embassy needs for your visa.',
         },
         {
           title: 'Important: Activating the Account After Arrival',
@@ -60,7 +59,7 @@ export default function GermanBlockedAccountPage() {
         },
         {
           q: 'Can I withdraw more than the monthly limit in an emergency?',
-          a: 'No. The German government sets strict rules. You can only access the maximum allowed monthly amount (EUR 934) to ensure the funds last for the entire year.',
+          a: 'No. The German government sets strict rules. You can only access the maximum allowed monthly amount (€992 as of 2026) to ensure the funds last for the entire year.',
         },
         {
           q: 'Do I need to renew the blocked account for my second year?',

@@ -9,13 +9,16 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
 import CalendlyEmbed from '@/components/CalendlyEmbed';
+import ConsentCheckbox from '@/components/ConsentCheckbox';
+import StudentStories from '@/components/StudentStories';
 import { useSeo } from '@/lib/useSeo';
 import { useAuth } from '@/components/AuthProvider';
 import { getStudentProfile } from '@/lib/studentStore';
 import { createBookingRecord } from '@/lib/bookingStore';
 import { sendSubmissionEmails } from '@/lib/submissionEmailApi';
-import { getSiteSettings, getTestimonials, type SiteSettings, type TestimonialItem } from '@/lib/siteContentStore';
 import { buildWhatsappHref } from '@/lib/whatsapp';
+import { useSiteSettings } from '@/hooks/use-site-settings';
+import { useFormGuard } from '@/lib/formGuard';
 
 const spring = { type: 'spring' as const, stiffness: 280, damping: 28 };
 
@@ -26,6 +29,7 @@ const bookingSchema = z.object({
   preferredDate: z.string().min(1, 'Select a date'),
   preferredTime: z.string().min(1, 'Select a time'),
   notes: z.string().trim().max(1000).optional(),
+  consent: z.boolean().refine((value) => value, 'Please agree so we can arrange your consultation.'),
   website: z.string().optional(),
 });
 
@@ -47,8 +51,8 @@ export default function BookingsPage() {
     image: '/hero-og.png',
   });
 
-  const [settings, setSettings] = useState<SiteSettings | null>(null);
-  const [testimonials, setTestimonials] = useState<TestimonialItem[]>([]);
+  const settings = useSiteSettings();
+  const guard = useFormGuard('booking');
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const {
@@ -59,23 +63,10 @@ export default function BookingsPage() {
     reset,
   } = useForm<BookingForm>({
     resolver: zodResolver(bookingSchema),
+    defaultValues: { consent: false },
   });
 
   const calendlyUrl = import.meta.env.VITE_CALENDLY_URL || '';
-
-  useEffect(() => {
-    let active = true;
-    const load = async () => {
-      const [siteSettings, nextTestimonials] = await Promise.all([getSiteSettings(), getTestimonials()]);
-      if (!active) return;
-      setSettings(siteSettings);
-      setTestimonials(nextTestimonials.filter((item) => item.published).slice(0, 3));
-    };
-    void load();
-    return () => {
-      active = false;
-    };
-  }, []);
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -90,21 +81,16 @@ export default function BookingsPage() {
     void hydrateBookingForm();
   }, [setValue, user]);
 
-  const whatsappHref = buildWhatsappHref(settings);
+  const whatsappHref = buildWhatsappHref(settings, 'Hi BVF Germany! I would like to book a free consultation.');
 
-  const onSubmit = async (data: BookingForm & { website?: string }) => {
+  const onSubmit = async (data: BookingForm) => {
+    const guardError = guard.check(data.website);
+    if (guardError) {
+      setSubmitError(guardError);
+      return;
+    }
+
     try {
-      if (data.website) {
-        setSubmitError('Submission failed. Please try again.');
-        return;
-      }
-
-      const lastSubmit = Number(localStorage.getItem('bvf_last_booking') || '0');
-      if (Date.now() - lastSubmit < 30000) {
-        setSubmitError('Please wait 30 seconds before submitting again.');
-        return;
-      }
-
       await createBookingRecord({
         name: data.name,
         email: data.email,
@@ -113,6 +99,7 @@ export default function BookingsPage() {
         preferredTime: data.preferredTime,
         notes: data.notes,
         userId: user?.uid || null,
+        consentAt: new Date().toISOString(),
       });
 
       try {
@@ -129,10 +116,10 @@ export default function BookingsPage() {
         console.warn('Booking email notifications skipped', mailError);
       }
 
-      localStorage.setItem('bvf_last_booking', Date.now().toString());
+      guard.markSubmitted();
       setSubmitted(true);
       setSubmitError('');
-      reset();
+      reset({ consent: false });
       setTimeout(() => setSubmitted(false), 5000);
     } catch (error) {
       console.error('Failed to submit booking:', error);
@@ -230,19 +217,13 @@ export default function BookingsPage() {
 
             <div className="space-y-6">
               <div className="premium-card p-6">
-                <p className="section-kicker">Trust + Reassurance</p>
+                <p className="section-kicker">What To Expect</p>
                 <div className="mt-4 space-y-3 text-sm leading-7 text-muted-foreground">
-                  <p>500+ students guided</p>
+                  <p>A free 30-minute call</p>
                   <p>No spam, no pressure</p>
-                  <p>100% personalized advice</p>
+                  <p>Advice based on your own profile</p>
+                  <p>The BVF team confirms your slot by email</p>
                 </div>
-              </div>
-
-              <div className="premium-card p-6">
-                <p className="section-kicker">Limited Slots</p>
-                <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                  Limited slots are available each week. Book early to secure your preferred time.
-                </p>
               </div>
 
               <div className="surface-panel card-shadow-lg p-6">
@@ -257,7 +238,7 @@ export default function BookingsPage() {
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-4">
-                    <input type="text" tabIndex={-1} autoComplete="off" className="hidden" {...register('website')} />
+                    <input type="text" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" {...register('website')} />
                     <div>
                       <label htmlFor="booking-name" className="mb-1.5 block text-sm font-semibold text-foreground">Full Name</label>
                       <input id="booking-name" className="input-premium" {...register('name')} />
@@ -291,11 +272,12 @@ export default function BookingsPage() {
                       <label htmlFor="booking-notes" className="mb-1.5 block text-sm font-semibold text-foreground">Notes</label>
                       <textarea id="booking-notes" rows={4} className="input-premium resize-none" {...register('notes')} />
                     </div>
+                    <ConsentCheckbox id="booking-consent" error={errors.consent?.message} {...register('consent')} />
                     <button type="submit" disabled={isSubmitting} className="button-primary w-full disabled:opacity-50">
                       {isSubmitting ? 'Sending...' : 'Get Free Evaluation'}
                     </button>
                     <p className={`text-xs ${submitError ? 'text-destructive' : 'text-muted-foreground'}`}>
-                      {submitError || 'Manual requests stay public unless you are already logged in.'}
+                      {submitError || 'Signed in? The request also appears in your student dashboard.'}
                     </p>
                   </form>
                 )}
@@ -304,30 +286,7 @@ export default function BookingsPage() {
           </div>
         </section>
 
-        <section className="px-4 py-16 md:px-8 md:py-20">
-          <div className="container-narrow">
-            <div className="max-w-3xl">
-              <p className="section-kicker">Student Confidence</p>
-              <h2 className="section-title">Short calls work when they create immediate clarity.</h2>
-            </div>
-            <div className="mt-10 grid gap-6 md:grid-cols-3">
-              {testimonials.map((item, index) => (
-                <motion.article
-                  key={item.id}
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.2 }}
-                  transition={{ ...spring, delay: index * 0.05 }}
-                  className="surface-panel p-6"
-                >
-                  <p className="text-sm leading-7 text-muted-foreground">&quot;{item.quote}&quot;</p>
-                  <p className="mt-5 font-semibold text-foreground">{item.name}</p>
-                  <p className="text-sm text-muted-foreground">{item.university}</p>
-                </motion.article>
-              ))}
-            </div>
-          </div>
-        </section>
+        <StudentStories kicker="Student Confidence" title="Short calls work when they create immediate clarity." />
 
         <section className="px-4 py-16 md:px-8 md:py-20">
           <div className="container-narrow grid gap-8 lg:grid-cols-[1fr_0.95fr]">
@@ -344,15 +303,21 @@ export default function BookingsPage() {
             </div>
 
             <div className="rounded-[34px] bg-[linear-gradient(160deg,rgba(10,18,37,1),rgba(23,42,77,0.96))] p-8 text-white shadow-[0_30px_100px_-54px_rgba(15,23,42,0.9)]">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">Fallback</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">Not Ready Yet?</p>
               <h3 className="mt-3 font-heading text-3xl font-semibold text-secondary">Prefer quick help instead?</h3>
               <p className="mt-4 text-sm leading-7 text-white/76">
-                WhatsApp is still the fastest fallback if you are not ready to choose a time slot yet.
+                {whatsappHref ? 'WhatsApp is the fastest option if you are not ready to choose a time slot yet.' : 'Send us your question and we will get back to you.'}
               </p>
               <div className="mt-6 flex flex-col gap-3">
-                <a href={whatsappHref} target="_blank" rel="noreferrer" className="button-primary">
-                  Chat on WhatsApp
-                </a>
+                {whatsappHref ? (
+                  <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="button-primary">
+                    Chat on WhatsApp
+                  </a>
+                ) : (
+                  <Link to="/contact" className="button-primary">
+                    Send a Question
+                  </Link>
+                )}
                 {!user ? (
                   <Link to="/register" className="button-secondary">
                     Book Free Consultation Now

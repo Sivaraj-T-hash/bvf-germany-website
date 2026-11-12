@@ -1,56 +1,31 @@
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Activity, ArrowRight, BookOpenCheck, CheckCircle2, CircleDollarSign, FileSearch, FileText, GraduationCap, HeartPulse, Home, Languages, SearchCheck, ShieldCheck, UserRoundCheck } from 'lucide-react';
+import { ArrowRight, BarChart3, CheckCircle2, FileSearch, Wrench } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
+import WhatsAppCta from '@/components/WhatsAppCta';
+import { AddOnsTable, JourneyStagesSection, PackagePriceCard, TimelineSection } from '@/components/OfferSections';
 import { serviceCatalog } from '@/lib/serviceCatalog';
-import { getSiteSettings, type SiteSettings } from '@/lib/siteContentStore';
+import { testPrep } from '@/content/offer';
 import { useSeo } from '@/lib/useSeo';
-import { buildWhatsappHref } from '@/lib/whatsapp';
 
 const spring = { type: 'spring' as const, stiffness: 280, damping: 28 };
 
-const iconMap = {
-  university: SearchCheck,
-  application: FileText,
-  ielts: GraduationCap,
-  gre: BookOpenCheck,
-  language: Languages,
-  visa: ShieldCheck,
-  arrival: UserRoundCheck,
-  accommodation: Home,
-  sop: FileText,
-  cv: FileSearch,
-  loan: CircleDollarSign,
-  insurance: HeartPulse,
-  'uni-application': Activity,
-};
+const moreOptions = [
+  { icon: FileSearch, title: 'Free first consultation', text: 'Profile check and honest advice on where you can apply, before you pay anything.', to: '/bookings' },
+  { icon: BarChart3, title: 'GMAT Preparation (add-on)', text: 'For management and business master’s programmes, such as MSc Management and MBA. ₹14,999.', to: '/services/gmat-preparation' },
+  { icon: Wrench, title: 'Ausbildung guidance', text: 'Understand Germany’s vocational training route and whether it fits you.', to: '/study-in-germany/ausbildung' },
+];
 
 export default function ServicesPage() {
   useSeo({
     title: 'Services | BVF Germany',
-    description: 'Explore BVF Germany services for university shortlisting, APS, IELTS, GRE, German language, visa guidance, arrival support, accommodation, SOP and LOR writing, and CV writing.',
-    url: '/services',
+    description: '14 services in six stages, from university shortlisting to settling in Germany, in one ₹59,999 package. Optional add-ons for IELTS, GRE, GMAT, German classes and accommodation.',
     image: '/hero-og.png',
   });
 
-  const [settings, setSettings] = useState<SiteSettings | null>(null);
-
-  useEffect(() => {
-    let active = true;
-    const load = async () => {
-      const siteSettings = await getSiteSettings();
-      if (active) setSettings(siteSettings);
-    };
-    void load();
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  const whatsappHref = buildWhatsappHref(settings);
+  const universityShortlistService = serviceCatalog.find((service) => service.slug === 'university-shortlist');
 
   return (
     <div className="site-shell home-showcase">
@@ -60,130 +35,136 @@ export default function ServicesPage() {
         <section className="page-hero">
           <div className="page-hero-inner">
             <div className="poster-grid items-end">
-              <motion.div
-                initial={{ opacity: 0, y: 28 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={spring}
-                className="col-span-12 lg:col-span-7"
-              >
-                <p className="eyebrow-chip">Services Hub</p>
-                <h1 className="hero-display mt-7">Complete Germany support, from shortlist to settlement.</h1>
+              <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="col-span-12 lg:col-span-7">
+                <p className="eyebrow-chip">Services</p>
+                <h1 className="hero-display mt-7">14 services, one journey</h1>
                 <p className="hero-copy">
-                  Every service on this page is mapped to a real Germany milestone: shortlisting, APS, exams, visa,
-                  landing, housing, SOP and LOR writing, and German-format CV support.
+                  Six stages, one team, with you from India to Germany. Items marked Add-on are optional, so you pay only for
+                  what you need.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-4">
-                  <Link to="/services/university-shortlist" className="button-primary">
-                    Start with Shortlisting
-                  </Link>
-                  <a href={whatsappHref} target="_blank" rel="noreferrer" className="button-secondary">Chat on WhatsApp</a>
+                  <Link to="/bookings" className="button-primary">Book Free Consultation</Link>
+                  <Link to="/pricing" className="button-secondary">See Pricing</Link>
                 </div>
               </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 28 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ ...spring, delay: 0.06 }}
-                className="col-span-12 lg:col-span-5"
-              >
+              <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.06 }} className="col-span-12 lg:col-span-5">
                 <div className="surface-panel p-6">
-                  <p className="section-kicker">Service Order</p>
-                  <ul className="mt-4 space-y-3">
-                    {[
-                      'Start with university shortlisting so your applications stay realistic',
-                      'Move into APS, IELTS or GRE, and language prep based on your route',
-                      'Finish with visa, arrival, housing, SOP and LOR, and CV support as needed',
-                    ].map((item) => (
-                      <li key={item} className="flex items-start gap-3 text-sm leading-7 text-muted-foreground">
-                        <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-secondary" aria-hidden="true" />
-                        <span>{item}</span>
+                  <p className="section-kicker">The six stages</p>
+                  <ol className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                    {['Discover', 'Prepare', 'Apply', 'Fund', 'Fly', 'Settle'].map((stage, index) => (
+                      <li key={stage} className="flex items-center gap-3 font-semibold text-foreground">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs text-primary">{index + 1}</span>
+                        {stage}
                       </li>
                     ))}
-                  </ul>
+                  </ol>
                 </div>
               </motion.div>
+            </div>
+          </div>
+        </section>
+
+        <JourneyStagesSection className="pt-4 md:pt-6" />
+
+        <section className="px-4 py-16 md:px-8 md:py-20">
+          <div className="container-narrow">
+            <div className="max-w-3xl">
+              <p className="section-kicker">Simple, honest pricing</p>
+              <h2 className="section-title">One package covers your whole journey.</h2>
+              <p className="mt-4 text-base leading-8 text-muted-foreground">
+                You pay in two parts, and the second part is due only once you have your offer letter.
+              </p>
+            </div>
+            <PackagePriceCard className="mt-8" />
+            <div className="mt-12 grid gap-10 lg:grid-cols-2">
+              <div>
+                <h3 className="text-xl font-bold text-foreground">Add-ons at a glance</h3>
+                <AddOnsTable className="mt-2" />
+              </div>
+              <div className="surface-panel h-fit p-6">
+                <p className="font-semibold text-foreground">Not sure which test you need?</p>
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">{testPrep.testAdvice.replace('Not sure which test you need? ', '')}</p>
+                <Link to="/pricing" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-secondary">
+                  Full pricing and official fees <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              </div>
             </div>
           </div>
         </section>
 
         <section className="px-4 pb-16 md:px-8 md:pb-20">
           <div className="container-narrow">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {serviceCatalog.map((service, index) => {
-                const Icon = iconMap[service.icon];
-                return (
-                  <motion.div
-                    key={service.id}
-                    initial={{ opacity: 0, y: 24 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.2 }}
-                    transition={{ ...spring, delay: index * 0.04 }}
-                  >
-                    <Link
-                      to={`/services/${service.slug}`}
-                      className="surface-panel group flex h-full flex-col p-6 transition-all hover:ring-2 hover:ring-primary/20 hover:-translate-y-1"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-                          <Icon className="h-6 w-6 text-primary" aria-hidden="true" />
+            <h2 className="text-2xl font-bold text-foreground">More ways we help</h2>
+            <div className="mt-6 grid gap-5 md:grid-cols-3">
+              {moreOptions.map((option) => (
+                <Link key={option.title} to={option.to} className="surface-panel group flex flex-col p-6 transition hover:-translate-y-0.5">
+                  <option.icon className="h-6 w-6 text-primary" aria-hidden="true" />
+                  <p className="mt-4 text-lg font-semibold text-foreground">{option.title}</p>
+                  <p className="mt-2 flex-1 text-sm leading-7 text-muted-foreground">{option.text}</p>
+                  <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                    Learn more <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden="true" />
+                  </span>
+                </Link>
+              ))}
+              <Link to="/dmat" className="surface-panel group flex flex-col p-6 transition hover:-translate-y-0.5 md:col-span-3">
+                <p className="text-lg font-semibold text-foreground">dMAT exam guidance</p>
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                  Some German universities use the dMAT for Master’s admissions. Read what it is, who needs it and how to register.
+                </p>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <TimelineSection className="pt-0 md:pt-0" />
+
+        {universityShortlistService?.disciplineShortlists?.length ? (
+          <section className="px-4 pb-16 md:px-8 md:pb-20">
+            <div className="container-narrow">
+              <div className="max-w-3xl">
+                <p className="section-kicker">University Shortlisting</p>
+                <h2 className="section-title">Shortlists by engineering discipline.</h2>
+                <p className="mt-4 text-base leading-8 text-muted-foreground">
+                  Examples of public universities often considered for each branch. Your own shortlist is matched to your CGPA,
+                  experience and goals.
+                </p>
+              </div>
+              <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {universityShortlistService.disciplineShortlists.map((discipline) => (
+                  <article key={discipline.title} className="surface-panel h-full p-6">
+                    <h3 className="text-2xl font-semibold text-foreground">{discipline.title}</h3>
+                    <p className="mt-3 text-sm leading-7 text-muted-foreground">{discipline.summary}</p>
+                    <div className="mt-5 space-y-2">
+                      {discipline.items.map((item) => (
+                        <div key={item} className="flex items-start gap-3 rounded-[20px] border border-border/70 bg-background/70 px-4 py-3 text-sm text-foreground">
+                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                          <span>{item}</span>
                         </div>
-                        <span className="rounded-full bg-[#f7f2ea] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                          {String(index + 1).padStart(2, '0')}
-                        </span>
-                      </div>
-                      <h2 className="mt-5 text-2xl font-heading font-semibold text-foreground">{service.title}</h2>
-                      <p className="mt-3 flex-1 text-sm leading-7 text-muted-foreground">{service.shortDescription}</p>
-                      <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition group-hover:gap-3">
-                        Learn More
-                        <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                      </div>
-                    </Link>
-                  </motion.div>
-                );
-              })}
+                      ))}
+                    </div>
+                  </article>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
-
-        <section className="px-4 pb-12 md:px-8 md:pb-16">
-          <div className="container-narrow rounded-[34px] bg-[linear-gradient(135deg,rgba(9,18,39,1),rgba(18,33,70,0.96))] px-6 py-10 text-white shadow-[0_32px_110px_-58px_rgba(3,7,18,0.95)] md:flex md:items-center md:justify-between md:px-10">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">Start Here</p>
-              <h2 className="mt-3 font-heading text-3xl font-semibold text-secondary md:text-4xl">
-                Not sure where to start?
-              </h2>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-white/76">
-                Start with University Shortlisting, then add APS, language, visa, and writing services only where your profile needs them.
-              </p>
-            </div>
-            <Link to="/services/university-shortlist" className="button-primary mt-6 md:mt-0">
-              Start University Shortlisting
-            </Link>
-          </div>
-        </section>
-
+          </section>
+        ) : null}
 
         <section className="px-4 pb-20 md:px-8 md:pb-24">
           <div className="container-narrow overflow-hidden rounded-[36px] bg-gradient-dark p-8 text-white md:p-12">
             <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
               <div>
-                <p className="section-kicker text-[#FFCE00]">Final CTA</p>
-                <h2 className="mt-3 font-heading text-4xl font-semibold md:text-5xl">
-                  Join BVF Germany
-                </h2>
+                <p className="section-kicker text-[#FFCE00]">Free first consultation</p>
+                <h2 className="mt-3 font-heading text-4xl font-semibold md:text-5xl">Start your Germany journey today</h2>
                 <p className="mt-4 max-w-2xl text-sm leading-7 text-white/75">
-                  Get expert guidance from shortlisting to landing in Germany
+                  Book a free consultation with our student counsellors. No pressure, just honest advice.
                 </p>
               </div>
               <div className="flex flex-wrap gap-3">
-                <a
-                  href={whatsappHref}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-foreground transition hover:-translate-y-0.5"
-                >
-                  Get Free Profile Evaluation
-                </a>
+                <Link to="/bookings" className="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-foreground transition hover:-translate-y-0.5">
+                  Book Consultation
+                </Link>
+                <WhatsAppCta label="WhatsApp Chat" />
               </div>
             </div>
           </div>

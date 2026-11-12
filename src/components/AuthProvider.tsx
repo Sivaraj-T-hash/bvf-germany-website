@@ -8,7 +8,12 @@ import { subscribeToAdminProfile } from '@/lib/adminStore';
 
 type AuthContextValue = {
   user: User | null;
+  /** True until Firebase has restored (or ruled out) a signed-in session. */
   loading: boolean;
+  /** True while the signed-in user's student profile has not loaded yet. */
+  studentProfileLoading: boolean;
+  /** True while the signed-in user's admin record has not loaded yet. */
+  adminProfileLoading: boolean;
   studentApproved: boolean;
   studentStatus: StudentAccountStatus | null;
   isAdmin: boolean;
@@ -19,21 +24,27 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue>({
   user: null,
   loading: true,
+  studentProfileLoading: false,
+  adminProfileLoading: false,
   studentApproved: false,
   studentStatus: null,
   isAdmin: false,
   mustChangePassword: false,
-  passwordStatusLoading: true,
+  passwordStatusLoading: false,
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [studentApproved, setStudentApproved] = useState(false);
   const [studentStatus, setStudentStatus] = useState<StudentAccountStatus | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [mustChangePassword, setMustChangePassword] = useState(false);
-  const [passwordStatusLoading, setPasswordStatusLoading] = useState(true);
+  // Each value records which user it was loaded for. Comparing it with the current user
+  // closes the gap between "user restored" and "profile loaded" that used to bounce
+  // signed-in users back to the login page on refresh.
+  const [studentLoadedFor, setStudentLoadedFor] = useState<string | null>(null);
+  const [adminLoadedFor, setAdminLoadedFor] = useState<string | null>(null);
+  const [passwordStatusLoadedFor, setPasswordStatusLoadedFor] = useState<string | null>(null);
   const inactivityTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -47,21 +58,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!user) {
-      setStudentApproved(false);
       setStudentStatus(null);
       setIsAdmin(false);
       setMustChangePassword(false);
-      setPasswordStatusLoading(false);
       return;
     }
 
-    const unsubscribeStudent = subscribeToStudentProfile(user.uid, (profile) => {
-      setStudentApproved(profile?.status === 'approved' || profile?.status === 'pending_approval');
-      setStudentStatus(profile?.status || null);
-    });
-    const unsubscribeAdmin = subscribeToAdminProfile(user.uid, (profile) => {
-      setIsAdmin(Boolean(profile?.isAdmin));
-    });
+    const uid = user.uid;
+    const unsubscribeStudent = subscribeToStudentProfile(
+      uid,
+      (profile) => {
+        setStudentStatus(profile?.status || null);
+        setStudentLoadedFor(uid);
+      },
+      (error) => {
+        console.error('Student profile could not be loaded:', error);
+        setStudentStatus(null);
+        setStudentLoadedFor(uid);
+      },
+    );
+    const unsubscribeAdmin = subscribeToAdminProfile(
+      uid,
+      (profile) => {
+        setIsAdmin(Boolean(profile?.isAdmin));
+        setAdminLoadedFor(uid);
+      },
+      () => {
+        setIsAdmin(false);
+        setAdminLoadedFor(uid);
+      },
+    );
 
     return () => {
       unsubscribeStudent();
@@ -71,14 +97,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let active = true;
+    if (!user) return undefined;
 
+    const uid = user.uid;
     const loadPasswordStatus = async () => {
-      if (!user) {
-        return;
-      }
-
       try {
-        setPasswordStatusLoading(true);
         const idToken = await user.getIdToken();
         const status = await getPasswordResetStatus(idToken);
         if (!active) return;
@@ -88,9 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!active) return;
         setMustChangePassword(false);
       } finally {
-        if (active) {
-          setPasswordStatusLoading(false);
-        }
+        if (active) setPasswordStatusLoadedFor(uid);
       }
     };
 
@@ -135,9 +156,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [user]);
 
+  const uid = user?.uid ?? null;
+  const studentProfileLoading = Boolean(uid) && studentLoadedFor !== uid;
+  const adminProfileLoading = Boolean(uid) && adminLoadedFor !== uid;
+  const passwordStatusLoading = Boolean(uid) && passwordStatusLoadedFor !== uid;
+  const currentStudentStatus = studentProfileLoading ? null : studentStatus;
+
   const value = useMemo(
-    () => ({ user, loading, studentApproved, studentStatus, isAdmin, mustChangePassword, passwordStatusLoading }),
-    [user, loading, studentApproved, studentStatus, isAdmin, mustChangePassword, passwordStatusLoading],
+    () => ({
+      user,
+      loading,
+      studentProfileLoading,
+      adminProfileLoading,
+      studentApproved: currentStudentStatus === 'approved',
+      studentStatus: currentStudentStatus,
+      isAdmin: !adminProfileLoading && isAdmin,
+      mustChangePassword,
+      passwordStatusLoading,
+    }),
+    [user, loading, studentProfileLoading, adminProfileLoading, currentStudentStatus, isAdmin, mustChangePassword, passwordStatusLoading],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -263,6 +263,7 @@ export default function StudentDashboardPage() {
   }, [bookings.length, pendingDocs, services, studentApproved, webinarCatalog, webinars.length]);
 
   const normalizedSearch = search.trim().toLowerCase();
+  const today = new Date();
 
   const recommendedBlogs = useMemo(() => {
     const stageTerms = ['profile', 'university', 'ielts', 'sop', 'application', 'visa', 'departure'][currentStageIndex] ?? '';
@@ -277,7 +278,7 @@ export default function StudentDashboardPage() {
   const filteredBlogs = useMemo(() => {
     if (!normalizedSearch) return blogs;
     return blogs.filter((blog) =>
-      [blog.title, blog.category, blog.excerpt, blog.author, blog.slug]
+      [blog.title, blog.category, blog.excerpt, blog.authorName, blog.slug]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(normalizedSearch)),
     );

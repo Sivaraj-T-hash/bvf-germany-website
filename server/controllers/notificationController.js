@@ -1,11 +1,12 @@
 import { auth, rtdb } from '../firebaseAdmin.js';
 import { sendAdminBroadcastEmails, sendFormSubmissionEmails } from '../services/mailService.js';
 
-const allowedTypes = new Set(['contact', 'booking', 'webinar', 'profile_evaluation']);
+const allowedTypes = new Set(['contact', 'booking', 'webinar', 'profile_evaluation', 'pricing', 'tool', 'order']);
 const allowedLeadSources = new Set(['contact', 'pricing', 'tool']);
+const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
-function requireString(value) {
-  return String(value || '').trim();
+function requireString(value, maxLength = 500) {
+  return String(value || '').trim().slice(0, maxLength);
 }
 
 function sanitizeMetadata(value) {
@@ -27,6 +28,14 @@ function validatePayload(formType, payload) {
 
   if (!payload.name || !payload.email) {
     return 'Name and email are required.';
+  }
+
+  if (!EMAIL_PATTERN.test(payload.email)) {
+    return 'A valid email address is required.';
+  }
+
+  if (formType === 'order' && (!payload.orderTitle || !payload.orderId)) {
+    return 'Order details are required.';
   }
 
   if (formType === 'contact' && !payload.message) {
@@ -52,21 +61,26 @@ export async function sendSubmissionEmails(req, res) {
   try {
     const formType = requireString(req.body.formType);
     const payload = {
-      name: requireString(req.body.name),
-      email: requireString(req.body.email).toLowerCase(),
-      phone: requireString(req.body.phone),
-      message: requireString(req.body.message),
-      preferredDate: requireString(req.body.preferredDate),
-      preferredTime: requireString(req.body.preferredTime),
-      notes: requireString(req.body.notes),
-      webinarTitle: requireString(req.body.webinarTitle),
-      webinarDate: requireString(req.body.webinarDate),
-      qualification: requireString(req.body.qualification),
-      intake: requireString(req.body.intake),
-      planningYear: requireString(req.body.planningYear),
-      subject: requireString(req.body.subject),
-      interestedProgram: requireString(req.body.interestedProgram),
-      currentEducation: requireString(req.body.currentEducation),
+      name: requireString(req.body.name, 120),
+      email: requireString(req.body.email, 254).toLowerCase(),
+      phone: requireString(req.body.phone, 30),
+      message: requireString(req.body.message, 2000),
+      preferredDate: requireString(req.body.preferredDate, 20),
+      preferredTime: requireString(req.body.preferredTime, 20),
+      notes: requireString(req.body.notes, 2000),
+      webinarTitle: requireString(req.body.webinarTitle, 200),
+      webinarDate: requireString(req.body.webinarDate, 60),
+      qualification: requireString(req.body.qualification, 100),
+      intake: requireString(req.body.intake, 50),
+      planningYear: requireString(req.body.planningYear, 10),
+      selectedPackage: requireString(req.body.selectedPackage, 120),
+      source: requireString(req.body.source, 200),
+      orderTitle: requireString(req.body.orderTitle, 200),
+      amountLabel: requireString(req.body.amountLabel, 40),
+      orderId: requireString(req.body.orderId, 60),
+      subject: requireString(req.body.subject, 200),
+      interestedProgram: requireString(req.body.interestedProgram, 200),
+      currentEducation: requireString(req.body.currentEducation, 200),
     };
 
     const validationError = validatePayload(formType, payload);
@@ -100,6 +114,7 @@ async function createLeadRecord(payload) {
     metadata: payload.metadata,
     status: 'new',
     createdAt: new Date().toISOString(),
+    ...(payload.consentAt ? { consentAt: payload.consentAt } : {}),
   };
 
   await leadRef.set(lead);
@@ -121,15 +136,16 @@ export async function sendPublicLeadSubmission(req, res) {
 
     const payload = {
       source,
-      sourcePage: requireString(req.body.sourcePage) || '/',
-      name: requireString(req.body.name),
-      email: requireString(req.body.email).toLowerCase(),
-      phone: requireString(req.body.phone),
-      subject: requireString(req.body.subject),
-      message: requireString(req.body.message),
-      interestedProgram: requireString(req.body.interestedProgram),
-      currentEducation: requireString(req.body.currentEducation),
+      sourcePage: requireString(req.body.sourcePage, 200) || '/',
+      name: requireString(req.body.name, 120),
+      email: requireString(req.body.email, 254).toLowerCase(),
+      phone: requireString(req.body.phone, 30),
+      subject: requireString(req.body.subject, 200),
+      message: requireString(req.body.message, 2000),
+      interestedProgram: requireString(req.body.interestedProgram, 200),
+      currentEducation: requireString(req.body.currentEducation, 200),
       metadata: sanitizeMetadata(req.body.metadata),
+      consentAt: requireString(req.body.consentAt, 40),
     };
 
     const validationError = validatePayload(formType, payload);

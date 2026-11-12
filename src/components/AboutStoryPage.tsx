@@ -3,20 +3,25 @@ import { ArrowRight, Sparkles } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import BrandVisual from '@/components/BrandVisual';
+import WhatsAppCta from '@/components/WhatsAppCta';
 import { useSeo } from '@/lib/useSeo';
 
 type Stat = { value: string; label: string };
-type StorySection = { title: string; text: string; image: string; bullets?: string[] };
+/** `image` must be a genuine BVF photograph; leave it out to show the branded graphic. */
+type StorySection = { title: string; text: string; image?: string; bullets?: string[] };
 
 type AboutStoryPageProps = {
   title: string;
   subtitle: string;
-  heroImage: string;
+  heroImage?: string;
   ctaLabel: string;
   ctaTo: string;
-  stats: Stat[];
+  /** Only verified figures. Hidden when empty. */
+  stats?: Stat[];
   sections: StorySection[];
-  gallery: string[];
+  /** Genuine photographs only. Hidden when empty. */
+  gallery?: string[];
 };
 
 function ReadMore({ text, maxChars = 260 }: { text: string; maxChars?: number }) {
@@ -46,9 +51,9 @@ export default function AboutStoryPage({
   heroImage,
   ctaLabel,
   ctaTo,
-  stats,
+  stats = [],
   sections,
-  gallery,
+  gallery = [],
 }: AboutStoryPageProps) {
   const location = useLocation();
 
@@ -87,71 +92,103 @@ export default function AboutStoryPage({
           <div className="relative">
             <div className="absolute -left-6 -top-6 h-36 w-36 rounded-[45%_55%_65%_35%] bg-[#f2c94c]/35 blur-[1px]" />
             <div className="absolute -right-8 -bottom-8 h-52 w-52 rounded-[55%_45%_40%_60%] bg-[#f2c94c]/25 blur-[1px]" />
-            <img
-              src={heroImage}
-              alt=""
-              className="relative w-full h-[300px] object-cover rounded-[28px] border border-border shadow-lg"
-              loading="lazy"
-            />
+            {heroImage ? (
+              <img
+                src={heroImage}
+                alt=""
+                className="relative w-full h-[300px] object-cover rounded-[28px] border border-border shadow-lg"
+                loading="lazy"
+              />
+            ) : (
+              <BrandVisual title={title} kicker="About BVF Germany" className="relative h-[300px] w-full rounded-[28px] border border-border shadow-lg" />
+            )}
           </div>
         </div>
       </section>
 
-      <section className="py-12">
-        <div className="container-narrow px-4 md:px-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-          {stats.map((stat) => (
-            <div key={stat.label} className="bg-card border border-border rounded-2xl p-6 text-center shadow-sm">
-              <div className="text-2xl font-extrabold text-secondary">{stat.value}</div>
-              <p className="mt-2 text-xs text-muted-foreground uppercase tracking-wide">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      {stats.length > 0 && (
+        <section className="py-12">
+          <div className="container-narrow px-4 md:px-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            {stats.map((stat) => (
+              <div key={stat.label} className="bg-card border border-border rounded-2xl p-6 text-center shadow-sm">
+                <div className="text-2xl font-extrabold text-secondary">{stat.value}</div>
+                <p className="mt-2 text-xs text-muted-foreground uppercase tracking-wide">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="py-10">
         <div className="container-narrow px-4 md:px-8 space-y-12">
-          {sections.map((section, index) => (
-            <div
-              key={section.title}
-              className={`grid grid-cols-1 lg:grid-cols-2 gap-10 items-center ${
-                index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
-              }`}
-            >
-              <div className={index % 2 === 1 ? 'lg:col-start-2' : ''}>
-                <h2 className="text-2xl font-bold text-secondary">{section.title}</h2>
-                <div className="mt-4">
-                  <ReadMore text={section.text} />
+          {sections.map((section, index) =>
+            section.image ? (
+              <div
+                key={section.title}
+                className={`grid grid-cols-1 lg:grid-cols-2 gap-10 items-center ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''}`}
+              >
+                <div className={index % 2 === 1 ? 'lg:col-start-2' : ''}>
+                  <h2 className="text-2xl font-bold text-secondary">{section.title}</h2>
+                  <div className="mt-4">
+                    <ReadMore text={section.text} />
+                  </div>
+                  {section.bullets && (
+                    <ul className="mt-4 space-y-2 text-sm text-foreground list-disc pl-5">
+                      {section.bullets.map((bullet) => (
+                        <li key={bullet}>{bullet}</li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-                {section.bullets && (
-                  <ul className="mt-4 space-y-2 text-sm text-foreground list-disc pl-5">
-                    {section.bullets.map((bullet) => (
-                      <li key={bullet}>{bullet}</li>
-                    ))}
-                  </ul>
-                )}
+                <div className={index % 2 === 1 ? 'lg:col-start-1' : ''}>
+                  <img src={section.image} alt="" className="w-full h-[280px] object-cover rounded-2xl border border-border shadow-md" loading="lazy" />
+                </div>
               </div>
-              <div className={index % 2 === 1 ? 'lg:col-start-1' : ''}>
-                <img
-                  src={section.image}
-                  alt=""
-                  className="w-full h-[280px] object-cover rounded-2xl border border-border shadow-md"
-                  loading="lazy"
-                />
+            ) : (
+              <div key={section.title} className="grid grid-cols-1 gap-6 rounded-3xl border border-border bg-card p-6 shadow-sm md:grid-cols-[72px_1fr] md:p-8">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#132033] font-numeric text-xl text-[#facc15]">
+                  {String(index + 1).padStart(2, '0')}
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-secondary">{section.title}</h2>
+                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{section.text}</p>
+                  {section.bullets && (
+                    <ul className="mt-4 grid gap-2 text-sm text-foreground sm:grid-cols-2">
+                      {section.bullets.map((bullet) => (
+                        <li key={bullet} className="rounded-xl bg-muted/50 px-3 py-2">{bullet}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ),
+          )}
         </div>
       </section>
 
-      <section className="py-12 bg-muted/30">
+      {gallery.length > 0 && (
+        <section className="py-12 bg-muted/30">
+          <div className="container-narrow px-4 md:px-8">
+            <h3 className="text-xl font-bold text-secondary mb-6">Moments & Highlights</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {gallery.map((src) => (
+                <div key={src} className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
+                  <img src={src} alt="" className="w-full h-28 object-cover" loading="lazy" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="pb-14">
         <div className="container-narrow px-4 md:px-8">
-          <h3 className="text-xl font-bold text-secondary mb-6">Moments & Highlights</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {gallery.map((src, idx) => (
-              <div key={idx} className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-                <img src={src} alt="" className="w-full h-28 object-cover" loading="lazy" />
-              </div>
-            ))}
+          <div className="flex flex-col items-start justify-between gap-4 rounded-3xl bg-[#132033] p-6 text-white md:flex-row md:items-center md:p-8">
+            <p className="max-w-xl text-lg font-semibold">Have a question about your Germany plan? Talk to the BVF team.</p>
+            <div className="flex flex-wrap gap-3">
+              <Link to="/bookings" className="rounded-full bg-[#facc15] px-5 py-3 text-sm font-semibold text-[#132033]">Book a free consultation</Link>
+              <WhatsAppCta message={`Hi BVF Germany, I read the "${title}" page and have a question.`} />
+            </div>
           </div>
         </div>
       </section>

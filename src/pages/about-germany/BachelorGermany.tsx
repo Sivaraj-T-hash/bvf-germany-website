@@ -6,7 +6,6 @@ export default function BachelorGermanyPage() {
       title="Bachelor's Degree in Germany"
       subtitle="A bachelor's degree in Germany is a strong route for students who want tuition-free public university education, clear academic direction, and long-term career opportunities in Europe."
       heroBadge="Bachelor's pathway"
-      heroImage="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?q=80&w=1600&auto=format&fit=crop"
       heroHighlights={[
         'Duration: 3-4 years',
         'IELTS 6.0-6.5 or German B2',

@@ -5,12 +5,10 @@ export default function StudyLoanGermanyPage() {
     <ServiceDetailPage
       title="Study Abroad Education Loan"
       subtitle="Comprehensive education loans tailored for studying in Germany. Access high loan amounts with low interest rates and zero collateral options."
-      heroImage="/images/services/study_loan_hero.png"
       ctaLabel="Book Free Loan Consultation"
       ctaTo="/contact"
       introTitle="Why Apply for an Education Loan?"
       introText="Studying abroad is a major financial commitment. Instead of depleting your family's savings, an education loan allows you to cover 100% of your academic and living expenses. For Germany specifically, a loan helps you fund the mandatory Blocked Account upfront and also brings substantial tax benefits under Section 80E (for Indian students). We partner with top banks and NBFCs to provide fast, hassle-free approvals, often before your university admission is fully confirmed."
-      introImage="/images/services/study_loan_intro.png"
       features={[
         {
           title: 'Unsecured Loans Available',
@@ -52,7 +50,6 @@ export default function StudyLoanGermanyPage() {
       banner={{
         title: 'Start Your Loan Process Early',
         subtitle: 'It takes 2-4 weeks to process an education loan. Apply today to avoid visa delays.',
-        image: '/images/services/study_loan_hero.png',
         ctaLabel: 'Book Free Consultation Now',
         ctaTo: '/contact',
       }}

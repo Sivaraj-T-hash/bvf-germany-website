@@ -10,10 +10,13 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
 import { useSeo } from '@/lib/useSeo';
-import { subscribeToSiteSettings, type SiteSettings } from '@/lib/siteContentStore';
+import { useSiteSettings } from '@/hooks/use-site-settings';
+import { useFormGuard } from '@/lib/formGuard';
+import { emailLink, externalUrl, phoneLink } from '@/lib/contact';
+import ConsentCheckbox from '@/components/ConsentCheckbox';
 import { useAuth } from '@/components/AuthProvider';
 import { getStudentProfile } from '@/lib/studentStore';
-import { getPublicLeadCooldownMessage, markPublicLeadSubmitted, submitPublicLead } from '@/lib/publicLeadSubmission';
+import { submitPublicLead } from '@/lib/publicLeadSubmission';
 import {
   buildProfileEvaluationLeadMessage,
   buildProfileEvaluationWhatsappMessage,
@@ -34,6 +37,7 @@ const contactSchema = z.object({
   currentEducation: z.enum(currentEducationOptions, {
     required_error: 'Select your current education',
   }),
+  consent: z.boolean().refine((value) => value, 'Please agree so we can respond to your request.'),
   website: z.string().optional(),
 });
 
@@ -52,7 +56,8 @@ export default function ContactPage() {
   const [submitError, setSubmitError] = useState('');
   const [submitSuccessMessage, setSubmitSuccessMessage] = useState('We\'ll get back to you within 24 hours.');
   const [submitWhatsappHref, setSubmitWhatsappHref] = useState('');
-  const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const settings = useSiteSettings();
+  const guard = useFormGuard('contact');
   const {
     register,
     handleSubmit,
@@ -60,12 +65,8 @@ export default function ContactPage() {
     reset,
   } = useForm<ContactForm>({
     resolver: zodResolver(contactSchema),
+    defaultValues: { consent: false },
   });
-
-  useEffect(() => {
-    const unsubscribe = subscribeToSiteSettings(setSettings);
-    return unsubscribe;
-  }, []);
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -78,6 +79,7 @@ export default function ContactPage() {
         phone: profile?.phone || '',
         interestedProgram: undefined,
         currentEducation: undefined,
+        consent: false,
       });
     };
 
@@ -88,14 +90,9 @@ export default function ContactPage() {
 
   const onSubmit = async (data: ContactForm & { website?: string }) => {
     try {
-      if (data.website) {
-        setSubmitError('Submission failed. Please try again.');
-        return;
-      }
-
-      const cooldownMessage = getPublicLeadCooldownMessage();
-      if (cooldownMessage) {
-        setSubmitError(cooldownMessage);
+      const guardError = guard.check(data.website);
+      if (guardError) {
+        setSubmitError(guardError);
         return;
       }
 
@@ -116,9 +113,10 @@ export default function ContactPage() {
           interestedProgram: data.interestedProgram,
           currentEducation: data.currentEducation,
         },
+        consentAt: new Date().toISOString(),
       });
 
-      markPublicLeadSubmitted();
+      guard.markSubmitted();
       setSubmitted(true);
       setSubmitError('');
       setSubmitWhatsappHref(
@@ -138,7 +136,7 @@ export default function ContactPage() {
           ? 'We\'ll review your free profile evaluation request and get back to you within 24 hours.'
           : 'Your free profile evaluation request is saved. Our team can already see it and will follow up soon.',
       );
-      reset();
+      reset({ consent: false });
     } catch (error) {
       console.error('Failed to submit lead:', error);
       setSubmitError('Submission failed. Please try again later.');
@@ -271,7 +269,7 @@ export default function ContactPage() {
                       <label htmlFor="contact-phone" className="mb-1.5 block text-sm font-semibold text-foreground">
                         WhatsApp Number
                       </label>
-                      <input id="contact-phone" type="tel" autoComplete="tel" className="input-premium" placeholder="+91 99999 99999" {...register('phone')} />
+                      <input id="contact-phone" type="tel" autoComplete="tel" className="input-premium" placeholder="Your WhatsApp number" {...register('phone')} />
                       {errors.phone ? <p className="mt-1 text-xs text-destructive">{errors.phone.message}</p> : null}
                     </div>
                   </div>
@@ -307,6 +305,8 @@ export default function ContactPage() {
                     </div>
                   </div>
 
+                  <ConsentCheckbox id="contact-consent" error={errors.consent?.message} {...register('consent')} />
+
                   <button type="submit" disabled={isSubmitting} className="button-primary w-full disabled:opacity-50">
                     {isSubmitting ? 'Sending...' : 'Get Free Evaluation'}
                   </button>
@@ -324,47 +324,59 @@ export default function ContactPage() {
               transition={{ ...spring, delay: 0.06 }}
               className="space-y-6"
             >
+              {emailLink(settings.contactEmail) ? (
                 <div className="premium-card p-6">
-                <p className="section-kicker">Email Contact</p>
-                <a href={`mailto:${settings?.contactEmail || 'support@bvfgermany.com'}`} className="mt-3 inline-flex items-center gap-3 text-lg font-semibold text-foreground transition hover:text-secondary">
-                  <Mail className="h-5 w-5 text-primary" aria-hidden="true" />
-                  {settings?.contactEmail || 'support@bvfgermany.com'}
-                </a>
-              </div>
-
-              <div className="premium-card p-6">
-                <p className="section-kicker">Phone</p>
-                <a href={`tel:${(settings?.contactPhone || '+91 99999 99999').replace(/\s+/g, '')}`} className="mt-3 inline-flex items-center gap-3 text-lg font-semibold text-foreground transition hover:text-secondary">
-                  <Phone className="h-5 w-5 text-primary" aria-hidden="true" />
-                  {settings?.contactPhone || '+91 99999 99999'}
-                </a>
-              </div>
-
-              <div className="premium-card p-6">
-                <p className="section-kicker">Social Media</p>
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <a
-                    href={settings?.instagramUrl || 'https://instagram.com'}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-[24px] border border-border bg-background/70 p-5 transition hover:-translate-y-1 hover:border-primary/30"
-                  >
-                    <Instagram className="h-5 w-5 text-primary" aria-hidden="true" />
-                    <p className="mt-4 text-base font-semibold text-foreground">@bvfgermany</p>
-                    <p className="text-sm text-muted-foreground">Instagram</p>
-                  </a>
-                  <a
-                    href={settings?.youtubeUrl || 'https://youtube.com'}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-[24px] border border-border bg-background/70 p-5 transition hover:-translate-y-1 hover:border-primary/30"
-                  >
-                    <Youtube className="h-5 w-5 text-primary" aria-hidden="true" />
-                    <p className="mt-4 text-base font-semibold text-foreground">BVF Germany</p>
-                    <p className="text-sm text-muted-foreground">YouTube</p>
+                  <p className="section-kicker">Email</p>
+                  <a href={emailLink(settings.contactEmail) as string} className="mt-3 inline-flex items-center gap-3 text-lg font-semibold text-foreground transition hover:text-secondary">
+                    <Mail className="h-5 w-5 text-primary" aria-hidden="true" />
+                    {settings.contactEmail}
                   </a>
                 </div>
-              </div>
+              ) : null}
+
+              {phoneLink(settings.contactPhone) ? (
+                <div className="premium-card p-6">
+                  <p className="section-kicker">Phone and WhatsApp</p>
+                  <a href={phoneLink(settings.contactPhone) as string} className="mt-3 inline-flex items-center gap-3 text-lg font-semibold text-foreground transition hover:text-secondary">
+                    <Phone className="h-5 w-5 text-primary" aria-hidden="true" />
+                    {settings.contactPhone}
+                  </a>
+                  {settings.workingHours ? <p className="mt-2 text-sm text-muted-foreground">{settings.workingHours}</p> : null}
+                  {settings.address ? <p className="mt-1 text-sm text-muted-foreground">{settings.address}</p> : null}
+                </div>
+              ) : null}
+
+              {externalUrl(settings.instagramUrl) || externalUrl(settings.youtubeUrl) ? (
+                <div className="premium-card p-6">
+                  <p className="section-kicker">Social Media</p>
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                    {externalUrl(settings.instagramUrl) ? (
+                      <a
+                        href={externalUrl(settings.instagramUrl) as string}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-[24px] border border-border bg-background/70 p-5 transition hover:-translate-y-1 hover:border-primary/30"
+                      >
+                        <Instagram className="h-5 w-5 text-primary" aria-hidden="true" />
+                        <p className="mt-4 text-base font-semibold text-foreground">@bvfgermany</p>
+                        <p className="text-sm text-muted-foreground">Instagram</p>
+                      </a>
+                    ) : null}
+                    {externalUrl(settings.youtubeUrl) ? (
+                      <a
+                        href={externalUrl(settings.youtubeUrl) as string}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-[24px] border border-border bg-background/70 p-5 transition hover:-translate-y-1 hover:border-primary/30"
+                      >
+                        <Youtube className="h-5 w-5 text-primary" aria-hidden="true" />
+                        <p className="mt-4 text-base font-semibold text-foreground">BVF Germany</p>
+                        <p className="text-sm text-muted-foreground">YouTube</p>
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              ) : null}
 
               <div className="premium-card p-6">
                 <p className="section-kicker">Mini FAQ</p>
@@ -399,7 +411,7 @@ export default function ContactPage() {
                 <a href={whatsappHref} target="_blank" rel="noreferrer" className="button-primary">
                   Chat on WhatsApp
                 </a>
-                <Link to="/register" className="button-secondary">
+                <Link to="/bookings" className="button-secondary">
                   Book Free Consultation Now
                 </Link>
               </div>

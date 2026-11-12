@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { Suspense, lazy, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -10,6 +10,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import { AuthProvider } from "@/components/AuthProvider";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminProtectedRoute from "@/components/AdminProtectedRoute";
+import AppErrorBoundary from "@/components/AppErrorBoundary";
 const Index = lazy(() => import("./pages/Index.tsx"));
 const Services = lazy(() => import("./pages/Services.tsx"));
 const ServicePage = lazy(() => import("./pages/ServicePage.tsx"));
@@ -54,6 +55,11 @@ const Webinars = lazy(() => import("./pages/Webinars.tsx"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin.tsx"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard.tsx"));
 const Checkout = lazy(() => import("./pages/Checkout.tsx"));
+const Dmat = lazy(() => import("./pages/Dmat.tsx"));
+const GermanLanguage = lazy(() => import("./pages/GermanLanguage.tsx"));
+const SuccessStories = lazy(() => import("./pages/SuccessStories.tsx"));
+const SuccessStory = lazy(() => import("./pages/SuccessStory.tsx"));
+const LegalPage = lazy(() => import("./pages/LegalPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const queryClient = new QueryClient();
@@ -153,6 +159,12 @@ const AnimatedRoutes = () => {
           <Route path="/study-in-germany/mba" element={<PageTransition><MbaGermany /></PageTransition>} />
           <Route path="/study-in-germany/ausbildung" element={<PageTransition><AusbildungGermany /></PageTransition>} />
           <Route path="/checkout" element={<PageTransition><Checkout /></PageTransition>} />
+          <Route path="/dmat" element={<PageTransition><Dmat /></PageTransition>} />
+          <Route path="/german-language" element={<PageTransition><GermanLanguage /></PageTransition>} />
+          <Route path="/success-stories" element={<PageTransition><SuccessStories /></PageTransition>} />
+          <Route path="/success-stories/:id" element={<PageTransition><SuccessStory /></PageTransition>} />
+          <Route path="/terms" element={<Navigate to="/terms-and-conditions" replace />} />
+          <Route path="/refund-policy" element={<PageTransition><LegalPage kind="refund" /></PageTransition>} />
           <Route path="/services/fft" element={<PageTransition><FftFlyForexTravel /></PageTransition>} />
           <Route path="/services/india" element={<PageTransition><ServiceIndia /></PageTransition>} />
           <Route path="/services/germany" element={<PageTransition><ServiceGermany /></PageTransition>} />
@@ -200,7 +212,9 @@ const App = () => (
         >
           <AnalyticsTracker />
           <ScrollToTop />
-          <AnimatedRoutes />
+          <AppErrorBoundary>
+            <AnimatedRoutes />
+          </AppErrorBoundary>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

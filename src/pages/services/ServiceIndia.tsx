@@ -5,12 +5,10 @@ export default function ServiceIndiaPage() {
     <ServiceDetailPage
       title="Service in India"
       subtitle="Counseling, admissions, and document support before you fly to Germany."
-      heroImage="https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1400&auto=format&fit=crop"
       ctaLabel="Book Free Consultation Now"
       ctaTo="/contact"
       introTitle="Counseling That Removes Confusion"
       introText="Students often feel overwhelmed by university choices, course selection, and eligibility requirements. BVF Germany simplifies the process with structured counseling and clear steps that reduce anxiety for students and parents alike."
-      introImage="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1400&auto=format&fit=crop"
       features={[
         {
           title: 'Personalized Guidance',
@@ -38,20 +36,17 @@ export default function ServiceIndiaPage() {
           title: 'Admission Support',
           text:
             'Once counseling is complete, we move into the application process. We stay updated on university policies and deadlines and guide you step‑by‑step to avoid mistakes.',
-          image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=1400&auto=format&fit=crop',
         },
         {
           title: 'SOP & LOR Assistance',
           text:
             'We help you craft a clear, powerful Statement of Purpose and Letters of Recommendation that strengthen your admission chances.',
-          image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1400&auto=format&fit=crop',
           align: 'right',
         },
         {
           title: 'APS Interview Preparation',
           text:
             'Mock interviews and topic‑wise preparation help you explain your academic subjects confidently and pass APS smoothly.',
-          image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1400&auto=format&fit=crop',
         },
       ]}
       faqs={[

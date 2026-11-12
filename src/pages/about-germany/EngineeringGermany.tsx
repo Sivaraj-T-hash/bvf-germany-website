@@ -6,7 +6,6 @@ export default function EngineeringGermanyPage() {
       title="Master's in Engineering in Germany"
       subtitle="Germany is one of the strongest destinations for engineering students who want public-university education, industry-linked specializations, and a high-value technical degree."
       heroBadge="Engineering master's"
-      heroImage="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1600&auto=format&fit=crop"
       heroHighlights={[
         'Duration: 2 years (4 semesters)',
         'IELTS 6.5-7.0 or German B2/C1',
@@ -156,7 +155,7 @@ export default function EngineeringGermanyPage() {
         {
           eyebrow: 'Key fields',
           title: 'Engineering is broad, so field choice matters early',
-          text: 'The most common key fields in your brief were Mechanical, Electrical, Civil, CS, Automotive, and Robotics.',
+          text: 'Popular fields include Mechanical, Electrical, Civil, Computer Science, Automotive, and Robotics.',
           bullets: [
             'Automotive and Robotics often require precise module alignment.',
             'CS-linked technical routes may need stronger computing background.',
@@ -235,7 +234,7 @@ export default function EngineeringGermanyPage() {
         },
         {
           q: 'Which universities do students target most?',
-          a: 'Common names in your brief were TU Munich, TU Berlin, Stuttgart, Darmstadt, and Hamburg.',
+          a: 'Commonly considered universities include TU Munich, TU Berlin, Stuttgart, Darmstadt, and Hamburg.',
         },
       ]}
       finalCtaTitle="Need help with a master's in engineering shortlist?"

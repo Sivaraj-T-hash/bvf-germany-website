@@ -190,6 +190,42 @@ function getTemplateForForm(formType, payload) {
     };
   }
 
+  if (formType === 'pricing') {
+    return {
+      adminSubject: 'New pricing inquiry received',
+      userSubject: 'We received your pricing inquiry | BVF Germany',
+      adminRows: [
+        ...baseRows,
+        { label: 'Package', value: payload.selectedPackage || '-' },
+        { label: 'Message', value: payload.message || '-' },
+      ],
+      userMessage: 'Thank you for your interest in BVF Germany. Our team will get back to you with the package details shortly.',
+    };
+  }
+
+  if (formType === 'tool') {
+    return {
+      adminSubject: 'New free profile evaluation request',
+      userSubject: 'Your free profile evaluation request | BVF Germany',
+      adminRows: [...baseRows, { label: 'Requested from', value: payload.source || '-' }],
+      userMessage: 'Thank you for using the BVF Germany tools. Our team will review your request and contact you with the next step.',
+    };
+  }
+
+  if (formType === 'order') {
+    return {
+      adminSubject: `New order to confirm: ${payload.orderTitle || 'BVF Germany'}`,
+      userSubject: 'Your BVF Germany order is placed – payment pending',
+      adminRows: [
+        ...baseRows,
+        { label: 'Order', value: payload.orderTitle || '-' },
+        { label: 'Amount', value: payload.amountLabel || '-' },
+        { label: 'Order ID', value: payload.orderId || '-' },
+      ],
+      userMessage: `Your order for ${payload.orderTitle || 'a BVF Germany item'} (${payload.amountLabel || ''}) is placed. Our team will contact you with the payment details. Your order is confirmed once payment is received.`,
+    };
+  }
+
   return {
     formLabel: 'Webinar Registration',
     adminSubject: 'New webinar registration received',

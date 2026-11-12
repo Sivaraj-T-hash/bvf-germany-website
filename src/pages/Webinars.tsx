@@ -8,58 +8,41 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
-import { getSiteSettings, getTestimonials, type SiteSettings, type TestimonialItem } from '@/lib/siteContentStore';
+import ConsentCheckbox from '@/components/ConsentCheckbox';
+import StudentStories from '@/components/StudentStories';
 import { useSeo } from '@/lib/useSeo';
 import { createWebinarRegistration } from '@/lib/webinarStore';
 import { useAuth } from '@/components/AuthProvider';
 import { getStudentProfile } from '@/lib/studentStore';
 import { getWebinarCatalog, type WebinarCatalogItem } from '@/lib/webinarCatalogStore';
-import { notifyAdminUsers, createStudentNotification } from '@/lib/notificationStore';
 import { sendSubmissionEmails } from '@/lib/submissionEmailApi';
 import { buildWhatsappHref } from '@/lib/whatsapp';
+import { useSiteSettings } from '@/hooks/use-site-settings';
+import { useFormGuard } from '@/lib/formGuard';
+import { webinarReplays } from '@/content/webinarReplays';
 
 const spring = { type: 'spring' as const, stiffness: 280, damping: 28 };
 
+// Shown when no webinar is scheduled: visitors register interest and are told the date later.
 const defaultUpcomingWebinar = {
-  id: 'study-in-germany-roadmap-apr-2026',
-  title: 'How to Study in Germany in 2026 - Complete Roadmap',
-  date: 'April 10, 2026',
-  time: '7:00 PM IST',
-  duration: '60 minutes',
+  id: 'next-webinar-interest',
+  title: 'Next BVF Germany Webinar',
+  date: 'Date to be announced',
+  time: '',
+  duration: 'About 60 minutes',
   description:
-    'Join an expert-led live session that covers the public-university route from eligibility to landing in Germany.',
+    'Register your interest and we will email you the date and joining details as soon as the next live session is scheduled.',
   learnings: [
     'Eligibility and requirements',
     'University selection strategy',
     'Application and SOP process',
-    'Visa and blocked account',
+    'Visa and financial proof',
     'Live Q&A',
   ],
 };
 
-const replayVideos = [
-  {
-    id: 'germany-admission-process',
-    title: 'Germany Admission Process Explained',
-    videoId: 'jNQXAC9IVRw',
-    duration: '38 min',
-    description: 'A practical replay on admissions strategy, application sequencing, and common mistakes.',
-  },
-  {
-    id: 'aps-certificate-guide',
-    title: 'APS Certificate Full Guide',
-    videoId: 'ScMzIvxBSi4',
-    duration: '29 min',
-    description: 'A focused walkthrough of APS expectations, timing, and how students should plan around it.',
-  },
-  {
-    id: 'visa-process-indian-students',
-    title: 'Visa Process for Indian Students',
-    videoId: 'ysz5S6PUM-U',
-    duration: '34 min',
-    description: 'A replay that simplifies blocked account, financial proof, and the Germany student visa process.',
-  },
-];
+const currentYear = new Date().getFullYear();
+const planningYears = [currentYear, currentYear + 1, currentYear + 2].map(String);
 
 const whyAttend = [
   'Learn directly from experts',
@@ -75,6 +58,7 @@ const webinarSchema = z.object({
   qualification: z.string().trim().min(1, 'Qualification is required').max(100),
   intake: z.string().trim().min(1, 'Target intake is required').max(50),
   planningYear: z.string().trim().min(1, 'Planning year is required').max(10),
+  consent: z.boolean().refine((value) => value, 'Please agree so we can send you the webinar details.'),
   website: z.string().optional(),
 });
 
@@ -91,11 +75,11 @@ export default function WebinarsPage() {
     image: '/hero-og.png',
   });
 
-  const [settings, setSettings] = useState<SiteSettings | null>(null);
-  const [testimonials, setTestimonials] = useState<TestimonialItem[]>([]);
+  const settings = useSiteSettings();
+  const guard = useFormGuard('webinar');
   const [webinarCatalog, setWebinarCatalog] = useState<WebinarCatalogItem[]>([]);
   const [selectedWebinarId, setSelectedWebinarId] = useState('');
-  const [selectedReplay, setSelectedReplay] = useState(replayVideos[0]);
+  const [selectedReplay, setSelectedReplay] = useState(webinarReplays[0]);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const {
@@ -108,18 +92,20 @@ export default function WebinarsPage() {
     resolver: zodResolver(webinarSchema),
     defaultValues: {
       intake: 'Winter',
-      planningYear: '2026',
+      planningYear: planningYears[0],
+      consent: false,
     },
   });
 
   useEffect(() => {
     let active = true;
     const load = async () => {
-      const [siteSettings, nextTestimonials, catalog] = await Promise.all([getSiteSettings(), getTestimonials(), getWebinarCatalog()]);
+      const catalog = await getWebinarCatalog().catch(() => [] as WebinarCatalogItem[]);
       if (!active) return;
-      setSettings(siteSettings);
-      setTestimonials(nextTestimonials.filter((item) => item.published).slice(0, 3));
-      const liveCatalog = catalog.filter((item) => item.status === 'upcoming' || item.status === 'live');
+      const now = Date.now();
+      const liveCatalog = catalog
+        .filter((item) => (item.status === 'upcoming' || item.status === 'live') && new Date(item.scheduleAt).getTime() > now - 3 * 60 * 60 * 1000)
+        .sort((a, b) => a.scheduleAt.localeCompare(b.scheduleAt));
       setWebinarCatalog(liveCatalog);
       const requestedWebinarId = searchParams.get('webinarId') || '';
       const requestedExists = requestedWebinarId && liveCatalog.some((item) => item.id === requestedWebinarId);
@@ -151,12 +137,11 @@ export default function WebinarsPage() {
     setSelectedWebinarId(requestedWebinarId);
   }, [searchParams, webinarCatalog]);
 
-  const whatsappHref = buildWhatsappHref(settings);
+  const whatsappHref = buildWhatsappHref(settings, 'Hi BVF Germany, I want to register for the upcoming webinar.');
 
   const countdownText = useMemo(() => {
-    const target = webinarCatalog[0]?.scheduleAt
-      ? new Date(webinarCatalog[0].scheduleAt).getTime()
-      : new Date('2026-04-10T19:00:00+05:30').getTime();
+    if (!webinarCatalog[0]?.scheduleAt) return 'The next date will be announced soon. Register your interest to be notified.';
+    const target = new Date(webinarCatalog[0].scheduleAt).getTime();
     const now = Date.now();
     const diff = target - now;
     if (diff <= 0) return 'Registrations are now open.';
@@ -192,13 +177,23 @@ export default function WebinarsPage() {
     };
   }, [selectedCatalogItem]);
 
-  const onSubmit = async ({ website, ...registrationData }: WebinarForm & { website?: string }) => {
-    try {
-      if (website) {
-        setSubmitError('Submission failed. Please try again.');
-        return;
-      }
+  const onSubmit = async (form: WebinarForm) => {
+    const guardError = guard.check(form.website);
+    if (guardError) {
+      setSubmitError(guardError);
+      return;
+    }
 
+    const registrationData = {
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      qualification: form.qualification,
+      intake: form.intake,
+      planningYear: form.planningYear,
+    };
+
+    try {
       if (selectedCatalogItem?.accessType === 'paid') {
         window.sessionStorage.setItem(
           'pending-webinar-registration',
@@ -222,6 +217,7 @@ export default function WebinarsPage() {
         webinarAccessType: selectedCatalogItem?.accessType || 'free',
         ...registrationData,
         userId: user?.uid || null,
+        consentAt: new Date().toISOString(),
       });
       try {
         await sendSubmissionEmails({
@@ -238,28 +234,8 @@ export default function WebinarsPage() {
       } catch (mailError) {
         console.warn('Webinar email notifications skipped', mailError);
       }
-      try {
-        await notifyAdminUsers({
-          title: 'New webinar registration',
-          message: `${registrationData.name} registered for ${upcomingWebinar.title}.`,
-          type: 'system',
-        });
-      } catch (error) {
-        console.warn('Admin notification skipped after webinar registration', error);
-      }
-      if (user?.uid && selectedCatalogItem?.meetingLink) {
-        try {
-          await createStudentNotification({
-            userId: user.uid,
-            title: 'Webinar link available',
-            message: `${upcomingWebinar.title} meeting link is ready: ${selectedCatalogItem.meetingLink}`,
-            type: 'system',
-          });
-        } catch (error) {
-          console.warn('Student webinar-link notification skipped', error);
-        }
-      }
 
+      guard.markSubmitted();
       setSubmitted(true);
       setSubmitError('');
       reset({
@@ -268,7 +244,8 @@ export default function WebinarsPage() {
         phone: '',
         qualification: '',
         intake: 'Winter',
-        planningYear: '2026',
+        planningYear: planningYears[0],
+        consent: false,
       });
       setTimeout(() => setSubmitted(false), 5000);
     } catch (error) {
@@ -300,9 +277,11 @@ export default function WebinarsPage() {
                   <a href="#register-webinar" className="button-primary">
                     Book Free Consultation Now
                   </a>
-                  <a href="#past-sessions" className="button-secondary">
-                    Watch Past Sessions
-                  </a>
+                  {selectedReplay ? (
+                    <a href="#past-sessions" className="button-secondary">
+                      Watch Past Sessions
+                    </a>
+                  ) : null}
                 </div>
               </motion.div>
 
@@ -338,7 +317,7 @@ export default function WebinarsPage() {
                   className="mb-6 h-52 w-full rounded-[28px] object-cover"
                 />
               ) : null}
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">Upcoming Webinar</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">{selectedCatalogItem ? 'Upcoming Webinar' : 'Register Your Interest'}</p>
               <h2 className="mt-4 font-heading text-4xl font-semibold text-secondary md:text-5xl">{upcomingWebinar.title}</h2>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-white/76">{upcomingWebinar.description}</p>
 
@@ -347,10 +326,12 @@ export default function WebinarsPage() {
                   <CalendarDays className="h-4 w-4 text-secondary" aria-hidden="true" />
                   {upcomingWebinar.date}
                 </span>
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2">
-                  <Clock3 className="h-4 w-4 text-secondary" aria-hidden="true" />
-                  {upcomingWebinar.time}
-                </span>
+                {upcomingWebinar.time ? (
+                  <span className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2">
+                    <Clock3 className="h-4 w-4 text-secondary" aria-hidden="true" />
+                    {upcomingWebinar.time}
+                  </span>
+                ) : null}
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2">
                   <Users className="h-4 w-4 text-secondary" aria-hidden="true" />
                   {upcomingWebinar.duration}
@@ -421,12 +402,12 @@ export default function WebinarsPage() {
                     <div className="mt-3 rounded-2xl border border-border bg-muted/40 px-4 py-3 text-sm text-foreground">
                       <p className="font-semibold">{upcomingWebinar.title}</p>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {selectedCatalogItem?.accessType === 'paid' ? `Paid webinar | INR ${selectedCatalogItem.priceValue}` : 'Free webinar'} | {upcomingWebinar.date} | {upcomingWebinar.time}
+                        {[selectedCatalogItem?.accessType === 'paid' ? `Paid webinar | INR ${selectedCatalogItem.priceValue}` : 'Free webinar', upcomingWebinar.date, upcomingWebinar.time].filter(Boolean).join(' | ')}
                       </p>
                     </div>
                   </div>
 
-                  <input type="text" tabIndex={-1} autoComplete="off" className="hidden" {...register('website')} />
+                  <input type="text" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" {...register('website')} />
 
                   <div>
                     <label htmlFor="webinar-name" className="mb-1.5 block text-sm font-semibold text-foreground">Full Name</label>
@@ -467,20 +448,22 @@ export default function WebinarsPage() {
                   <div>
                     <label htmlFor="webinar-year" className="mb-1.5 block text-sm font-semibold text-foreground">Planning For</label>
                     <select id="webinar-year" className="input-premium" {...register('planningYear')}>
-                      {['2026', '2027'].map((item) => (
+                      {planningYears.map((item) => (
                         <option key={item} value={item}>{item}</option>
                       ))}
                     </select>
                     {errors.planningYear ? <p className="mt-1 text-xs text-destructive">{errors.planningYear.message}</p> : null}
                   </div>
 
+                  <ConsentCheckbox id="webinar-consent" error={errors.consent?.message} {...register('consent')} />
+
                   <button type="submit" disabled={isSubmitting} className="button-primary w-full disabled:opacity-50">
                     {isSubmitting ? 'Processing...' : selectedCatalogItem?.accessType === 'paid' ? 'Continue to Checkout' : 'Get Free Evaluation'}
                   </button>
                   <p className={`text-xs ${submitError ? 'text-destructive' : 'text-muted-foreground'}`}>
                     {submitError || (selectedCatalogItem?.accessType === 'paid'
-                      ? 'Paid webinars continue to checkout and then return you to the student dashboard after payment.'
-                      : 'Registration goes directly to admin for follow-up, reminders, and webinar link delivery.')}
+                      ? 'Paid webinars continue to checkout, where you place your order and receive payment details.'
+                      : 'The BVF team receives your registration and sends you the webinar details.')}
                   </p>
                 </form>
               )}
@@ -488,12 +471,13 @@ export default function WebinarsPage() {
           </div>
         </section>
 
+        {selectedReplay ? (
         <section id="past-sessions" className="px-4 py-16 md:px-8 md:py-20">
           <div className="container-narrow">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div className="max-w-3xl">
                 <p className="section-kicker">Past Webinar Replays</p>
-                <h2 className="section-title">Replay available for a limited time.</h2>
+                <h2 className="section-title">Watch a recorded BVF session.</h2>
               </div>
               <p className="text-sm text-muted-foreground">Watch a replay, then take the next step if it gives you clarity.</p>
             </div>
@@ -503,15 +487,15 @@ export default function WebinarsPage() {
                 title={selectedReplay.title}
                 width="100%"
                 height="420"
-                src={`https://www.youtube.com/embed/${selectedReplay.videoId}`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                src={`https://www.youtube-nocookie.com/embed/${selectedReplay.youtubeId}`}
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 className="w-full border-0"
               />
             </div>
 
             <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {replayVideos.map((video, index) => (
+              {webinarReplays.map((video, index) => (
                 <motion.button
                   key={video.id}
                   type="button"
@@ -524,7 +508,7 @@ export default function WebinarsPage() {
                 >
                   <div className="aspect-[16/10] overflow-hidden rounded-[26px] bg-slate-950">
                     <img
-                      src={`https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`}
+                      src={`https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`}
                       alt={video.title}
                       className="h-full w-full object-cover"
                       loading="lazy"
@@ -541,9 +525,10 @@ export default function WebinarsPage() {
             </div>
           </div>
         </section>
+        ) : null}
 
         <section className="px-4 py-16 md:px-8 md:py-20">
-          <div className="container-narrow grid gap-8 lg:grid-cols-[1fr_0.95fr]">
+          <div className="container-narrow">
             <div className="premium-card p-8">
               <p className="section-kicker">Why Attend</p>
               <h2 className="mt-3 font-heading text-3xl font-semibold text-foreground">Webinars work because they teach before they sell.</h2>
@@ -557,20 +542,10 @@ export default function WebinarsPage() {
               </div>
             </div>
 
-            <div className="surface-panel card-shadow-lg p-8">
-              <p className="section-kicker">Student Feedback</p>
-              <div className="mt-6 space-y-5">
-                {testimonials.map((item) => (
-                  <div key={item.id} className="rounded-[24px] border border-border bg-background/70 p-5">
-                    <p className="text-sm leading-7 text-muted-foreground">&quot;{item.quote}&quot;</p>
-                    <p className="mt-4 font-semibold text-foreground">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">{item.university}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </section>
+
+        <StudentStories kicker="Student Feedback" title="What students say after working with BVF." />
 
         <section className="px-4 pb-20 pt-6 md:px-8 md:pb-24">
           <div className="container-narrow rounded-[36px] bg-[linear-gradient(135deg,rgba(9,18,39,1),rgba(18,33,70,0.96))] px-6 py-12 text-white shadow-[0_32px_110px_-58px_rgba(3,7,18,0.95)] md:px-10 md:py-14">
@@ -586,9 +561,11 @@ export default function WebinarsPage() {
                 <a href="#register-webinar" className="button-primary">
                   Book Free Consultation Now
                 </a>
-                <a href={whatsappHref} target="_blank" rel="noreferrer" className="button-secondary">
-                  WhatsApp
-                </a>
+                {whatsappHref ? (
+                  <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="button-secondary">
+                    WhatsApp
+                  </a>
+                ) : null}
               </div>
             </div>
           </div>
