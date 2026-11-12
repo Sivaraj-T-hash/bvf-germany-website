@@ -1,0 +1,1068 @@
+import { useEffect, useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
+import {
+  AlertTriangle,
+  ArrowRight,
+  Calculator,
+  CheckCircle2,
+  FileCheck2,
+  GraduationCap,
+  Landmark,
+  Send,
+} from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useAuth } from '@/components/AuthProvider';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import WhatsAppFloat from '@/components/WhatsAppFloat';
+import { hasNewUserReviewAccess } from '@/lib/authSession';
+import { DEFAULT_OG_IMAGE_PATH, SITE_NAME, SITE_URL, type StructuredData } from '@/lib/seo';
+import { useSiteSettings } from '@/hooks/use-site-settings';
+import ConsentCheckbox from '@/components/ConsentCheckbox';
+import { useFormGuard } from '@/lib/formGuard';
+import { sendSubmissionEmails } from '@/lib/submissionEmailApi';
+import { whatsappLink } from '@/lib/contact';
+import { useSeo } from '@/lib/useSeo';
+import { createLeadRecord } from '@/lib/leadStore';
+
+const spring = { type: 'spring' as const, stiffness: 280, damping: 28 };
+
+const leadSchema = z.object({
+  email: z.string().trim().email('Enter a valid email'),
+  consent: z.boolean().refine((value) => value, 'Please agree so we can send you the evaluation.'),
+  website: z.string().optional(),
+});
+
+type LeadForm = z.infer<typeof leadSchema>;
+type EligibilityStatus = 'Eligible' | 'Conditionally Eligible' | 'Needs More Funds' | 'Missing Documents' | 'Not Eligible';
+type CountryRule = {
+  name: string;
+  currency: string;
+  disclaimer: string;
+  livingCosts: Record<string, { label: string; amount: number }>;
+  courses: Record<string, { minOverall: number; minSection: number; saferOverall: number; note: string }>;
+  bank: {
+    maintenanceDays: number;
+    acceptedInstitutions: string[];
+    acceptedDocuments: string[];
+    weakDocuments: string[];
+  };
+};
+
+const countryRules: Record<string, CountryRule> = {
+  germany: {
+    name: 'Germany',
+    currency: 'EUR',
+    disclaimer: 'Guidance only. Final outcomes depend on official university, APS, embassy, and immigration rules.',
+    livingCosts: {
+      metro: { label: 'Berlin / Munich / Hamburg', amount: 13400 },
+      standard: { label: 'Standard student city', amount: 12200 },
+      value: { label: 'Lower-cost regional city', amount: 11400 },
+    },
+    courses: {
+      "Bachelor's": { minOverall: 6.0, minSection: 5.5, saferOverall: 6.5, note: 'Useful for bachelor admissions and route-screening.' },
+      "Master's": { minOverall: 6.5, minSection: 6.0, saferOverall: 7.0, note: 'Common benchmark for English-taught master’s programmes.' },
+      MBA: { minOverall: 6.5, minSection: 6.0, saferOverall: 7.0, note: 'MBA routes often expect stronger writing and speaking.' },
+      Ausbildung: { minOverall: 5.5, minSection: 5.5, saferOverall: 6.0, note: 'English can help, but German readiness often matters as much.' },
+    },
+    bank: {
+      maintenanceDays: 28,
+      acceptedInstitutions: ['Nationalized', 'Private', 'International', 'Cooperative'],
+      acceptedDocuments: ['Bank statement', 'Bank letter', 'Fixed deposit certificate', 'Loan sanction letter'],
+      weakDocuments: ['Balance certificate'],
+    },
+  },
+  uk: {
+    name: 'United Kingdom',
+    currency: 'GBP',
+    disclaimer: 'Guidance only. UK financial and language rules can change by institution and CAS status.',
+    livingCosts: {
+      london: { label: 'London', amount: 13347 },
+      metro: { label: 'Major city outside London', amount: 11000 },
+      standard: { label: 'Standard regional city', amount: 9207 },
+    },
+    courses: {
+      "Bachelor's": { minOverall: 6.0, minSection: 5.5, saferOverall: 6.5, note: 'Typical undergraduate English benchmark.' },
+      "Master's": { minOverall: 6.5, minSection: 6.0, saferOverall: 7.0, note: 'Many taught master’s routes use section minimums.' },
+      MBA: { minOverall: 6.5, minSection: 6.0, saferOverall: 7.0, note: 'MBA routes reward stronger communication-heavy profiles.' },
+      Ausbildung: { minOverall: 5.5, minSection: 5.5, saferOverall: 6.0, note: 'Included for comparison planning only.' },
+    },
+    bank: {
+      maintenanceDays: 28,
+      acceptedInstitutions: ['Nationalized', 'Private', 'International'],
+      acceptedDocuments: ['Bank statement', 'Bank letter', 'Loan sanction letter'],
+      weakDocuments: ['Balance certificate', 'Fixed deposit certificate'],
+    },
+  },
+  canada: {
+    name: 'Canada',
+    currency: 'CAD',
+    disclaimer: 'Guidance only. Study permit funds and language checks vary by institution, province, and document type.',
+    livingCosts: {
+      metro: { label: 'Toronto / Vancouver', amount: 22000 },
+      major: { label: 'Other major metro', amount: 19000 },
+      standard: { label: 'Standard student city', amount: 16000 },
+    },
+    courses: {
+      "Bachelor's": { minOverall: 6.0, minSection: 5.5, saferOverall: 6.5, note: 'Common baseline for undergraduate routes.' },
+      "Master's": { minOverall: 6.5, minSection: 6.0, saferOverall: 7.0, note: 'Typical benchmark for university master’s programmes.' },
+      MBA: { minOverall: 6.5, minSection: 6.0, saferOverall: 7.0, note: 'MBA routes usually prefer stronger writing and speaking.' },
+      Ausbildung: { minOverall: 5.5, minSection: 5.5, saferOverall: 6.0, note: 'Included only for route comparison.' },
+    },
+    bank: {
+      maintenanceDays: 120,
+      acceptedInstitutions: ['Nationalized', 'Private', 'International'],
+      acceptedDocuments: ['Bank statement', 'Bank letter', 'Loan sanction letter', 'Fixed deposit certificate'],
+      weakDocuments: ['Balance certificate'],
+    },
+  },
+};
+
+const NEXT_YEAR = new Date().getFullYear() + 1;
+const intakeOptions = [NEXT_YEAR, NEXT_YEAR + 1].flatMap((year) => ['Spring', 'Summer', 'Fall', 'Winter'].map((season) => `${season} ${year}`));
+const wizardSteps = ['Profile and destination', 'IELTS score input', 'Tuition and funding', 'Bank and sponsor details', 'Eligibility result and action plan'];
+const fundingSources = ['Self-funding', 'Parent sponsorship', 'Guardian sponsorship', 'Third-party sponsor', 'Education loan'];
+const accountOwners = ['Self', 'Parent', 'Guardian', 'Sponsor', 'Joint'];
+const institutionTypes = ['Nationalized', 'Private', 'International', 'Cooperative', 'Fintech wallet'];
+const documentTypes = ['Bank statement', 'Bank letter', 'Balance certificate', 'Fixed deposit certificate', 'Loan sanction letter'];
+const ownerRules: Record<string, string[]> = {
+  'Self-funding': ['Self', 'Joint'],
+  'Parent sponsorship': ['Parent', 'Joint'],
+  'Guardian sponsorship': ['Guardian', 'Joint'],
+  'Third-party sponsor': ['Sponsor', 'Joint'],
+  'Education loan': ['Self', 'Parent', 'Joint'],
+};
+
+type ToolVariant = 'hub' | 'cgpa' | 'ielts';
+type ToolExplainer = { title: string; body: string };
+type ToolFaq = { question: string; answer: string };
+type ToolPageContent = {
+  path: string;
+  title: string;
+  description: string;
+  keywords: string[];
+  heroEyebrow: string;
+  heroTitle: string;
+  heroCopy: string;
+  sideTitle: string;
+  sideCopy: string;
+  explainerTitle: string;
+  explainers: ToolExplainer[];
+  faqTitle: string;
+  faqs: ToolFaq[];
+};
+
+const toolDirectoryLinks = [
+  { to: '/tools', label: 'All tools hub' },
+  { to: '/tools/cgpa-to-german-grade-converter', label: 'CGPA to German Grade Converter' },
+  { to: '/tools/ielts-bank-requirements-checker', label: 'IELTS Bank Requirements Checker' },
+];
+
+const toolPageContent: Record<ToolVariant, ToolPageContent> = {
+  hub: {
+    path: '/tools',
+    title: 'Free Study Abroad Tools | CGPA to German Grade Converter & IELTS Bank Requirements Checker | BVF Germany',
+    description:
+      'Use BVF Germany free tools to convert CGPA to German grade, check IELTS and bank fund readiness, and plan your next study-abroad step.',
+    keywords: [
+      'free study abroad tools',
+      'CGPA to German Grade Converter',
+      'IELTS Bank Requirements Checker',
+      'German grade calculator',
+      'study abroad funds checker',
+    ],
+    heroEyebrow: 'Free Tools',
+    heroTitle: 'CGPA to German Grade Converter and IELTS Bank Requirements Checker',
+    heroCopy:
+      'Use these free BVF Germany tools to estimate your German grade, review IELTS and funding readiness, and move into shortlisting or visa planning with more clarity.',
+    sideTitle: 'Built for real planning',
+    sideCopy:
+      'Students usually use the CGPA to German Grade Converter first, then move into the IELTS Bank Requirements Checker to review language, tuition, funds, and document strength in one flow.',
+    explainerTitle: 'Why these tools work well together',
+    explainers: [
+      {
+        title: 'Start with academics',
+        body: 'The CGPA to German Grade Converter gives you a fast academic benchmark before you shortlist public universities or compare programme fit.',
+      },
+      {
+        title: 'Then test your funding story',
+        body: 'The IELTS Bank Requirements Checker combines IELTS scores, sponsor fit, living-cost estimates, and bank evidence so you can spot gaps early.',
+      },
+      {
+        title: 'Move from score to action',
+        body: 'Both tools are designed to push you toward the next move: refine the shortlist, improve language scores, fix fund gaps, or book a counselor review.',
+      },
+    ],
+    faqTitle: 'Common questions about these Germany-study tools',
+    faqs: [
+      {
+        question: 'Which tool should I use first?',
+        answer:
+          'Most students start with the CGPA to German Grade Converter to benchmark academics, then use the IELTS Bank Requirements Checker to review language and funding readiness.',
+      },
+      {
+        question: 'Are these tools only for Germany?',
+        answer:
+          'The CGPA converter is Germany-focused, while the IELTS and bank checker currently supports Germany, the UK, and Canada for planning comparisons.',
+      },
+      {
+        question: 'Do these tools guarantee admission or visa approval?',
+        answer:
+          'No. They are guidance tools that highlight profile, IELTS, funding, and document gaps before you move into expert review.',
+      },
+      {
+        question: 'Can I share these tools with parents or sponsors?',
+        answer:
+          'Yes. The funding and bank checker is especially useful when students and sponsors need one simple place to review balance, maintenance, and document strength together.',
+      },
+    ],
+  },
+  cgpa: {
+    path: '/tools/cgpa-to-german-grade-converter',
+    title: 'CGPA to German Grade Converter | Bavarian Formula Calculator | BVF Germany',
+    description:
+      "Convert CGPA to German grade online with BVF Germany's free Bavarian formula calculator for Germany admissions shortlisting and profile evaluation.",
+    keywords: ['CGPA to German Grade Converter', 'Bavarian formula calculator', 'German grade calculator', 'convert CGPA to German grade'],
+    heroEyebrow: 'CGPA Tool',
+    heroTitle: 'CGPA to German Grade Converter',
+    heroCopy:
+      'Convert your CGPA into an estimated German grade using the modified Bavarian formula that many students use while comparing Germany admissions options.',
+    sideTitle: 'Best used for',
+    sideCopy:
+      'Academic shortlisting, profile verification, and quick comparisons between Indian CGPA systems and the German grading scale before you speak with a counselor.',
+    explainerTitle: 'How this CGPA to German Grade Converter helps',
+    explainers: [
+      {
+        title: 'Uses the modified Bavarian formula',
+        body: 'The calculator uses a widely referenced conversion approach to estimate how your CGPA may look in the German grading system.',
+      },
+      {
+        title: 'Helps you read the score faster',
+        body: 'The result is paired with a simple quality band so you can quickly tell whether the number looks excellent, good, average, or needs more support.',
+      },
+      {
+        title: 'Connects the score to the next step',
+        body: 'Once you have the estimate, you can move into shortlist planning, profile verification, or use the funding checker to review the rest of the journey.',
+      },
+    ],
+    faqTitle: 'Questions about the CGPA to German Grade Converter',
+    faqs: [
+      {
+        question: 'What formula does this CGPA to German Grade Converter use?',
+        answer:
+          'It uses the modified Bavarian formula to estimate a German grade from your CGPA and maximum scale.',
+      },
+      {
+        question: 'Is the converted grade always the final official grade?',
+        answer:
+          'No. Universities can evaluate transcripts differently, so this tool should be used as a planning estimate rather than a guaranteed official conversion.',
+      },
+      {
+        question: 'Who should use this German grade calculator?',
+        answer:
+          'Students comparing bachelor, master, MBA, or public university routes in Germany can use it to benchmark academic fit before shortlisting.',
+      },
+      {
+        question: 'Can I use this tool with CGPA scales other than 10?',
+        answer:
+          'Yes. Enter your CGPA and the maximum CGPA scale so the formula can estimate the corresponding German grade.',
+      },
+    ],
+  },
+  ielts: {
+    path: '/tools/ielts-bank-requirements-checker',
+    title: 'IELTS Bank Requirements Checker | Study Abroad Funds & IELTS Tool | BVF Germany',
+    description:
+      "Check IELTS scores, tuition, bank balance, sponsor details, and funding readiness with BVF Germany's free IELTS Bank Requirements Checker.",
+    keywords: ['IELTS Bank Requirements Checker', 'IELTS bank checker', 'study abroad funds checker', 'IELTS eligibility tool'],
+    heroEyebrow: 'IELTS & Funding Tool',
+    heroTitle: 'IELTS Bank Requirements Checker',
+    heroCopy:
+      'Review IELTS score thresholds, tuition balance, sponsor fit, maintenance period, and bank-document strength before you move into admission or visa filing.',
+    sideTitle: 'What it reviews',
+    sideCopy:
+      'The checker combines IELTS readiness with bank-fund planning, sponsor ownership, document quality, and destination-specific rules so you can see the real gap instead of a single score.',
+    explainerTitle: 'What the IELTS Bank Requirements Checker reviews',
+    explainers: [
+      {
+        title: 'Language thresholds',
+        body: 'The tool compares your IELTS overall and section scores with route-based thresholds so you can see whether the gap is language-based or not.',
+      },
+      {
+        title: 'Tuition and living-cost math',
+        body: 'It adds remaining tuition to estimated living costs so you can see the practical fund target before a counselor review.',
+      },
+      {
+        title: 'Banking and document strength',
+        body: 'Maintenance days, account owner, institution type, and document selection are checked separately because many students miss the risk in those details.',
+      },
+    ],
+    faqTitle: 'Questions about the IELTS Bank Requirements Checker',
+    faqs: [
+      {
+        question: 'Does the IELTS Bank Requirements Checker guarantee visa approval?',
+        answer:
+          'No. It is a planning tool that helps you identify score, funds, or document gaps before an official university, embassy, or visa review.',
+      },
+      {
+        question: 'Which countries are supported in the checker right now?',
+        answer:
+          'The current guided checker supports Germany, the UK, and Canada for first-pass planning.',
+      },
+      {
+        question: 'Can parents or guardians sponsor the funds checked here?',
+        answer:
+          'Yes. The tool supports self-funding, parent sponsorship, guardian sponsorship, third-party sponsors, and education-loan routes.',
+      },
+      {
+        question: 'What documents are usually stronger for bank proof?',
+        answer:
+          'Formal bank statements, bank letters, fixed deposit certificates, and loan sanction letters are generally stronger than simple balance certificates.',
+      },
+    ],
+  },
+};
+
+function convertToGermanGrade(cgpa: number, max: number, pass = 4) {
+  return (1 + (3 * (max - cgpa)) / (max - pass)).toFixed(2);
+}
+
+function getGradeMeaning(grade: number) {
+  if (grade <= 1.5) return 'Excellent';
+  if (grade <= 2.5) return 'Good';
+  if (grade <= 3.5) return 'Average';
+  return 'Needs stronger support';
+}
+
+function clampBand(score: number) {
+  return Math.max(0, Math.min(9, score));
+}
+
+function calculateOverall(scores: number[]) {
+  return Math.round((scores.reduce((sum, score) => sum + score, 0) / scores.length) * 2) / 2;
+}
+
+function money(amount: number, currency: string) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(Math.max(0, amount));
+}
+
+function statusTone(status: EligibilityStatus) {
+  if (status === 'Eligible') return 'bg-emerald-500/12 text-emerald-700 ring-1 ring-emerald-500/20';
+  if (status === 'Conditionally Eligible') return 'bg-amber-500/12 text-amber-700 ring-1 ring-amber-500/20';
+  if (status === 'Needs More Funds') return 'bg-orange-500/12 text-orange-700 ring-1 ring-orange-500/20';
+  if (status === 'Missing Documents') return 'bg-sky-500/12 text-sky-700 ring-1 ring-sky-500/20';
+  return 'bg-rose-500/12 text-rose-700 ring-1 ring-rose-500/20';
+}
+
+function buildToolStructuredData(variant: ToolVariant, page: ToolPageContent): StructuredData[] {
+  const pageUrl = `${SITE_URL}${page.path}`;
+  const basePage: StructuredData = {
+    '@context': 'https://schema.org',
+    '@type': variant === 'hub' ? 'CollectionPage' : 'WebPage',
+    name: page.heroTitle,
+    description: page.description,
+    url: pageUrl,
+    inLanguage: 'en-IN',
+    isPartOf: {
+      '@type': 'WebSite',
+      name: SITE_NAME,
+      url: `${SITE_URL}/`,
+    },
+    primaryImageOfPage: {
+      '@type': 'ImageObject',
+      url: `${SITE_URL}${DEFAULT_OG_IMAGE_PATH}`,
+    },
+    keywords: page.keywords.join(', '),
+  };
+
+  if (variant === 'hub') {
+    return [
+      {
+        ...basePage,
+        mainEntity: {
+          '@type': 'ItemList',
+          name: 'BVF Germany free study abroad tools',
+          itemListElement: toolDirectoryLinks.slice(1).map((item, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: item.label,
+            url: `${SITE_URL}${item.to}`,
+          })),
+        },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: `${SITE_URL}/`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Free Study Abroad Tools',
+            item: pageUrl,
+          },
+        ],
+      },
+    ];
+  }
+
+  return [
+    {
+      ...basePage,
+      mainEntity: {
+        '@type': 'WebApplication',
+        name: page.heroTitle,
+        applicationCategory: 'EducationalApplication',
+        operatingSystem: 'Any',
+        isAccessibleForFree: true,
+        offers: {
+          '@type': 'Offer',
+          price: 0,
+          priceCurrency: 'USD',
+        },
+        url: pageUrl,
+        description: page.description,
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: `${SITE_URL}/`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Free Study Abroad Tools',
+          item: `${SITE_URL}/tools`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: page.heroTitle,
+          item: pageUrl,
+        },
+      ],
+    },
+  ];
+}
+
+export default function FreeToolsPage() {
+  const location = useLocation();
+  const activeTool: ToolVariant = location.pathname.includes('/tools/cgpa-to-german-grade-converter')
+    ? 'cgpa'
+    : location.pathname.includes('/tools/ielts-bank-requirements-checker')
+      ? 'ielts'
+      : 'hub';
+  const currentPage = toolPageContent[activeTool];
+
+  useSeo({
+    title: currentPage.title,
+    description: currentPage.description,
+    url: `${SITE_URL}${currentPage.path}`,
+    image: DEFAULT_OG_IMAGE_PATH,
+    keywords: currentPage.keywords,
+    structuredData: buildToolStructuredData(activeTool, currentPage),
+  });
+
+  const { user } = useAuth();
+  const settings = useSiteSettings();
+  const guard = useFormGuard('tool');
+  const [cgpa, setCgpa] = useState('8.2');
+  const [maxCgpa, setMaxCgpa] = useState('10');
+  const [step, setStep] = useState(1);
+  const [country, setCountry] = useState('germany');
+  const [visaType, setVisaType] = useState('Student Visa');
+  const [courseLevel, setCourseLevel] = useState("Master's");
+  const [intake, setIntake] = useState(`Fall ${NEXT_YEAR}`);
+  const [listening, setListening] = useState('6.5');
+  const [reading, setReading] = useState('6.0');
+  const [writing, setWriting] = useState('6.0');
+  const [speaking, setSpeaking] = useState('6.5');
+  const [region, setRegion] = useState('standard');
+  const [tuitionFee, setTuitionFee] = useState('12000');
+  const [tuitionPaid, setTuitionPaid] = useState('2000');
+  const [fundingSource, setFundingSource] = useState('Parent sponsorship');
+  const [bankBalance, setBankBalance] = useState('14000');
+  const [maintenanceDays, setMaintenanceDays] = useState('30');
+  const [accountOwner, setAccountOwner] = useState('Parent');
+  const [documentType, setDocumentType] = useState('Bank statement');
+  const [institutionType, setInstitutionType] = useState('Nationalized');
+  const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<LeadForm>({ resolver: zodResolver(leadSchema), defaultValues: { consent: false } });
+
+  const canViewReviewResult = Boolean(user) && hasNewUserReviewAccess();
+  const maxAssessmentStep = canViewReviewResult ? 5 : 4;
+  const visibleWizardSteps = canViewReviewResult ? wizardSteps : wizardSteps.slice(0, 4);
+
+  useEffect(() => {
+    if (step > maxAssessmentStep) {
+      setStep(maxAssessmentStep);
+    }
+  }, [maxAssessmentStep, step]);
+
+  const selectedCountry = countryRules[country];
+  const selectedCourse = selectedCountry.courses[courseLevel];
+  const selectedRegion = selectedCountry.livingCosts[region];
+
+  const germanGrade = useMemo(() => {
+    const value = Number(cgpa);
+    const maxValue = Number(maxCgpa);
+    if (!value || !maxValue || value > maxValue || maxValue <= 4) return null;
+    const converted = Number(convertToGermanGrade(value, maxValue, 4));
+    return { value: Math.max(1, Math.min(4, converted)), meaning: getGradeMeaning(converted) };
+  }, [cgpa, maxCgpa]);
+
+  const report = useMemo(() => {
+    const scores = [listening, reading, writing, speaking].map((value) => clampBand(Number(value) || 0));
+    const overall = calculateOverall(scores);
+    const weakest = Math.min(...scores);
+    const tuition = Math.max(0, Number(tuitionFee) || 0);
+    const paid = Math.max(0, Math.min(tuition, Number(tuitionPaid) || 0));
+    const remainingTuition = Math.max(0, tuition - paid);
+    const requiredFunds = remainingTuition + selectedRegion.amount;
+    const availableFunds = Math.max(0, Number(bankBalance) || 0);
+    const fundsGap = Math.max(0, requiredFunds - availableFunds);
+    const maintenance = Math.max(0, Number(maintenanceDays) || 0);
+    const maintenanceGap = Math.max(0, selectedCountry.bank.maintenanceDays - maintenance);
+    const acceptedOwner = ownerRules[fundingSource]?.includes(accountOwner) ?? false;
+    const acceptedInstitution = selectedCountry.bank.acceptedInstitutions.includes(institutionType);
+    const acceptedDocument = selectedCountry.bank.acceptedDocuments.includes(documentType);
+    const weakDocument = selectedCountry.bank.weakDocuments.includes(documentType);
+    const missing: string[] = [];
+    const risks: string[] = [];
+    const actions: string[] = [];
+    const checklist: string[] = [];
+
+    if (overall < selectedCourse.minOverall) {
+      missing.push(`Overall IELTS is below the ${selectedCourse.minOverall.toFixed(1)} requirement.`);
+      actions.push(`Raise your overall band by ${(selectedCourse.minOverall - overall).toFixed(1)} before treating this route as ready.`);
+    } else {
+      checklist.push(`Overall IELTS meets the ${selectedCourse.minOverall.toFixed(1)} minimum.`);
+    }
+
+    if (weakest < selectedCourse.minSection) {
+      missing.push(`At least one IELTS module is below the ${selectedCourse.minSection.toFixed(1)} section minimum.`);
+      actions.push(`Retake or improve your weakest module until every section reaches ${selectedCourse.minSection.toFixed(1)}.`);
+    } else {
+      checklist.push(`All IELTS sections meet the ${selectedCourse.minSection.toFixed(1)} minimum.`);
+    }
+
+    if (fundsGap > 0) {
+      missing.push(`Available funds are short by ${money(fundsGap, selectedCountry.currency)}.`);
+      actions.push(`Add or maintain at least ${money(fundsGap, selectedCountry.currency)} more before final review.`);
+    } else {
+      checklist.push(`Available balance covers the estimated requirement of ${money(requiredFunds, selectedCountry.currency)}.`);
+    }
+
+    if (maintenanceGap > 0) {
+      risks.push(`Funds have been maintained for ${maintenance} days instead of ${selectedCountry.bank.maintenanceDays} days.`);
+      actions.push(`Maintain funds for at least ${maintenanceGap} more days.`);
+    } else {
+      checklist.push(`Maintenance period meets the ${selectedCountry.bank.maintenanceDays}-day baseline.`);
+    }
+
+    if (!acceptedOwner) {
+      missing.push(`Account ownership does not match the selected funding source (${fundingSource}).`);
+      actions.push(`Use an account owned by ${ownerRules[fundingSource].join(' or ')} or update the funding source.`);
+    } else if (fundingSource !== 'Self-funding' && fundingSource !== 'Education loan') {
+      risks.push('Relationship proof and sponsor consent are usually required for this funding route.');
+      actions.push('Keep relationship proof and sponsor authorization ready.');
+    }
+
+    if (!acceptedInstitution) {
+      missing.push(`${institutionType} institutions are weak for primary visa-fund proof.`);
+      actions.push('Move funds to a regulated bank account with formal statement history.');
+    } else if (institutionType === 'Cooperative') {
+      risks.push('Cooperative banks can require extra scrutiny.');
+      actions.push('Keep additional bank verification documents ready.');
+    } else {
+      checklist.push(`${institutionType} banking is acceptable for this first-pass check.`);
+    }
+
+    if (!acceptedDocument) {
+      missing.push(`${documentType} is not treated as a strong primary evidence format here.`);
+      actions.push(`Use one of: ${selectedCountry.bank.acceptedDocuments.join(', ')}.`);
+    } else if (weakDocument) {
+      risks.push(`${documentType} may need stronger supporting evidence.`);
+      actions.push('Pair it with a detailed bank statement or official bank letter.');
+    } else {
+      checklist.push(`${documentType} is acceptable for this route.`);
+    }
+
+    if (fundingSource === 'Education loan' && documentType !== 'Loan sanction letter') {
+      missing.push('Loan-based cases usually need a loan sanction letter.');
+      actions.push('Upload or collect the formal education-loan sanction letter.');
+    }
+
+    let status: EligibilityStatus = 'Eligible';
+    const severeLanguage = overall < selectedCourse.minOverall - 1 || weakest < selectedCourse.minSection - 1;
+    if (severeLanguage || !acceptedOwner || !acceptedInstitution) status = 'Not Eligible';
+    else if (fundsGap > 0) status = 'Needs More Funds';
+    else if (!acceptedDocument || (fundingSource === 'Education loan' && documentType !== 'Loan sanction letter')) status = 'Missing Documents';
+    else if (missing.length > 0 || risks.length > 0) status = 'Conditionally Eligible';
+
+    if (actions.length === 0) {
+      actions.push('Book a counselor review to validate this route and finalize the shortlist and document pack.');
+    }
+
+    return { overall, weakest, remainingTuition, requiredFunds, availableFunds, status, missing, risks, actions, checklist };
+  }, [
+    accountOwner,
+    bankBalance,
+    documentType,
+    fundingSource,
+    institutionType,
+    listening,
+    maintenanceDays,
+    reading,
+    selectedCountry,
+    selectedCourse,
+    selectedRegion.amount,
+    speaking,
+    tuitionFee,
+    tuitionPaid,
+    writing,
+  ]);
+
+  const whatsappHref = whatsappLink(settings, settings?.prefilledWhatsappMessage || 'Hi BVF Germany! I want help with studying in Germany.');
+
+  const onSubmit = async (data: LeadForm) => {
+    const guardError = guard.check(data.website);
+    if (guardError) {
+      setSubmitError(guardError);
+      return;
+    }
+    try {
+      await createLeadRecord({
+        source: 'tool',
+        sourcePage: location.pathname,
+        name: 'Tool Lead',
+        email: data.email,
+        phone: '',
+        subject: 'Free profile evaluation request',
+        message: 'Requested FREE Profile Evaluation Report from Tools page.',
+        metadata: { toolsUsed: 'cgpa-converter,ielts-bank-checker' },
+        consentAt: new Date().toISOString(),
+      });
+      try {
+        await sendSubmissionEmails({ formType: 'tool', name: 'Tools page visitor', email: data.email, source: location.pathname });
+      } catch (mailError) {
+        console.warn('Tool lead email notifications skipped', mailError);
+      }
+      guard.markSubmitted();
+      setSubmitted(true);
+      setSubmitError('');
+      reset({ email: '', consent: false });
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (error) {
+      console.error('Failed to save tool lead:', error);
+      setSubmitError('Submission failed. Please try again later.');
+    }
+  };
+
+  return (
+    <div className="site-shell home-showcase">
+      <Navbar />
+      <main>
+        <section className="page-hero">
+          <div className="page-hero-inner">
+            <div className="poster-grid items-end">
+              <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="col-span-12 lg:col-span-8">
+                <p className="eyebrow-chip">{currentPage.heroEyebrow}</p>
+                <h1 className="hero-display mt-7">{currentPage.heroTitle}</h1>
+                <p className="hero-copy">{currentPage.heroCopy}</p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {toolDirectoryLinks.map((item) => {
+                    const isActive = item.to === currentPage.path;
+                    return (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        className={`inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold transition ${
+                          isActive ? 'bg-primary text-white' : 'bg-white text-foreground ring-1 ring-border hover:bg-[#fff8ee]'
+                        }`}
+                      >
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </motion.div>
+              <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ ...spring, delay: 0.06 }} className="col-span-12 lg:col-span-4">
+                <div className="surface-panel p-6">
+                  <p className="section-kicker">{currentPage.sideTitle}</p>
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">{currentPage.sideCopy}</p>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        <section className="px-4 pb-12 md:px-8 md:pb-16">
+          <div className="container-narrow grid gap-6 lg:grid-cols-2">
+            <motion.article
+              id="cgpa-to-german-grade-converter"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={spring}
+              className={`surface-panel p-7 ${activeTool === 'ielts' ? 'lg:order-2' : 'lg:order-1'}`}
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+                  <Calculator className="h-6 w-6 text-primary" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="section-kicker">Tool 01</p>
+                  <h2 className="mt-2 text-2xl font-semibold text-foreground">CGPA to German Grade Converter</h2>
+                </div>
+              </div>
+              <p className="mt-4 text-sm leading-7 text-muted-foreground">Use the modified Bavarian formula to estimate how your CGPA may look in the German grading system.</p>
+              <div className="mt-6 grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-1.5 block text-sm font-semibold text-foreground">Your CGPA</label>
+                  <input value={cgpa} onChange={(event) => setCgpa(event.target.value)} className="input-premium" />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-semibold text-foreground">Maximum CGPA</label>
+                  <input value={maxCgpa} onChange={(event) => setMaxCgpa(event.target.value)} className="input-premium" />
+                </div>
+              </div>
+              <div className="mt-6 rounded-[28px] bg-[linear-gradient(160deg,rgba(10,18,37,1),rgba(23,42,77,0.96))] p-6 text-white">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">Result</p>
+                <p className="mt-3 text-4xl font-semibold text-secondary">{germanGrade ? germanGrade.value.toFixed(2) : '--'}</p>
+                <p className="mt-2 text-sm text-white/78">{germanGrade ? `Meaning: ${germanGrade.meaning}` : 'Enter valid values to estimate your German grade.'}</p>
+              </div>
+              <div className="mt-5 rounded-[20px] border border-border bg-muted/40 p-4 text-sm leading-7 text-foreground">
+                This CGPA to German Grade Converter uses the modified Bavarian formula to estimate how your score may translate into the German grading system for planning and shortlist discussions.
+              </div>
+            </motion.article>
+
+            <motion.article
+              id="ielts-bank-requirements-checker"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ ...spring, delay: 0.06 }}
+              className={`surface-panel p-7 ${activeTool === 'ielts' ? 'lg:order-1' : 'lg:order-2'}`}
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+                  <GraduationCap className="h-6 w-6 text-primary" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="section-kicker">Tool 02</p>
+                  <h2 className="mt-2 text-2xl font-semibold text-foreground">IELTS Bank Requirements Checker</h2>
+                </div>
+              </div>
+              <p className="mt-4 text-sm leading-7 text-muted-foreground">Collect destination, IELTS, tuition, sponsor, and bank details through a guided flow and get a decision dashboard instead of a raw calculator score.</p>
+
+              <div className="mt-6 rounded-[24px] border border-border bg-muted/30 p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-semibold text-foreground">Assessment progress</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Step {step} of {maxAssessmentStep}</p>
+                </div>
+                <div className="mt-4 h-2 rounded-full bg-border/80">
+                  <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(step / maxAssessmentStep) * 100}%` }} />
+                </div>
+                <div className={`mt-4 grid gap-2 ${canViewReviewResult ? 'md:grid-cols-5' : 'md:grid-cols-4'}`}>
+                  {visibleWizardSteps.map((label, index) => (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => setStep(index + 1)}
+                      className={`rounded-[18px] px-3 py-3 text-left text-sm transition ${
+                        step === index + 1 ? 'bg-primary text-white' : index + 1 < step ? 'bg-emerald-500/10 text-emerald-700' : 'bg-white text-muted-foreground ring-1 ring-border'
+                      }`}
+                    >
+                      <span className="block text-[11px] font-semibold uppercase tracking-[0.16em]">Step {index + 1}</span>
+                      <span className="mt-1 block leading-6">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {step === 1 ? (
+                <div className="mt-6 rounded-[24px] border border-border bg-background/70 p-6">
+                  <p className="text-sm font-semibold text-foreground">Step 1: Profile and destination</p>
+                  <div className="mt-5 grid gap-4 md:grid-cols-2">
+                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Destination country</label><select value={country} onChange={(event) => { const next = event.target.value; setCountry(next); setRegion(Object.keys(countryRules[next].livingCosts)[0]); }} className="input-premium">{Object.entries(countryRules).map(([value, rule]) => <option key={value} value={value}>{rule.name}</option>)}</select></div>
+                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Visa category</label><select value={visaType} onChange={(event) => setVisaType(event.target.value)} className="input-premium">{['Student Visa', 'Direct Admission', 'Pathway / Conditional Offer'].map((item) => <option key={item} value={item}>{item}</option>)}</select></div>
+                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Course level</label><select value={courseLevel} onChange={(event) => setCourseLevel(event.target.value)} className="input-premium">{Object.keys(selectedCountry.courses).map((item) => <option key={item} value={item}>{item}</option>)}</select></div>
+                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Intake</label><select value={intake} onChange={(event) => setIntake(event.target.value)} className="input-premium">{intakeOptions.map((item) => <option key={item} value={item}>{item}</option>)}</select></div>
+                  </div>
+                  <div className="mt-5 rounded-[20px] border border-border bg-muted/40 p-4 text-sm leading-7 text-foreground">{selectedCourse.note}</div>
+                </div>
+              ) : null}
+
+              {step === 2 ? (
+                <div className="mt-6 rounded-[24px] border border-border bg-background/70 p-6">
+                  <p className="text-sm font-semibold text-foreground">Step 2: IELTS score input</p>
+                  <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Listening</label><input value={listening} onChange={(event) => setListening(event.target.value)} className="input-premium" /></div>
+                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Reading</label><input value={reading} onChange={(event) => setReading(event.target.value)} className="input-premium" /></div>
+                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Writing</label><input value={writing} onChange={(event) => setWriting(event.target.value)} className="input-premium" /></div>
+                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Speaking</label><input value={speaking} onChange={(event) => setSpeaking(event.target.value)} className="input-premium" /></div>
+                  </div>
+                  <div className="mt-5 grid gap-4 md:grid-cols-3">
+                    <div className="rounded-[20px] border border-border bg-muted/40 p-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Overall</p><p className="mt-2 text-2xl font-semibold text-foreground">{report.overall.toFixed(1)}</p></div>
+                    <div className="rounded-[20px] border border-border bg-muted/40 p-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Section minimum</p><p className="mt-2 text-2xl font-semibold text-foreground">{selectedCourse.minSection.toFixed(1)}</p></div>
+                    <div className="rounded-[20px] border border-border bg-muted/40 p-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Safer target</p><p className="mt-2 text-2xl font-semibold text-foreground">{selectedCourse.saferOverall.toFixed(1)}</p></div>
+                  </div>
+                </div>
+              ) : null}
+
+              {step === 3 ? (
+                <div className="mt-6 rounded-[24px] border border-border bg-background/70 p-6">
+                  <p className="text-sm font-semibold text-foreground">Step 3: Tuition and funding</p>
+                  <div className="mt-5 grid gap-4 md:grid-cols-2">
+                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">City or cost-of-living region</label><select value={region} onChange={(event) => setRegion(event.target.value)} className="input-premium">{Object.entries(selectedCountry.livingCosts).map(([value, item]) => <option key={value} value={value}>{item.label}</option>)}</select></div>
+                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Funding source</label><select value={fundingSource} onChange={(event) => setFundingSource(event.target.value)} className="input-premium">{fundingSources.map((item) => <option key={item} value={item}>{item}</option>)}</select></div>
+                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Total tuition fee ({selectedCountry.currency})</label><input value={tuitionFee} onChange={(event) => setTuitionFee(event.target.value)} className="input-premium" /></div>
+                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Amount paid ({selectedCountry.currency})</label><input value={tuitionPaid} onChange={(event) => setTuitionPaid(event.target.value)} className="input-premium" /></div>
+                  </div>
+                  <div className="mt-5 grid gap-4 md:grid-cols-3">
+                    <div className="rounded-[20px] border border-border bg-muted/40 p-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Living cost</p><p className="mt-2 text-2xl font-semibold text-foreground">{money(selectedRegion.amount, selectedCountry.currency)}</p></div>
+                    <div className="rounded-[20px] border border-border bg-muted/40 p-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Remaining tuition</p><p className="mt-2 text-2xl font-semibold text-foreground">{money(report.remainingTuition, selectedCountry.currency)}</p></div>
+                    <div className="rounded-[20px] border border-border bg-muted/40 p-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Required funds</p><p className="mt-2 text-2xl font-semibold text-foreground">{money(report.requiredFunds, selectedCountry.currency)}</p></div>
+                  </div>
+                </div>
+              ) : null}
+
+              {step === 4 ? (
+                <div className="mt-6 rounded-[24px] border border-border bg-background/70 p-6">
+                  <p className="text-sm font-semibold text-foreground">Step 4: Bank and sponsor details</p>
+                  <div className="mt-5 grid gap-4 md:grid-cols-2">
+                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Bank balance ({selectedCountry.currency})</label><input value={bankBalance} onChange={(event) => setBankBalance(event.target.value)} className="input-premium" /></div>
+                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Maintenance period (days)</label><input value={maintenanceDays} onChange={(event) => setMaintenanceDays(event.target.value)} className="input-premium" /></div>
+                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Account owner</label><select value={accountOwner} onChange={(event) => setAccountOwner(event.target.value)} className="input-premium">{accountOwners.map((item) => <option key={item} value={item}>{item}</option>)}</select></div>
+                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Document type</label><select value={documentType} onChange={(event) => setDocumentType(event.target.value)} className="input-premium">{documentTypes.map((item) => <option key={item} value={item}>{item}</option>)}</select></div>
+                    <div className="md:col-span-2"><label className="mb-1.5 block text-sm font-semibold text-foreground">Financial institution type</label><select value={institutionType} onChange={(event) => setInstitutionType(event.target.value)} className="input-premium">{institutionTypes.map((item) => <option key={item} value={item}>{item}</option>)}</select></div>
+                  </div>
+                  <div className="mt-5 rounded-[20px] border border-border bg-muted/40 p-4 text-sm leading-7 text-foreground">Why we ask this: the tool checks maintenance history, ownership fit, document strength, and whether the bank type is likely to hold up in a first-pass review.</div>
+                </div>
+              ) : null}
+
+              {step === 5 && canViewReviewResult ? (
+                <div className="mt-6 space-y-5">
+                  <div className="rounded-[26px] bg-[linear-gradient(160deg,rgba(10,18,37,1),rgba(23,42,77,0.96))] p-6 text-white">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">Decision dashboard</p>
+                        <h3 className="mt-3 text-3xl font-semibold text-secondary">{report.status}</h3>
+                        <p className="mt-3 text-sm leading-7 text-white/78">{selectedCountry.name} | {visaType} | {courseLevel} | {intake}</p>
+                      </div>
+                      <span className={`rounded-full px-4 py-2 text-sm font-semibold ${statusTone(report.status)}`}>{report.status}</span>
+                    </div>
+                    <p className="mt-4 text-sm leading-7 text-white/76">{selectedCountry.disclaimer}</p>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <div className="rounded-[24px] border border-border bg-muted/40 p-5"><p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">IELTS overall</p><p className="mt-2 text-2xl font-semibold text-foreground">{report.overall.toFixed(1)}</p><p className="mt-1.5 text-xs leading-5 text-muted-foreground">Minimum: {selectedCourse.minOverall.toFixed(1)}</p></div>
+                    <div className="rounded-[24px] border border-border bg-muted/40 p-5"><p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Weakest section</p><p className="mt-2 text-2xl font-semibold text-foreground">{report.weakest.toFixed(1)}</p><p className="mt-1.5 text-xs leading-5 text-muted-foreground">Minimum: {selectedCourse.minSection.toFixed(1)}</p></div>
+                    <div className="rounded-[24px] border border-border bg-muted/40 p-5"><p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Required funds</p><p className="mt-2 text-2xl font-semibold text-foreground">{money(report.requiredFunds, selectedCountry.currency)}</p><p className="mt-1.5 text-xs leading-5 text-muted-foreground">Tuition balance plus living costs.</p></div>
+                    <div className="rounded-[24px] border border-border bg-muted/40 p-5"><p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Available balance</p><p className="mt-2 text-2xl font-semibold text-foreground">{money(report.availableFunds, selectedCountry.currency)}</p><p className="mt-1.5 text-xs leading-5 text-muted-foreground">{documentType}</p></div>
+                  </div>
+
+                  <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+                    <div className="rounded-[24px] border border-border bg-background/80 p-6">
+                      <div className="flex items-center gap-3"><FileCheck2 className="h-5 w-5 text-primary" aria-hidden="true" /><p className="text-sm font-semibold text-foreground">Explanation blocks</p></div>
+                      <div className="mt-5 space-y-3">
+                        <div className="rounded-[18px] border border-border bg-muted/40 px-4 py-3 text-sm leading-7 text-foreground">Course note: {selectedCourse.note}</div>
+                        <div className="rounded-[18px] border border-border bg-muted/40 px-4 py-3 text-sm leading-7 text-foreground">Funding route: {fundingSource} via {accountOwner.toLowerCase()} ownership and {institutionType.toLowerCase()} banking.</div>
+                        <div className="rounded-[18px] border border-border bg-muted/40 px-4 py-3 text-sm leading-7 text-foreground">Document strength: {documentType} selected for the current route.</div>
+                        <div className="rounded-[18px] border border-border bg-muted/40 px-4 py-3 text-sm leading-7 text-foreground">Evidence is shown as planning guidance, not as a guaranteed visa decision.</div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="rounded-[24px] border border-border bg-background/80 p-6">
+                        <div className="flex items-center gap-3"><AlertTriangle className="h-5 w-5 text-secondary" aria-hidden="true" /><p className="text-sm font-semibold text-foreground">Missing or risky items</p></div>
+                        <div className="mt-5 space-y-3">
+                          {report.missing.length === 0 && report.risks.length === 0 ? <div className="rounded-[18px] bg-emerald-500/10 px-4 py-3 text-sm leading-7 text-emerald-700">No major gaps were flagged in this first-pass assessment.</div> : null}
+                          {report.missing.map((item) => <div key={item} className="rounded-[18px] bg-rose-500/10 px-4 py-3 text-sm leading-7 text-rose-700">{item}</div>)}
+                          {report.risks.map((item) => <div key={item} className="rounded-[18px] bg-amber-500/10 px-4 py-3 text-sm leading-7 text-amber-700">{item}</div>)}
+                        </div>
+                      </div>
+
+                      <div className="rounded-[24px] border border-border bg-background/80 p-6">
+                        <div className="flex items-center gap-3"><Landmark className="h-5 w-5 text-primary" aria-hidden="true" /><p className="text-sm font-semibold text-foreground">Next-step recommendation panel</p></div>
+                        <div className="mt-5 space-y-3">
+                          {report.actions.map((item) => (
+                            <div key={item} className="flex items-start gap-3 rounded-[18px] border border-border/70 bg-white/80 px-4 py-3 text-sm leading-7 text-muted-foreground">
+                              <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                              <span>{item}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-[24px] border border-border bg-muted/30 p-6">
+                    <p className="text-sm font-semibold text-foreground">Validation checklist</p>
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                      {report.checklist.map((item) => <div key={item} className="rounded-[18px] bg-white px-4 py-3 text-sm leading-7 text-foreground ring-1 ring-border">{item}</div>)}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {step === 4 && !canViewReviewResult ? (
+                <div className="mt-6 rounded-[24px] border border-border bg-muted/30 p-6">
+                  <p className="text-sm font-semibold text-foreground">Review result is locked</p>
+                  <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                    This final review result is only visible for newly registered students after their first successful login.
+                  </p>
+                  {!user ? (
+                    <Link
+                      to="/login"
+                      state={{ from: location.pathname }}
+                      className="mt-4 inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-95"
+                    >
+                      Login to unlock review result
+                    </Link>
+                  ) : null}
+                </div>
+              ) : null}
+
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+                <button type="button" onClick={() => setStep((current) => Math.max(1, current - 1))} className="inline-flex items-center justify-center rounded-full bg-[#f7f2ea] px-5 py-3 text-sm font-semibold text-foreground ring-1 ring-border transition hover:bg-white">Previous step</button>
+                <button
+                  type="button"
+                  disabled={step >= maxAssessmentStep}
+                  onClick={() => setStep((current) => Math.min(maxAssessmentStep, current + 1))}
+                  className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {step >= maxAssessmentStep
+                    ? canViewReviewResult
+                      ? 'Review result'
+                      : !user
+                        ? 'Login to unlock review result'
+                        : 'Review result locked'
+                    : 'Next step'}
+                </button>
+              </div>
+            </motion.article>
+          </div>
+        </section>
+
+        <section className="px-4 pb-12 md:px-8 md:pb-16">
+          <div className="container-narrow grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="surface-panel p-8">
+              <p className="section-kicker">Tool Guide</p>
+              <h2 className="mt-3 font-heading text-3xl font-semibold text-foreground">{currentPage.explainerTitle}</h2>
+              <div className="mt-6 space-y-4">
+                {currentPage.explainers.map((item) => (
+                  <div key={item.title} className="rounded-[22px] border border-border bg-white/80 p-5">
+                    <h3 className="text-lg font-semibold text-foreground">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-7 text-muted-foreground">{item.body}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="surface-panel p-8">
+              <p className="section-kicker">Common Questions</p>
+              <h2 className="mt-3 font-heading text-3xl font-semibold text-foreground">{currentPage.faqTitle}</h2>
+              <div className="mt-6 space-y-4">
+                {currentPage.faqs.map((item) => (
+                  <div key={item.question} className="rounded-[22px] border border-border bg-muted/30 p-5">
+                    <h3 className="text-lg font-semibold text-foreground">{item.question}</h3>
+                    <p className="mt-2 text-sm leading-7 text-muted-foreground">{item.answer}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="px-4 py-10 md:px-8 md:py-12">
+          <div className="container-narrow rounded-[34px] bg-[linear-gradient(135deg,rgba(9,18,39,1),rgba(18,33,70,0.96))] px-6 py-10 text-white shadow-[0_32px_110px_-58px_rgba(3,7,18,0.95)] md:px-10">
+            <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">Lead Capture</p>
+                <h2 className="mt-3 font-heading text-3xl font-semibold text-secondary md:text-4xl">Get FREE Profile Evaluation Report</h2>
+                <p className="mt-4 max-w-2xl text-sm leading-7 text-white/76">Leave your email and the BVF team can review your route, shortlist options, and funding readiness.</p>
+              </div>
+              <div>
+                {submitted ? (
+                  <div className="rounded-[24px] bg-white/10 p-6 text-center">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white/10"><Send className="h-6 w-6 text-secondary" aria-hidden="true" /></div>
+                    <p className="mt-4 text-lg font-semibold text-white">Request sent.</p>
+                    <p className="mt-2 text-sm text-white/70">We&apos;ll reach out soon with the next step.</p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    <input type="text" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" {...register('website')} />
+                    <div>
+                      <label htmlFor="tool-email" className="mb-1.5 block text-sm font-semibold text-white">Email</label>
+                      <input id="tool-email" type="email" className="input-premium bg-white/95" placeholder="name@example.com" {...register('email')} />
+                      {errors.email ? <p className="mt-1 text-xs text-red-200">{errors.email.message}</p> : null}
+                    </div>
+                    <ConsentCheckbox id="tool-consent" tone="dark" error={errors.consent?.message} {...register('consent')} />
+                    <button type="submit" disabled={isSubmitting} className="button-primary w-full disabled:opacity-50">{isSubmitting ? 'Sending...' : 'Get Free Profile Evaluation'}</button>
+                    <p className={`text-xs ${submitError ? 'text-red-200' : 'text-white/70'}`}>{submitError || 'This is a guided support tool, not a guaranteed admission or visa decision.'}</p>
+                  </form>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="px-4 pb-20 pt-10 md:px-8 md:pb-24">
+          <div className="container-narrow grid gap-8 lg:grid-cols-[1fr_0.9fr]">
+            <div className="surface-panel p-8">
+              <p className="section-kicker">SEO Funnel</p>
+              <h2 className="mt-3 font-heading text-3xl font-semibold text-foreground">Tool pages work best when they explain the next move, not just the score.</h2>
+              <div className="mt-6 space-y-4">
+                {[
+                  'The wizard explains score gaps, fund gaps, and document risks separately.',
+                  'Country rules can be updated without rethinking the page structure.',
+                  'Students and counselors both get a readable action plan from the result dashboard.',
+                ].map((item) => (
+                  <div key={item} className="flex items-start gap-3">
+                    <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                    <span className="text-sm leading-7 text-foreground">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[34px] bg-[linear-gradient(160deg,rgba(10,18,37,1),rgba(23,42,77,0.96))] p-8 text-white shadow-[0_30px_100px_-54px_rgba(15,23,42,0.9)]">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">Conversion CTA</p>
+              <h3 className="mt-3 font-heading text-3xl font-semibold text-secondary">Use the result. Then act on it.</h3>
+              <p className="mt-4 text-sm leading-7 text-white/76">Once you know whether the issue is IELTS, funds, or documents, the next step is a proper counselor review.</p>
+              <div className="mt-6 flex flex-col gap-3">
+                <Link to="/bookings" className="button-primary">Book Free Consultation</Link>
+                {whatsappHref ? (<a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="button-secondary">Chat on WhatsApp</a>) : null}
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <Footer />
+      <WhatsAppFloat />
+    </div>
+  );
+}

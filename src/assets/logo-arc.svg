@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 60" role="img" aria-label="Arc University">
+  <rect width="160" height="60" rx="10" fill="#0f172a"/>
+  <path d="M24 40c10-16 32-24 56-24 18 0 34 5 48 14" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+  <text x="26" y="38" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700">ARC</text>
+</svg>
