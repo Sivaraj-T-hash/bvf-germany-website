@@ -8,7 +8,7 @@ import WhatsAppFloat from '@/components/WhatsAppFloat';
 import WhatsAppCta from '@/components/WhatsAppCta';
 import BrandVisual from '@/components/BrandVisual';
 import StudentStories from '@/components/StudentStories';
-import SceneIllustration from '@/components/SceneIllustration';
+import SceneIllustration, { sceneFor } from '@/components/SceneIllustration';
 import ProfileEvaluationForm from '@/components/ProfileEvaluationForm';
 import { ComparisonCards, GermanyFactsSection, JourneyStagesSection, PackagePriceCard } from '@/components/OfferSections';
 import { founder } from '@/content/team';
@@ -75,6 +75,15 @@ const serviceIconMap = {
   visa: ShieldCheck,
   departure: PlaneTakeoff,
   accommodation: House,
+  gre: FileText,
+  gmat: FileText,
+  language: Languages,
+  arrival: PlaneTakeoff,
+  sop: FileText,
+  cv: FileText,
+  loan: CircleDollarSign,
+  insurance: ShieldCheck,
+  'uni-application': Send,
 } as const;
 const serviceToneStyles = {
   free: 'bg-emerald-500/10 text-emerald-700 border-emerald-200/80',
@@ -335,21 +344,13 @@ export default function HomePage() {
                   <div className="relative h-full rounded-[24px] border border-[#eadfcd] bg-[linear-gradient(180deg,#fffaf2,#f7efe2)] p-3 shadow-[0_18px_40px_rgba(30,41,59,0.08)] md:p-4">
                     <div className="absolute inset-x-6 top-5 h-8 rounded-full bg-white/70 blur-xl" aria-hidden="true" />
                     <BrandVisual title="Profile, applications, visa and arrival in one guided flow" kicker="BVF Support" icon={GraduationCap} className="h-full min-h-[240px] w-full rounded-[22px]" />
-                    <div className="absolute bottom-6 left-6 right-6 hidden rounded-[18px] border border-white/12 bg-white/10 p-3 backdrop-blur md:block">
-                      <p className="text-[10px] font-extrabold uppercase tracking-[0.24em] text-white">Support Stack</p>
-                      <div className="mt-3 grid grid-cols-3 gap-2 text-[11px] font-bold text-white">
-                        <span className="rounded-full bg-white/10 px-3 py-2 text-center">Profile</span>
-                        <span className="rounded-full bg-white/10 px-3 py-2 text-center">Apply</span>
-                        <span className="rounded-full bg-white/10 px-3 py-2 text-center">Visa</span>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
                 <div className="p-5 md:p-7">
                   <div className="flex items-center gap-3">
                     {showcaseServices.slice(0, 3).map((service) => {
-                      const ServiceIcon = serviceIconMap[service.icon];
+                      const ServiceIcon = serviceIconMap[service.icon as keyof typeof serviceIconMap] || GraduationCap;
                       return (
                         <div key={service.id} className="flex h-14 w-14 items-center justify-center rounded-[20px] border border-[#efe4d3] bg-[#faf7f1] text-secondary">
                           <ServiceIcon className="h-6 w-6" aria-hidden="true" />
@@ -375,18 +376,22 @@ export default function HomePage() {
 
                   <div className="mt-6 grid gap-3 sm:grid-cols-2">
                     {showcaseServices.map((service, index) => {
-                      const ServiceIcon = serviceIconMap[service.icon];
+                      const ServiceIcon = serviceIconMap[service.icon as keyof typeof serviceIconMap] || GraduationCap;
                       const isFeatured = index === 0;
 
                       return (
                         <Link
                           key={service.id}
                           to={`/services/${service.slug}`}
-                          className={`group flex items-start gap-3 rounded-[22px] border p-4 transition hover:-translate-y-0.5 ${isFeatured
+                          className={`group flex flex-col overflow-hidden rounded-[22px] border transition hover:-translate-y-0.5 ${isFeatured
                             ? 'border-[#dbe8fb] bg-[#f4f8ff]'
                             : 'border-[#efe4d3] bg-[#fffdf9]'
                             }`}
                         >
+                          <div className="h-28 w-full overflow-hidden">
+                            <SceneIllustration scene={sceneFor(`${service.title} ${service.slug}`)} className="transition-transform duration-500 group-hover:scale-105" />
+                          </div>
+                          <div className="flex items-start gap-3 p-4">
                           <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[16px] ${isFeatured ? 'bg-[#1f6fcb] text-white' : 'bg-[#fff4db] text-[#f59e0b]'}`}>
                             <ServiceIcon className="h-5 w-5" aria-hidden="true" />
                           </div>
@@ -396,8 +401,9 @@ export default function HomePage() {
                               <ArrowRight className="h-4 w-4 shrink-0 text-[#6b7280] transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
                             </div>
                             <p className="mt-2 text-[13px] font-medium leading-5 text-[#5c6678]">
-                              {isFeatured ? 'Start with clarity on fit, eligibility, and your best next step.' : service.shortDescription}
+                              {service.shortDescription}
                             </p>
+                          </div>
                           </div>
                         </Link>
                       );

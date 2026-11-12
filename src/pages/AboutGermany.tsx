@@ -160,6 +160,9 @@ export default function AboutGermanyPage() {
             </div>
 
             <div className="rounded-[34px] border border-white/18 bg-white/10 p-4 shadow-2xl backdrop-blur-md">
+              <div className="mb-4 h-48 overflow-hidden rounded-[28px]">
+                <SceneIllustration scene="city" label="Illustration of a German city skyline" />
+              </div>
               <div className="rounded-[28px] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,242,232,0.96))] p-6 text-foreground">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-secondary">What BVF Germany helps with</p>
                 <div className="mt-6 space-y-3">
