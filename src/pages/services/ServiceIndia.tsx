@@ -6,7 +6,7 @@ export default function ServiceIndiaPage() {
       title="Service in India"
       subtitle="Counseling, admissions, and document support before you fly to Germany."
       heroImage="https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1400&auto=format&fit=crop"
-      ctaLabel="Book a Counseling"
+      ctaLabel="Book Free Consultation Now"
       ctaTo="/contact"
       introTitle="Counseling That Removes Confusion"
       introText="Students often feel overwhelmed by university choices, course selection, and eligibility requirements. BVF Germany simplifies the process with structured counseling and clear steps that reduce anxiety for students and parents alike."

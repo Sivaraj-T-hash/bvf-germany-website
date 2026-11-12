@@ -6,7 +6,7 @@ export default function StudentFlightTicketsPage() {
       title="Student Flight Tickets"
       subtitle="Smart booking, student fares, and arrival planning for Germany."
       heroImage="https://images.unsplash.com/photo-1504198453319-5ce911bafcde?q=80&w=1400&auto=format&fit=crop"
-      ctaLabel="Get Ticket Support"
+      ctaLabel="Book Free Consultation Now"
       ctaTo="/contact"
       introTitle="Book Smart, Travel Easy"
       introText="We help students find the best fares, plan baggage, and coordinate arrival so you can land in Germany without last‑minute stress."

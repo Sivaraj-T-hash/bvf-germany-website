@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { ArrowRight, BadgeCheck, ChevronDown, ChevronUp, ExternalLink, ShieldCheck } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ArrowRight, BadgeCheck, ChevronDown, ChevronUp, ExternalLink, ShieldCheck, Clock, GraduationCap, Languages, Coins, Settings, Briefcase, HeartPulse, Building, FlaskConical, Zap, Truck, Cpu, Box, Banknote, Target, AreaChart, Laptop, HandPlatter, Phone, Code } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useSeo } from '@/lib/useSeo';
+import { buildFaqStructuredData } from '@/lib/seo';
 import technicalUniversityOfMunichLogo from '@/assets/Technical University of Munich.png';
 import rwthAachenUniversityLogo from '@/assets/RWTH Aachen University .png';
 import heidelbergUniversityLogo from '@/assets/Heidelberg University.png';
@@ -183,6 +184,43 @@ function ExpandableAnswer({ text }: { text: string }) {
   );
 }
 
+const getIconForFact = (label: string) => {
+  const normalized = label.toLowerCase();
+  if (normalized.includes('duration')) return <Clock className="h-5 w-5" strokeWidth={2} />;
+  if (normalized.includes('eligibility')) return <GraduationCap className="h-5 w-5" strokeWidth={2} />;
+  if (normalized.includes('language')) return <Languages className="h-5 w-5" strokeWidth={2} />;
+  if (normalized.includes('tuition') || normalized.includes('cost')) return <Coins className="h-5 w-5" strokeWidth={2} />;
+  return <BadgeCheck className="h-5 w-5" strokeWidth={2} />;
+};
+
+const getIconForTrack = (iconCode: string) => {
+  const icons: Record<string, any> = {
+    MECH: Settings,
+    CS: Code,
+    BIZ: Briefcase,
+    MED: HeartPulse,
+    ARC: Building,
+    SCI: FlaskConical,
+    ELEC: Zap,
+    CIV: Building,
+    AUTO: Truck,
+    ROBO: Cpu,
+    IB: Briefcase,
+    SCM: Box,
+    FIN: Banknote,
+    MKT: Target,
+    DATA: AreaChart,
+    STR: AreaChart,
+    NUR: HeartPulse,
+    IT: Laptop,
+    HOSP: HandPlatter,
+    LOG: Truck,
+    SERV: Phone,
+  };
+  const IconComponent = icons[iconCode] || Briefcase;
+  return <IconComponent className="h-7 w-7 text-primary transition-transform duration-300 group-hover:scale-110" strokeWidth={2} />;
+};
+
 export default function StudyProgramPage({
   title,
   subtitle,
@@ -224,9 +262,16 @@ export default function StudyProgramPage({
   finalPrimaryCta,
   finalSecondaryCta,
 }: StudyProgramPageProps) {
+  const location = useLocation();
+
   useSeo({
     title: `${title} | BVF Germany`,
     description: subtitle,
+    breadcrumb: [
+      { name: 'Study in Germany', path: '/study-in-germany' },
+      { name: title, path: location.pathname },
+    ],
+    structuredData: buildFaqStructuredData(faqs),
   });
 
   const [openFaq, setOpenFaq] = useState(0);
@@ -272,12 +317,17 @@ export default function StudyProgramPage({
         </div>
       </section>
 
-      <section className="border-y border-[#d5c5af] bg-[#f0dfc9] py-5">
+      <section className="py-8 relative z-20">
         <div className="mx-auto grid max-w-[1380px] gap-4 px-4 md:grid-cols-2 md:px-8 lg:grid-cols-4">
           {summaryFacts.map((fact) => (
-            <div key={fact.label} className="rounded-[22px] border border-black/5 bg-white/72 px-4 py-4 shadow-sm backdrop-blur">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">{fact.label}</p>
-              <p className="mt-2 text-lg font-semibold text-foreground">{fact.value}</p>
+            <div key={fact.label} className="group flex items-start gap-4 rounded-[28px] border border-[#d5c5af]/50 bg-white/60 p-5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-white/90 hover:shadow-[0_12px_40px_rgb(0,0,0,0.08)]">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px] bg-white shadow-sm text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-white">
+                {getIconForFact(fact.label)}
+              </div>
+              <div className="flex-1">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80">{fact.label}</p>
+                <p className="mt-1 text-[15px] font-semibold leading-relaxed text-foreground">{fact.value}</p>
+              </div>
             </div>
           ))}
         </div>
@@ -492,20 +542,33 @@ export default function StudyProgramPage({
             </div>
           </section>
 
-          <section id="tracks" className="rounded-[36px] border border-border/80 bg-[#f7f2ea] p-7 shadow-card">
-            <div className="max-w-3xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-secondary">Program options</p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">{tracksTitle}</h2>
-              <p className="mt-4 text-base leading-8 text-muted-foreground">{tracksIntro}</p>
+          <section id="tracks" className="relative overflow-hidden rounded-[40px] border border-border/50 bg-[#fffdf9] shadow-card">
+            <div className="absolute top-0 right-0 p-32 opacity-5 pointer-events-none">
+              <BadgeCheck className="w-96 h-96" />
             </div>
-            <div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {tracks.map((track) => (
-                <article key={track.title} className="rounded-[28px] border border-border/70 bg-white/95 p-5 shadow-sm">
-                  <div className="text-3xl">{track.icon}</div>
-                  <h3 className="mt-3 text-xl font-semibold text-foreground">{track.title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-muted-foreground">{track.text}</p>
-                </article>
-              ))}
+            
+            <div className="relative z-10 p-8 md:p-12">
+              <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
+                <div className="inline-flex items-center justify-center rounded-full bg-primary/10 px-4 py-1.5 mb-5">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">Program options</p>
+                </div>
+                <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">{tracksTitle}</h2>
+                <p className="mt-4 text-lg leading-8 text-muted-foreground">{tracksIntro}</p>
+              </div>
+              
+              <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {tracks.map((track) => (
+                  <article key={track.title} className="group relative flex flex-col items-start rounded-[32px] border border-border/60 bg-white p-7 shadow-[0_4px_20px_rgb(0,0,0,0.03)] transition-all duration-500 hover:-translate-y-1 hover:border-primary/20 hover:shadow-[0_12px_40px_rgb(0,0,0,0.08)]">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-[20px] bg-[#f8f9fa] shadow-inner transition-colors duration-300 group-hover:bg-primary/5">
+                      {getIconForTrack(track.icon)}
+                    </div>
+                    <div className="mt-6">
+                      <h3 className="text-xl font-bold text-foreground transition-colors group-hover:text-primary">{track.title}</h3>
+                      <p className="mt-3 text-sm leading-relaxed text-muted-foreground/90">{track.text}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
             </div>
           </section>
 

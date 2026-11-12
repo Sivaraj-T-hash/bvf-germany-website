@@ -30,6 +30,7 @@ const normalizeResourcePackage = (
     id: item.id,
     title: item.title ?? fallback?.title ?? 'Untitled resource',
     shortLabel: item.shortLabel ?? fallback?.shortLabel ?? 'Resource',
+    department: item.department ?? fallback?.department ?? '',
     priceValue: typeof item.priceValue === 'number' ? item.priceValue : fallback?.priceValue ?? 0,
     originalPriceValue:
       typeof item.originalPriceValue === 'number'

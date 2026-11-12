@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   AlertTriangle,
-  ArrowRight,
   Calculator,
   CheckCircle2,
   FileCheck2,
@@ -23,6 +22,7 @@ import { DEFAULT_OG_IMAGE_PATH, SITE_NAME, SITE_URL, type StructuredData } from 
 import { getSiteSettings, type SiteSettings } from '@/lib/siteContentStore';
 import { useSeo } from '@/lib/useSeo';
 import { createLeadRecord } from '@/lib/leadStore';
+import { buildWhatsappHref } from '@/lib/whatsapp';
 
 const spring = { type: 'spring' as const, stiffness: 280, damping: 28 };
 
@@ -452,6 +452,211 @@ function buildToolStructuredData(variant: ToolVariant, page: ToolPageContent): S
   ];
 }
 
+// ─── German Grade Calculator ──────────────────────────────────────────────────
+function GermanGradeCalculator() {
+  const [score, setScore] = useState('');
+  const [max, setMax] = useState('10');
+  const [min, setMin] = useState('4');
+  const [result, setResult] = useState<{ grade: string; label: string } | null>(null);
+  const [error, setError] = useState('');
+
+  function calculate() {
+    const s = parseFloat(score);
+    const mx = parseFloat(max);
+    const mn = parseFloat(min);
+    if (isNaN(s) || isNaN(mx) || isNaN(mn)) { setError('Please fill in all fields with valid numbers.'); setResult(null); return; }
+    if (mx <= mn) { setError('Max must be greater than Min passing grade.'); setResult(null); return; }
+    if (s > mx || s < mn) { setError('Your score must be between Min and Max.'); setResult(null); return; }
+    setError('');
+    const g = 1 + 3 * (mx - s) / (mx - mn);
+    const clamped = Math.max(1, Math.min(4, g));
+    const label = clamped <= 1.5 ? 'Sehr gut (Excellent)' : clamped <= 2.5 ? 'Gut (Good)' : clamped <= 3.5 ? 'Befriedigend (Satisfactory)' : 'Ausreichend (Sufficient)';
+    setResult({ grade: clamped.toFixed(2), label });
+  }
+
+  const inputCls = 'w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition bg-white text-slate-900 text-sm placeholder-slate-400';
+  const labelCls = 'block text-sm font-semibold text-slate-700 mb-2';
+
+  return (
+    <div className="h-full flex flex-col">
+      <div className="text-center mb-6">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 mb-3">
+          <Calculator className="h-6 w-6 text-primary" aria-hidden="true" />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-900 mb-1">German Grade Calculator</h2>
+        <p className="text-slate-500 text-sm">Convert GPA / Percentage to German scale (Modified Bavarian)</p>
+      </div>
+
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-sm p-7 hover:shadow-md transition-all flex-1 flex flex-col">
+        <div className="space-y-5">
+          <div>
+            <label className={labelCls}>
+              Your Score <span className="font-normal text-slate-400 text-xs">(e.g. 8.0 or 80)</span>
+            </label>
+            <input id="german-score" type="number" min="0" step="0.1" value={score}
+              onChange={(e) => setScore(e.target.value)} className={inputCls} placeholder="e.g. 8.0 or 80" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Max Score <span className="block font-normal text-slate-400 text-xs">Best possible</span></label>
+              <input id="german-max" type="number" value={max} onChange={(e) => setMax(e.target.value)} className={inputCls} placeholder="e.g. 10 or 100" />
+            </div>
+            <div>
+              <label className={labelCls}>Min Passing <span className="block font-normal text-slate-400 text-xs">Typically 4/10 in India</span></label>
+              <input id="german-min" type="number" value={min} onChange={(e) => setMin(e.target.value)} className={inputCls} placeholder="e.g. 4 or 40" />
+            </div>
+          </div>
+        </div>
+
+        {error ? <div className="mt-4 px-4 py-3 rounded-xl bg-rose-50 border border-rose-200 text-sm text-rose-700">{error}</div> : null}
+
+        <button id="german-calculate-btn" onClick={calculate}
+          className="w-full mt-6 bg-primary hover:opacity-90 text-white font-semibold py-3.5 px-6 rounded-xl shadow-sm transition-all text-sm uppercase tracking-widest">
+          Convert to German Grade
+        </button>
+
+        {result ? (
+          <div className="mt-6 p-6 rounded-2xl bg-[linear-gradient(160deg,rgba(10,18,37,1),rgba(23,42,77,0.96))] text-white">
+            <div className="text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55 mb-2">Your German Grade</p>
+              <p className="text-5xl font-black text-secondary mb-2">{result.grade}</p>
+              <p className="text-base font-semibold text-white/90 mb-3">{result.label}</p>
+              <p className="text-xs text-white/50">Formula: 1 + 3 × (Max − Score) / (Max − Min)</p>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="mt-6 grid grid-cols-4 gap-2 text-center">
+          {[
+            { range: '1.0–1.5', label: 'Sehr gut', color: 'bg-emerald-50 border border-emerald-200 text-emerald-700' },
+            { range: '1.6–2.5', label: 'Gut', color: 'bg-blue-50 border border-blue-200 text-blue-700' },
+            { range: '2.6–3.5', label: 'Befriedigend', color: 'bg-amber-50 border border-amber-200 text-amber-700' },
+            { range: '3.6–4.0', label: 'Ausreichend', color: 'bg-slate-50 border border-slate-200 text-slate-600' },
+          ].map((item) => (
+            <div key={item.range} className={`rounded-xl p-2 ${item.color}`}>
+              <p className="text-[11px] font-bold">{item.range}</p>
+              <p className="text-[10px] mt-0.5 opacity-80">{item.label}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+          <p className="text-xs text-amber-800">💡 Don&apos;t convert unless required. Use original scale + percentile in your SOP and LORs.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── IELTS Overall Band Calculator ────────────────────────────────────────────
+const IELTS_DESCS: Record<number, string> = {
+  9: 'Expert User', 8.5: 'Very Good User', 8: 'Very Good User', 7.5: 'Good User',
+  7: 'Good User', 6.5: 'Competent User', 6: 'Competent User', 5.5: 'Modest User',
+  5: 'Modest User', 4.5: 'Limited User', 4: 'Limited User',
+};
+
+function computeIELTSOverall(l: number, r: number, w: number, s: number): number {
+  const avg = (l + r + w + s) / 4;
+  const frac = avg % 1;
+  if (frac <= 0.25) return Math.floor(avg);
+  if (frac < 0.75) return Math.round(avg * 2) / 2;
+  return Math.ceil(avg);
+}
+
+function IELTSBandCalculator() {
+  const [vals, setVals] = useState({ listening: '', reading: '', writing: '', speaking: '' });
+  const [result, setResult] = useState<{ overall: number; avg: number; desc: string } | null>(null);
+  const [error, setError] = useState('');
+
+  function calculate() {
+    const scores = [parseFloat(vals.listening), parseFloat(vals.reading), parseFloat(vals.writing), parseFloat(vals.speaking)];
+    if (scores.some(isNaN)) { setError('Please enter all four band scores.'); setResult(null); return; }
+    if (scores.some((v) => v < 0 || v > 9)) { setError('All scores must be between 0 and 9.'); setResult(null); return; }
+    setError('');
+    const avg = scores.reduce((a, b) => a + b, 0) / 4;
+    const overall = computeIELTSOverall(scores[0], scores[1], scores[2], scores[3]);
+    const desc = IELTS_DESCS[overall] ?? 'User';
+    setResult({ overall, avg, desc });
+  }
+
+  const inputCls = 'w-full px-3 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition bg-white text-slate-900 text-sm placeholder-slate-400 text-center font-bold text-lg';
+  const modules: Array<{ key: keyof typeof vals; label: string }> = [
+    { key: 'listening', label: 'Listening' },
+    { key: 'reading', label: 'Reading' },
+    { key: 'writing', label: 'Writing' },
+    { key: 'speaking', label: 'Speaking' },
+  ];
+
+  return (
+    <div className="h-full flex flex-col">
+      <div className="text-center mb-6">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-emerald-500/10 mb-3">
+          <GraduationCap className="h-6 w-6 text-emerald-600" aria-hidden="true" />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-900 mb-1">IELTS Overall Band Calculator</h2>
+        <p className="text-slate-500 text-sm">Enter your module scores (0–9) for official average</p>
+      </div>
+
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 shadow-sm p-7 hover:shadow-md transition-all flex-1 flex flex-col">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4 mb-5">
+          {modules.map(({ key, label }) => (
+            <div key={key}>
+              <label className="block text-xs font-bold text-slate-600 uppercase tracking-widest mb-2">{label}</label>
+              <input
+                id={`ielts-${key}`}
+                type="number"
+                min="0"
+                max="9"
+                step="0.5"
+                value={vals[key]}
+                onChange={(e) => setVals((prev) => ({ ...prev, [key]: e.target.value }))}
+                className={inputCls}
+                placeholder="0–9"
+              />
+            </div>
+          ))}
+        </div>
+
+        {error ? <div className="mb-4 px-4 py-3 rounded-xl bg-rose-50 border border-rose-200 text-sm text-rose-700">{error}</div> : null}
+
+        <button id="ielts-calculate-btn" onClick={calculate}
+          className="w-full bg-gradient-to-r from-emerald-500 to-primary hover:opacity-90 text-white font-semibold py-3.5 px-6 rounded-xl shadow-sm transition-all text-sm uppercase tracking-widest">
+          Calculate Overall Band
+        </button>
+
+        {result ? (
+          <div className="mt-6 p-6 rounded-2xl bg-gradient-to-r from-emerald-50 to-blue-50 border border-emerald-200">
+            <div className="text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400 mb-2">Overall Band Score</p>
+              <p className="text-6xl font-black bg-gradient-to-r from-emerald-600 to-primary bg-clip-text text-transparent mb-2">
+                {result.overall.toFixed(1)}
+              </p>
+              <p className="text-lg font-bold text-slate-800 mb-4">{result.desc}</p>
+              <div className="flex justify-center gap-6 text-sm text-slate-500">
+                <span>Raw avg: <strong className="text-slate-700">{result.avg.toFixed(3)}</strong></span>
+                <span>Rounded: <strong className="text-slate-700">{result.overall.toFixed(1)}</strong></span>
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600">
+            <strong className="text-slate-800">6.5 / 6.5 / 5.0 / 7.0</strong><br />Avg 6.25 → <strong className="text-emerald-700">6.5</strong>
+          </div>
+          <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600">
+            <strong className="text-slate-800">6 / 7 / 8 / 8</strong><br />Avg 7.25 → <strong className="text-emerald-700">7.5</strong>
+          </div>
+        </div>
+
+        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+          <p className="text-xs text-blue-800">📐 <strong>Official rounding:</strong> ≤.25 → round down &nbsp;|&nbsp; .26–.74 → nearest .5 &nbsp;|&nbsp; ≥.75 → round up</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function FreeToolsPage() {
   const location = useLocation();
   const activeTool: ToolVariant = location.pathname.includes('/tools/cgpa-to-german-grade-converter')
@@ -648,9 +853,7 @@ export default function FreeToolsPage() {
     writing,
   ]);
 
-  const whatsappHref = `https://wa.me/${settings?.whatsappNumber || '919999999999'}?text=${encodeURIComponent(
-    settings?.prefilledWhatsappMessage || 'Hi BVF Germany! I want help with studying in Germany.',
-  )}`;
+  const whatsappHref = buildWhatsappHref(settings);
 
   const onSubmit = async (data: LeadForm & { website?: string }) => {
     try {
@@ -716,282 +919,102 @@ export default function FreeToolsPage() {
           </div>
         </section>
 
-        <section className="px-4 pb-12 md:px-8 md:pb-16">
-          <div className="container-narrow grid gap-6 lg:grid-cols-2">
-            <motion.article
-              id="cgpa-to-german-grade-converter"
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={spring}
-              className={`surface-panel p-7 ${activeTool === 'ielts' ? 'lg:order-2' : 'lg:order-1'}`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-                  <Calculator className="h-6 w-6 text-primary" aria-hidden="true" />
-                </div>
-                <div>
-                  <p className="section-kicker">Tool 01</p>
-                  <h2 className="mt-2 text-2xl font-semibold text-foreground">CGPA to German Grade Converter</h2>
-                </div>
+        <section className="py-16 bg-gradient-to-b from-slate-50 to-white">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center justify-center rounded-full bg-primary-50 border border-primary-400/20 px-4 py-1.5 mb-4">
+                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary-500">Free Calculators</p>
               </div>
-              <p className="mt-4 text-sm leading-7 text-muted-foreground">Use the modified Bavarian formula to estimate how your CGPA may look in the German grading system.</p>
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-foreground">Your CGPA</label>
-                  <input value={cgpa} onChange={(event) => setCgpa(event.target.value)} className="input-premium" />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-foreground">Maximum CGPA</label>
-                  <input value={maxCgpa} onChange={(event) => setMaxCgpa(event.target.value)} className="input-premium" />
-                </div>
-              </div>
-              <div className="mt-6 rounded-[28px] bg-[linear-gradient(160deg,rgba(10,18,37,1),rgba(23,42,77,0.96))] p-6 text-white">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">Result</p>
-                <p className="mt-3 text-4xl font-semibold text-secondary">{germanGrade ? germanGrade.value.toFixed(2) : '--'}</p>
-                <p className="mt-2 text-sm text-white/78">{germanGrade ? `Meaning: ${germanGrade.meaning}` : 'Enter valid values to estimate your German grade.'}</p>
-              </div>
-              <div className="mt-5 rounded-[20px] border border-border bg-muted/40 p-4 text-sm leading-7 text-foreground">
-                This CGPA to German Grade Converter uses the modified Bavarian formula to estimate how your score may translate into the German grading system for planning and shortlist discussions.
-              </div>
-            </motion.article>
+              <h2 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 mb-3">Study Abroad Calculators</h2>
+              <p className="text-slate-500 max-w-xl mx-auto text-sm">Accurate tools to help you plan your Germany application — no signup needed.</p>
+            </div>
 
-            <motion.article
-              id="ielts-bank-requirements-checker"
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ ...spring, delay: 0.06 }}
-              className={`surface-panel p-7 ${activeTool === 'ielts' ? 'lg:order-1' : 'lg:order-2'}`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-                  <GraduationCap className="h-6 w-6 text-primary" aria-hidden="true" />
-                </div>
-                <div>
-                  <p className="section-kicker">Tool 02</p>
-                  <h2 className="mt-2 text-2xl font-semibold text-foreground">IELTS Bank Requirements Checker</h2>
-                </div>
-              </div>
-              <p className="mt-4 text-sm leading-7 text-muted-foreground">Collect destination, IELTS, tuition, sponsor, and bank details through a guided flow and get a decision dashboard instead of a raw calculator score.</p>
+            <div className="grid gap-8 lg:grid-cols-2">
 
-              <div className="mt-6 rounded-[24px] border border-border bg-muted/30 p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-semibold text-foreground">Assessment progress</p>
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Step {step} of {maxAssessmentStep}</p>
-                </div>
-                <div className="mt-4 h-2 rounded-full bg-border/80">
-                  <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(step / maxAssessmentStep) * 100}%` }} />
-                </div>
-                <div className={`mt-4 grid gap-2 ${canViewReviewResult ? 'md:grid-cols-5' : 'md:grid-cols-4'}`}>
-                  {visibleWizardSteps.map((label, index) => (
-                    <button
-                      key={label}
-                      type="button"
-                      onClick={() => setStep(index + 1)}
-                      className={`rounded-[18px] px-3 py-3 text-left text-sm transition ${
-                        step === index + 1 ? 'bg-primary text-white' : index + 1 < step ? 'bg-emerald-500/10 text-emerald-700' : 'bg-white text-muted-foreground ring-1 ring-border'
-                      }`}
-                    >
-                      <span className="block text-[11px] font-semibold uppercase tracking-[0.16em]">Step {index + 1}</span>
-                      <span className="mt-1 block leading-6">{label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {/* ── German Grade Calculator ─────────────────────────────── */}
+              <motion.article
+                id="german-grade-calculator"
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={spring}
+              >
+                <GermanGradeCalculator />
+              </motion.article>
 
-              {step === 1 ? (
-                <div className="mt-6 rounded-[24px] border border-border bg-background/70 p-6">
-                  <p className="text-sm font-semibold text-foreground">Step 1: Profile and destination</p>
-                  <div className="mt-5 grid gap-4 md:grid-cols-2">
-                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Destination country</label><select value={country} onChange={(event) => { const next = event.target.value; setCountry(next); setRegion(Object.keys(countryRules[next].livingCosts)[0]); }} className="input-premium">{Object.entries(countryRules).map(([value, rule]) => <option key={value} value={value}>{rule.name}</option>)}</select></div>
-                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Visa category</label><select value={visaType} onChange={(event) => setVisaType(event.target.value)} className="input-premium">{['Student Visa', 'Direct Admission', 'Pathway / Conditional Offer'].map((item) => <option key={item} value={item}>{item}</option>)}</select></div>
-                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Course level</label><select value={courseLevel} onChange={(event) => setCourseLevel(event.target.value)} className="input-premium">{Object.keys(selectedCountry.courses).map((item) => <option key={item} value={item}>{item}</option>)}</select></div>
-                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Intake</label><select value={intake} onChange={(event) => setIntake(event.target.value)} className="input-premium">{['Spring 2026', 'Summer 2026', 'Fall 2026', 'Winter 2027'].map((item) => <option key={item} value={item}>{item}</option>)}</select></div>
-                  </div>
-                  <div className="mt-5 rounded-[20px] border border-border bg-muted/40 p-4 text-sm leading-7 text-foreground">{selectedCourse.note}</div>
-                </div>
-              ) : null}
+              {/* ── IELTS Overall Band Calculator ───────────────────────── */}
+              <motion.article
+                id="ielts-band-calculator"
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ ...spring, delay: 0.06 }}
+              >
+                <IELTSBandCalculator />
+              </motion.article>
 
-              {step === 2 ? (
-                <div className="mt-6 rounded-[24px] border border-border bg-background/70 p-6">
-                  <p className="text-sm font-semibold text-foreground">Step 2: IELTS score input</p>
-                  <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Listening</label><input value={listening} onChange={(event) => setListening(event.target.value)} className="input-premium" /></div>
-                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Reading</label><input value={reading} onChange={(event) => setReading(event.target.value)} className="input-premium" /></div>
-                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Writing</label><input value={writing} onChange={(event) => setWriting(event.target.value)} className="input-premium" /></div>
-                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Speaking</label><input value={speaking} onChange={(event) => setSpeaking(event.target.value)} className="input-premium" /></div>
-                  </div>
-                  <div className="mt-5 grid gap-4 md:grid-cols-3">
-                    <div className="rounded-[20px] border border-border bg-muted/40 p-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Overall</p><p className="mt-2 text-2xl font-semibold text-foreground">{report.overall.toFixed(1)}</p></div>
-                    <div className="rounded-[20px] border border-border bg-muted/40 p-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Section minimum</p><p className="mt-2 text-2xl font-semibold text-foreground">{selectedCourse.minSection.toFixed(1)}</p></div>
-                    <div className="rounded-[20px] border border-border bg-muted/40 p-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Safer target</p><p className="mt-2 text-2xl font-semibold text-foreground">{selectedCourse.saferOverall.toFixed(1)}</p></div>
-                  </div>
-                </div>
-              ) : null}
-
-              {step === 3 ? (
-                <div className="mt-6 rounded-[24px] border border-border bg-background/70 p-6">
-                  <p className="text-sm font-semibold text-foreground">Step 3: Tuition and funding</p>
-                  <div className="mt-5 grid gap-4 md:grid-cols-2">
-                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">City or cost-of-living region</label><select value={region} onChange={(event) => setRegion(event.target.value)} className="input-premium">{Object.entries(selectedCountry.livingCosts).map(([value, item]) => <option key={value} value={value}>{item.label}</option>)}</select></div>
-                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Funding source</label><select value={fundingSource} onChange={(event) => setFundingSource(event.target.value)} className="input-premium">{fundingSources.map((item) => <option key={item} value={item}>{item}</option>)}</select></div>
-                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Total tuition fee ({selectedCountry.currency})</label><input value={tuitionFee} onChange={(event) => setTuitionFee(event.target.value)} className="input-premium" /></div>
-                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Amount paid ({selectedCountry.currency})</label><input value={tuitionPaid} onChange={(event) => setTuitionPaid(event.target.value)} className="input-premium" /></div>
-                  </div>
-                  <div className="mt-5 grid gap-4 md:grid-cols-3">
-                    <div className="rounded-[20px] border border-border bg-muted/40 p-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Living cost</p><p className="mt-2 text-2xl font-semibold text-foreground">{money(selectedRegion.amount, selectedCountry.currency)}</p></div>
-                    <div className="rounded-[20px] border border-border bg-muted/40 p-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Remaining tuition</p><p className="mt-2 text-2xl font-semibold text-foreground">{money(report.remainingTuition, selectedCountry.currency)}</p></div>
-                    <div className="rounded-[20px] border border-border bg-muted/40 p-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Required funds</p><p className="mt-2 text-2xl font-semibold text-foreground">{money(report.requiredFunds, selectedCountry.currency)}</p></div>
-                  </div>
-                </div>
-              ) : null}
-
-              {step === 4 ? (
-                <div className="mt-6 rounded-[24px] border border-border bg-background/70 p-6">
-                  <p className="text-sm font-semibold text-foreground">Step 4: Bank and sponsor details</p>
-                  <div className="mt-5 grid gap-4 md:grid-cols-2">
-                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Bank balance ({selectedCountry.currency})</label><input value={bankBalance} onChange={(event) => setBankBalance(event.target.value)} className="input-premium" /></div>
-                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Maintenance period (days)</label><input value={maintenanceDays} onChange={(event) => setMaintenanceDays(event.target.value)} className="input-premium" /></div>
-                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Account owner</label><select value={accountOwner} onChange={(event) => setAccountOwner(event.target.value)} className="input-premium">{accountOwners.map((item) => <option key={item} value={item}>{item}</option>)}</select></div>
-                    <div><label className="mb-1.5 block text-sm font-semibold text-foreground">Document type</label><select value={documentType} onChange={(event) => setDocumentType(event.target.value)} className="input-premium">{documentTypes.map((item) => <option key={item} value={item}>{item}</option>)}</select></div>
-                    <div className="md:col-span-2"><label className="mb-1.5 block text-sm font-semibold text-foreground">Financial institution type</label><select value={institutionType} onChange={(event) => setInstitutionType(event.target.value)} className="input-premium">{institutionTypes.map((item) => <option key={item} value={item}>{item}</option>)}</select></div>
-                  </div>
-                  <div className="mt-5 rounded-[20px] border border-border bg-muted/40 p-4 text-sm leading-7 text-foreground">Why we ask this: the tool checks maintenance history, ownership fit, document strength, and whether the bank type is likely to hold up in a first-pass review.</div>
-                </div>
-              ) : null}
-
-              {step === 5 && canViewReviewResult ? (
-                <div className="mt-6 space-y-5">
-                  <div className="rounded-[26px] bg-[linear-gradient(160deg,rgba(10,18,37,1),rgba(23,42,77,0.96))] p-6 text-white">
-                    <div className="flex flex-wrap items-start justify-between gap-4">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">Decision dashboard</p>
-                        <h3 className="mt-3 text-3xl font-semibold text-secondary">{report.status}</h3>
-                        <p className="mt-3 text-sm leading-7 text-white/78">{selectedCountry.name} | {visaType} | {courseLevel} | {intake}</p>
-                      </div>
-                      <span className={`rounded-full px-4 py-2 text-sm font-semibold ${statusTone(report.status)}`}>{report.status}</span>
-                    </div>
-                    <p className="mt-4 text-sm leading-7 text-white/76">{selectedCountry.disclaimer}</p>
-                  </div>
-
-                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-[24px] border border-border bg-muted/40 p-5"><p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">IELTS overall</p><p className="mt-2 text-2xl font-semibold text-foreground">{report.overall.toFixed(1)}</p><p className="mt-1.5 text-xs leading-5 text-muted-foreground">Minimum: {selectedCourse.minOverall.toFixed(1)}</p></div>
-                    <div className="rounded-[24px] border border-border bg-muted/40 p-5"><p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Weakest section</p><p className="mt-2 text-2xl font-semibold text-foreground">{report.weakest.toFixed(1)}</p><p className="mt-1.5 text-xs leading-5 text-muted-foreground">Minimum: {selectedCourse.minSection.toFixed(1)}</p></div>
-                    <div className="rounded-[24px] border border-border bg-muted/40 p-5"><p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Required funds</p><p className="mt-2 text-2xl font-semibold text-foreground">{money(report.requiredFunds, selectedCountry.currency)}</p><p className="mt-1.5 text-xs leading-5 text-muted-foreground">Tuition balance plus living costs.</p></div>
-                    <div className="rounded-[24px] border border-border bg-muted/40 p-5"><p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Available balance</p><p className="mt-2 text-2xl font-semibold text-foreground">{money(report.availableFunds, selectedCountry.currency)}</p><p className="mt-1.5 text-xs leading-5 text-muted-foreground">{documentType}</p></div>
-                  </div>
-
-                  <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-                    <div className="rounded-[24px] border border-border bg-background/80 p-6">
-                      <div className="flex items-center gap-3"><FileCheck2 className="h-5 w-5 text-primary" aria-hidden="true" /><p className="text-sm font-semibold text-foreground">Explanation blocks</p></div>
-                      <div className="mt-5 space-y-3">
-                        <div className="rounded-[18px] border border-border bg-muted/40 px-4 py-3 text-sm leading-7 text-foreground">Course note: {selectedCourse.note}</div>
-                        <div className="rounded-[18px] border border-border bg-muted/40 px-4 py-3 text-sm leading-7 text-foreground">Funding route: {fundingSource} via {accountOwner.toLowerCase()} ownership and {institutionType.toLowerCase()} banking.</div>
-                        <div className="rounded-[18px] border border-border bg-muted/40 px-4 py-3 text-sm leading-7 text-foreground">Document strength: {documentType} selected for the current route.</div>
-                        <div className="rounded-[18px] border border-border bg-muted/40 px-4 py-3 text-sm leading-7 text-foreground">Evidence is shown as planning guidance, not as a guaranteed visa decision.</div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="rounded-[24px] border border-border bg-background/80 p-6">
-                        <div className="flex items-center gap-3"><AlertTriangle className="h-5 w-5 text-secondary" aria-hidden="true" /><p className="text-sm font-semibold text-foreground">Missing or risky items</p></div>
-                        <div className="mt-5 space-y-3">
-                          {report.missing.length === 0 && report.risks.length === 0 ? <div className="rounded-[18px] bg-emerald-500/10 px-4 py-3 text-sm leading-7 text-emerald-700">No major gaps were flagged in this first-pass assessment.</div> : null}
-                          {report.missing.map((item) => <div key={item} className="rounded-[18px] bg-rose-500/10 px-4 py-3 text-sm leading-7 text-rose-700">{item}</div>)}
-                          {report.risks.map((item) => <div key={item} className="rounded-[18px] bg-amber-500/10 px-4 py-3 text-sm leading-7 text-amber-700">{item}</div>)}
-                        </div>
-                      </div>
-
-                      <div className="rounded-[24px] border border-border bg-background/80 p-6">
-                        <div className="flex items-center gap-3"><Landmark className="h-5 w-5 text-primary" aria-hidden="true" /><p className="text-sm font-semibold text-foreground">Next-step recommendation panel</p></div>
-                        <div className="mt-5 space-y-3">
-                          {report.actions.map((item) => (
-                            <div key={item} className="flex items-start gap-3 rounded-[18px] border border-border/70 bg-white/80 px-4 py-3 text-sm leading-7 text-muted-foreground">
-                              <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                              <span>{item}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-[24px] border border-border bg-muted/30 p-6">
-                    <p className="text-sm font-semibold text-foreground">Validation checklist</p>
-                    <div className="mt-4 grid gap-3 md:grid-cols-2">
-                      {report.checklist.map((item) => <div key={item} className="rounded-[18px] bg-white px-4 py-3 text-sm leading-7 text-foreground ring-1 ring-border">{item}</div>)}
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-
-              {step === 4 && !canViewReviewResult ? (
-                <div className="mt-6 rounded-[24px] border border-border bg-muted/30 p-6">
-                  <p className="text-sm font-semibold text-foreground">Review result is locked</p>
-                  <p className="mt-2 text-sm leading-7 text-muted-foreground">
-                    This final review result is only visible for newly registered students after their first successful login.
-                  </p>
-                  {!user ? (
-                    <Link
-                      to="/login"
-                      state={{ from: location.pathname }}
-                      className="mt-4 inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-95"
-                    >
-                      Login to unlock review result
-                    </Link>
-                  ) : null}
-                </div>
-              ) : null}
-
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-                <button type="button" onClick={() => setStep((current) => Math.max(1, current - 1))} className="inline-flex items-center justify-center rounded-full bg-[#f7f2ea] px-5 py-3 text-sm font-semibold text-foreground ring-1 ring-border transition hover:bg-white">Previous step</button>
-                <button
-                  type="button"
-                  disabled={step >= maxAssessmentStep}
-                  onClick={() => setStep((current) => Math.min(maxAssessmentStep, current + 1))}
-                  className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {step >= maxAssessmentStep
-                    ? canViewReviewResult
-                      ? 'Review result'
-                      : !user
-                        ? 'Login to unlock review result'
-                        : 'Review result locked'
-                    : 'Next step'}
-                </button>
-              </div>
-            </motion.article>
+            </div>
           </div>
         </section>
 
-        <section className="px-4 pb-12 md:px-8 md:pb-16">
-          <div className="container-narrow grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="surface-panel p-8">
-              <p className="section-kicker">Tool Guide</p>
-              <h2 className="mt-3 font-heading text-3xl font-semibold text-foreground">{currentPage.explainerTitle}</h2>
-              <div className="mt-6 space-y-4">
-                {currentPage.explainers.map((item) => (
-                  <div key={item.title} className="rounded-[22px] border border-border bg-white/80 p-5">
-                    <h3 className="text-lg font-semibold text-foreground">{item.title}</h3>
-                    <p className="mt-2 text-sm leading-7 text-muted-foreground">{item.body}</p>
-                  </div>
+        <section className="px-4 py-16 md:px-8 md:py-24 bg-gradient-to-b from-transparent to-muted/20">
+          <div className="container-narrow">
+            
+            {/* Tool Guide Component */}
+            <div className="mb-24">
+              <div className="max-w-3xl mb-12">
+                <div className="mb-4 inline-flex items-center justify-center rounded-full bg-primary/10 px-4 py-1.5 border border-primary/20">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">Tool Guide</p>
+                </div>
+                <h2 className="text-[32px] md:text-[44px] font-black tracking-tight text-foreground leading-[1.1]">{currentPage.explainerTitle}</h2>
+              </div>
+              <div className="grid gap-6 md:grid-cols-3">
+                {currentPage.explainers.map((item, i) => (
+                  <motion.div 
+                    key={item.title} 
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ ...spring, delay: i * 0.1 }}
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-[32px] border border-border/60 bg-white p-8 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:border-black/10 hover:shadow-xl"
+                  >
+                    <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-[20px] bg-muted transition-colors duration-500 group-hover:bg-primary/10">
+                      <CheckCircle2 className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-primary" />
+                    </div>
+                    <h3 className="text-[20px] font-bold tracking-tight text-foreground transition-colors group-hover:text-primary">{item.title}</h3>
+                    <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">{item.body}</p>
+                    <div className="absolute -bottom-10 -right-10 z-0 h-32 w-32 rounded-full bg-primary/10 opacity-0 blur-2xl transition-opacity duration-700 group-hover:opacity-100" />
+                  </motion.div>
                 ))}
               </div>
             </div>
 
-            <div className="surface-panel p-8">
-              <p className="section-kicker">Common Questions</p>
-              <h2 className="mt-3 font-heading text-3xl font-semibold text-foreground">{currentPage.faqTitle}</h2>
-              <div className="mt-6 space-y-4">
-                {currentPage.faqs.map((item) => (
-                  <div key={item.question} className="rounded-[22px] border border-border bg-muted/30 p-5">
-                    <h3 className="text-lg font-semibold text-foreground">{item.question}</h3>
-                    <p className="mt-2 text-sm leading-7 text-muted-foreground">{item.answer}</p>
-                  </div>
+            {/* Common Questions Component */}
+            <div className="rounded-[40px] border border-border/80 bg-white p-8 md:p-14 shadow-[0_8px_30px_rgb(0,0,0,0.04)] box-border w-full">
+              <div className="max-w-2xl mb-12">
+                <div className="mb-4 inline-flex items-center justify-center rounded-full bg-secondary/10 px-4 py-1.5 border border-secondary/20">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-amber-700">Knowledge Base</p>
+                </div>
+                <h2 className="text-[28px] md:text-[38px] font-black tracking-tight text-foreground leading-[1.1]">{currentPage.faqTitle}</h2>
+              </div>
+              
+              <div className="grid gap-6 md:grid-cols-2">
+                {currentPage.faqs.map((item, i) => (
+                  <motion.div 
+                    key={item.question} 
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ ...spring, delay: i * 0.1 }}
+                    className="flex flex-col rounded-[28px] bg-muted/40 p-7 border border-transparent transition-all duration-300 hover:bg-white hover:border-border hover:shadow-md"
+                  >
+                    <h3 className="text-[17px] font-bold text-foreground leading-tight">{item.question}</h3>
+                    <p className="mt-3 text-[14px] leading-relaxed text-muted-foreground">{item.answer}</p>
+                  </motion.div>
                 ))}
               </div>
             </div>
+
           </div>
         </section>
 

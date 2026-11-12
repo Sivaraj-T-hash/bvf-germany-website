@@ -96,18 +96,27 @@
     @apply border-border;
   }
 
-  html, body, #root {
-    width: 100%;
+  html {
     overflow-x: hidden;
+    scroll-behavior: smooth;
+    height: 100%;
   }
 
   body {
-    @apply bg-background text-foreground overflow-x-hidden;
+    @apply bg-background text-foreground;
     font-family: var(--font-body);
+    overflow-x: clip;
+    overflow-y: auto;
+    min-height: 100%;
     background-image:
       radial-gradient(circle at top left, hsl(16 90% 56% / 0.08), transparent 24%),
       radial-gradient(circle at top right, hsl(42 89% 56% / 0.12), transparent 18%),
       linear-gradient(180deg, hsl(42 43% 98%), hsl(36 52% 96%));
+  }
+
+  #root {
+    min-height: 100%;
+    overflow-x: clip;
   }
 
   img, video {

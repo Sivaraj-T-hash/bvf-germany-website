@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { ArrowRight, CheckCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
 import { useSeo } from '@/lib/useSeo';
+import { buildFaqStructuredData } from '@/lib/seo';
 
-type Feature = { title: string; text: string };
+type Feature = { title: string; text: string; link?: string; linkText?: string };
 type FaqItem = { q: string; a: string };
 type LogoSection = { title: string; logos: string[]; ctaLabel?: string; ctaTo?: string };
-type StoryBlock = { title: string; text: string; image: string; align?: 'left' | 'right' };
+type StoryBlock = { title: string; text: string; image?: string; align?: 'left' | 'right' };
 
 type ServiceDetailPageProps = {
   title: string;
@@ -17,9 +18,9 @@ type ServiceDetailPageProps = {
   heroImage: string;
   ctaLabel: string;
   ctaTo: string;
-  introTitle: string;
-  introText: string;
-  introImage: string;
+  introTitle?: string;
+  introText?: string;
+  introImage?: string;
   features: Feature[];
   checklistTitle: string;
   checklist: string[];
@@ -67,9 +68,16 @@ export default function ServiceDetailPage({
   logoSection,
   banner,
 }: ServiceDetailPageProps) {
+  const location = useLocation();
+
   useSeo({
     title: `${title} | BVF Germany`,
     description: subtitle,
+    breadcrumb: [
+      { name: 'Services', path: '/services' },
+      { name: title, path: location.pathname },
+    ],
+    structuredData: buildFaqStructuredData(faqs),
   });
 
   return (
@@ -104,24 +112,28 @@ export default function ServiceDetailPage({
         </div>
       </section>
 
-      <section className="py-12">
-        <div className="container-narrow px-4 md:px-8 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          <div>
-            <img
-              src={introImage}
-              alt=""
-              className="w-full h-[280px] object-cover rounded-2xl border border-border shadow-md"
-              loading="lazy"
-            />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-secondary">{introTitle}</h2>
-            <div className="mt-4">
-              <ReadMore text={introText} maxChars={320} />
+      {(introTitle || introText) && (
+        <section className="py-12">
+          <div className={`container-narrow px-4 md:px-8 grid grid-cols-1 ${introImage ? 'lg:grid-cols-2' : ''} gap-10 items-center`}>
+            {introImage && (
+              <div>
+                <img
+                  src={introImage}
+                  alt=""
+                  className="w-full h-[280px] object-cover rounded-2xl border border-border shadow-md"
+                  loading="lazy"
+                />
+              </div>
+            )}
+            <div className={!introImage ? 'max-w-3xl mx-auto text-center' : ''}>
+              {introTitle ? <h2 className="text-2xl font-bold text-secondary">{introTitle}</h2> : null}
+              <div className={introTitle ? 'mt-4' : ''}>
+                {introText ? <ReadMore text={introText} maxChars={320} /> : null}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="py-12 bg-muted/30">
         <div className="container-narrow px-4 md:px-8">
@@ -131,6 +143,11 @@ export default function ServiceDetailPage({
               <div key={feature.title} className="bg-card border border-border rounded-2xl p-6 shadow-sm">
                 <h4 className="text-lg font-semibold text-foreground">{feature.title}</h4>
                 <p className="mt-2 text-sm text-muted-foreground">{feature.text}</p>
+                {feature.link && feature.linkText && (
+                  <a href={feature.link} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
+                    {feature.linkText} <ArrowRight className="w-3 h-3" />
+                  </a>
+                )}
               </div>
             ))}
           </div>
@@ -181,14 +198,16 @@ export default function ServiceDetailPage({
                     <ReadMore text={block.text} maxChars={320} />
                   </div>
                 </div>
-                <div className={block.align === 'right' || index % 2 === 1 ? 'lg:col-start-1' : ''}>
-                  <img
-                    src={block.image}
-                    alt=""
-                    className="w-full h-[280px] object-cover rounded-2xl border border-border shadow-md"
-                    loading="lazy"
-                  />
-                </div>
+                {block.image && (
+                  <div className={block.align === 'right' || index % 2 === 1 ? 'lg:col-start-1' : ''}>
+                    <img
+                      src={block.image}
+                      alt=""
+                      className="w-full h-[280px] object-cover rounded-2xl border border-border shadow-md"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
               </div>
             ))}
           </div>

@@ -1,13 +1,120 @@
 export const SITE_NAME = 'BVF Germany';
-export const SITE_URL = 'https://bvf-student-support.web.app';
+export const SITE_URL = 'https://www.bvfgermany.com';
 export const DEFAULT_OG_IMAGE_PATH = '/hero-og.png';
 export const DEFAULT_OG_IMAGE_ALT = 'BVF Germany logo';
 export const DEFAULT_LOGO_PATH = '/site-logo.png';
 export const DEFAULT_TWITTER_HANDLE = '@bvfgermany';
 export const DEFAULT_ROBOTS = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+export const DEFAULT_THEME_COLOR = '#132033';
+export const DEFAULT_LOCALE = 'en_IN';
+export const DEFAULT_LANGUAGE = 'en-IN';
 
 const studyKeywords = ['study in Germany', 'German university admissions', 'BVF Germany', 'Indian students'];
 const toolsKeywords = ['free study abroad tools', 'Germany study tools', 'CGPA to German Grade Converter', 'IELTS Bank Requirements Checker'];
+const blogSeoRoutes = [
+  {
+    path: '/blog/how-to-study-in-germany-for-free-2026',
+    name: 'How to Study in Germany for Free in 2026',
+    title: 'How to Study in Germany for Free in 2026 | BVF Germany',
+    description: 'A practical step-by-step guide for Indian students targeting tuition-free public universities in Germany.',
+    keywords: ['study in germany for indian students', 'free education in germany', 'public universities germany'],
+    changefreq: 'monthly',
+    priority: '0.7',
+    pageType: 'Article',
+    authorName: 'Bratlin',
+    publishedTime: '2026-03-20T10:00:00Z',
+    modifiedTime: '2026-03-20T10:00:00Z',
+    breadcrumb: [
+      { name: 'Blog', path: '/blog' },
+      { name: 'How to Study in Germany for Free in 2026', path: '/blog/how-to-study-in-germany-for-free-2026' },
+    ],
+  },
+  {
+    path: '/blog/aps-certificate-germany-full-guide',
+    name: 'APS Certificate Germany: Full Guide for Indian Students',
+    title: 'APS Certificate Germany: Full Guide for Indian Students | BVF Germany',
+    description: 'Understand what APS is, why it matters, and how Indian students should prepare without avoidable delays.',
+    keywords: ['aps certificate germany', 'germany student visa process', 'aps for indian students'],
+    changefreq: 'monthly',
+    priority: '0.68',
+    pageType: 'Article',
+    authorName: 'Bratlin',
+    publishedTime: '2026-03-16T10:00:00Z',
+    modifiedTime: '2026-03-16T10:00:00Z',
+    breadcrumb: [
+      { name: 'Blog', path: '/blog' },
+      { name: 'APS Certificate Germany: Full Guide for Indian Students', path: '/blog/aps-certificate-germany-full-guide' },
+    ],
+  },
+  {
+    path: '/blog/ielts-requirement-for-germany',
+    name: 'IELTS Requirement for Germany Universities',
+    title: 'IELTS Requirement for Germany Universities | BVF Germany',
+    description: 'What score is usually safe, when IELTS matters most, and how it affects your shortlist quality.',
+    keywords: ['ielts requirement for germany', 'germany english programs', 'ielts score germany universities'],
+    changefreq: 'monthly',
+    priority: '0.66',
+    pageType: 'Article',
+    authorName: 'Bratlin',
+    publishedTime: '2026-03-12T10:00:00Z',
+    modifiedTime: '2026-03-12T10:00:00Z',
+    breadcrumb: [
+      { name: 'Blog', path: '/blog' },
+      { name: 'IELTS Requirement for Germany Universities', path: '/blog/ielts-requirement-for-germany' },
+    ],
+  },
+  {
+    path: '/blog/top-public-universities-in-germany',
+    name: 'Top Public Universities in Germany for Indian Students',
+    title: 'Top Public Universities in Germany for Indian Students | BVF Germany',
+    description: 'A practical look at why students target TU Munich, RWTH Aachen, Heidelberg, and other strong public universities.',
+    keywords: ['top public universities in germany', 'best german universities for indian students'],
+    changefreq: 'monthly',
+    priority: '0.66',
+    pageType: 'Article',
+    authorName: 'Bratlin',
+    publishedTime: '2026-03-08T10:00:00Z',
+    modifiedTime: '2026-03-08T10:00:00Z',
+    breadcrumb: [
+      { name: 'Blog', path: '/blog' },
+      { name: 'Top Public Universities in Germany for Indian Students', path: '/blog/top-public-universities-in-germany' },
+    ],
+  },
+  {
+    path: '/blog/student-life-in-germany-guide',
+    name: 'Student Life in Germany: What Indian Students Should Expect',
+    title: 'Student Life in Germany: What Indian Students Should Expect | BVF Germany',
+    description: 'From budgeting and housing to culture and routine, here is what daily life in Germany usually feels like.',
+    keywords: ['student life in germany', 'living in germany for indian students'],
+    changefreq: 'monthly',
+    priority: '0.64',
+    pageType: 'Article',
+    authorName: 'Bratlin',
+    publishedTime: '2026-03-05T10:00:00Z',
+    modifiedTime: '2026-03-05T10:00:00Z',
+    breadcrumb: [
+      { name: 'Blog', path: '/blog' },
+      { name: 'Student Life in Germany: What Indian Students Should Expect', path: '/blog/student-life-in-germany-guide' },
+    ],
+  },
+  {
+    path: '/blog/accommodation-in-germany-student-guide',
+    name: 'Accommodation in Germany: A Safer Guide for Students',
+    title: 'Accommodation in Germany: A Safer Guide for Students | BVF Germany',
+    description: 'Understand student housing, WGs, private rentals, and the red flags that help you avoid scams.',
+    keywords: ['accommodation in germany for students', 'student housing germany', 'germany rental scams'],
+    changefreq: 'monthly',
+    priority: '0.64',
+    pageType: 'Article',
+    authorName: 'Bratlin',
+    publishedTime: '2026-03-02T10:00:00Z',
+    modifiedTime: '2026-03-02T10:00:00Z',
+    breadcrumb: [
+      { name: 'Blog', path: '/blog' },
+      { name: 'Accommodation in Germany: A Safer Guide for Students', path: '/blog/accommodation-in-germany-student-guide' },
+    ],
+  },
+];
 
 export const seoRoutes = [
   {
@@ -47,6 +154,24 @@ export const seoRoutes = [
     priority: '0.7',
   },
   {
+    path: '/privacy-policy',
+    name: 'Privacy Policy',
+    title: 'Privacy Policy | BVF Germany',
+    description: 'Read the BVF Germany privacy policy for details on data handling, contact forms, and student information.',
+    keywords: ['BVF Germany privacy policy', 'privacy policy study abroad consultancy'],
+    changefreq: 'yearly',
+    priority: '0.3',
+  },
+  {
+    path: '/terms-and-conditions',
+    name: 'Terms and Conditions',
+    title: 'Terms and Conditions | BVF Germany',
+    description: 'Review the BVF Germany terms and conditions for services, bookings, payments, and platform usage.',
+    keywords: ['BVF Germany terms and conditions', 'study abroad consultancy terms'],
+    changefreq: 'yearly',
+    priority: '0.3',
+  },
+  {
     path: '/faqs',
     name: 'FAQs',
     title: 'FAQs | BVF Germany',
@@ -64,6 +189,7 @@ export const seoRoutes = [
     changefreq: 'weekly',
     priority: '0.7',
   },
+  ...blogSeoRoutes,
   {
     path: '/pricing',
     name: 'Pricing',
@@ -193,7 +319,7 @@ export const seoRoutes = [
     },
   },
   {
-    path: '/about-germany',
+    path: '/study-in-germany',
     name: 'Study in Germany',
     title: 'Study in Germany | BVF Germany',
     description: 'Explore bachelor, master, MBA, engineering, and Ausbildung pathways in Germany with clarity on eligibility, language, costs, and planning.',
@@ -202,7 +328,7 @@ export const seoRoutes = [
     priority: '0.8',
   },
   {
-    path: '/about-germany/bachelor',
+    path: '/study-in-germany/bachelor',
     name: "Bachelor's in Germany",
     title: "Bachelor's in Germany | BVF Germany",
     description: "Plan your bachelor's in Germany with a clearer view of eligibility, costs, language, and next steps.",
@@ -211,7 +337,7 @@ export const seoRoutes = [
     priority: '0.7',
   },
   {
-    path: '/about-germany/engineering',
+    path: '/study-in-germany/engineering',
     name: 'Engineering in Germany',
     title: 'Engineering in Germany | BVF Germany',
     description: 'Explore engineering pathways in Germany with admission planning, public university options, and profile-fit guidance.',
@@ -220,7 +346,7 @@ export const seoRoutes = [
     priority: '0.7',
   },
   {
-    path: '/about-germany/ms',
+    path: '/study-in-germany/ms',
     name: "Master's in Germany",
     title: "Master's in Germany | BVF Germany",
     description: "Understand master's in Germany with programme fit, language expectations, costs, and shortlist planning.",
@@ -229,7 +355,7 @@ export const seoRoutes = [
     priority: '0.7',
   },
   {
-    path: '/about-germany/mba',
+    path: '/study-in-germany/mba',
     name: 'MBA in Germany',
     title: 'MBA in Germany | BVF Germany',
     description: 'Explore MBA pathways in Germany with profile positioning, programme selection, and admissions planning.',
@@ -238,7 +364,7 @@ export const seoRoutes = [
     priority: '0.7',
   },
   {
-    path: '/about-germany/ausbildung',
+    path: '/study-in-germany/ausbildung',
     name: 'Ausbildung in Germany',
     title: 'Ausbildung in Germany | BVF Germany',
     description: 'Understand Ausbildung in Germany with route-fit guidance, language planning, and practical expectations.',

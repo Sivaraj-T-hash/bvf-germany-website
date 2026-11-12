@@ -6,11 +6,8 @@ export default function StudentHealthInsurancePage() {
       title="Student Health Insurance"
       subtitle="Mandatory health coverage that meets university and visa requirements."
       heroImage="https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=1400&auto=format&fit=crop"
-      ctaLabel="Get Insurance Guidance"
+      ctaLabel="Book Free Consultation Now"
       ctaTo="/contact"
-      introTitle="Health Insurance Made Simple"
-      introText="Health insurance is mandatory for students in Germany. We explain public vs private options, help you enroll, and provide proof for university registration."
-      introImage="https://images.unsplash.com/photo-1504814532849-92784a7d7577?q=80&w=1400&auto=format&fit=crop"
       features={[
         { title: 'Public vs Private', text: 'Compare costs, coverage, and visa acceptance.' },
         { title: 'Enrollment Support', text: 'Step‑by‑step assistance for registration and documents.' },

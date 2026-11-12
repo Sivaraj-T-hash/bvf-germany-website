@@ -18,7 +18,7 @@ export default function BlogPage() {
   useSeo({
     title: 'Blog | BVF Germany',
     description: 'Guides, tips, and updates for Indian students planning to study in Germany.',
-    url: 'https://bvf-student-support.web.app/blog',
+    url: '/blog',
     image: '/hero-og.png',
   });
 

@@ -4,70 +4,68 @@ export default function GermanBlockedAccountPage() {
   return (
     <ServiceDetailPage
       title="Blocked Account in Germany"
-      subtitle="Minimum amount, providers, documents, and step‑by‑step guidance for 2026."
-      heroImage="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1400&auto=format&fit=crop"
-      ctaLabel="Check Your Eligibility"
+      subtitle="Complete guide to the mandatory German blocked account for 2026. Minimum amounts, top providers, required documents, and a seamless step‑by‑step opening process."
+      heroImage="/images/services/blocked_account_hero.png"
+      ctaLabel="Book Free Consultation Now"
       ctaTo="/contact"
-      introTitle="What is a Blocked Account?"
-      introText="A blocked account is a special bank account required for most student visa applicants. You deposit a lump sum before travel, and withdraw a fixed monthly amount for living expenses after arriving in Germany."
-      introImage="https://images.unsplash.com/photo-1556740749-887f6717d7e4?q=80&w=1400&auto=format&fit=crop"
+      introTitle="What is a Blocked Account (Sperrkonto)?"
+      introText="A blocked account (Sperrkonto) is a special bank account tailored for international students applying for a German student visa. It serves as financial proof that you can support yourself during your studies. You deposit a required lump sum before traveling, and once you arrive in Germany, a fixed monthly amount is unblocked and transferred to your current account to cover living expenses like rent, groceries, and insurance. For the year 2026, the required amount ensures you have a stable financial start without worrying about part-time jobs immediately."
       features={[
         {
-          title: 'Is it Mandatory?',
-          text: 'Yes, in most cases for 2026 unless you have a full scholarship or official sponsorship.',
+          title: 'Is it Mandatory for the Visa?',
+          text: 'Yes, it is practically mandatory for all international students unless you have a fully-funded official scholarship (like DAAD) or a recognized sponsor in Germany (Verpflichtungserklärung).',
         },
         {
-          title: 'Minimum Amount (2026)',
-          text: 'Approx. EUR 11,208 per year (about EUR 934 per month) for visa proof.',
+          title: 'Minimum Amount Requirements (2026)',
+          text: 'The German government requires approx. EUR 11,208 per year, which translates to EUR 934 per month. This amount is calculated based on the standard BAföG rate for students.',
         },
         {
-          title: 'Approved Providers',
-          text: 'Fintiba, Expatrio, Coracle, Deutsche Bank and other accepted providers.',
+          title: 'Approved & Recommended Providers',
+          text: 'We recommend digital providers like Expatrio, Fintiba, and Coracle for their speed and low fees. Traditional banks like Deutsche Bank are also accepted but typically take much longer to process.',
+          link: 'https://www.expatrio.com?fp_ref=bvf-germany',
+          linkText: 'Open Expatrio Blocked Account'
         },
       ]}
-      checklistTitle="Documents Required"
+      checklistTitle="Documents Required to Open an Account"
       checklist={[
-        'Valid passport',
-        'German university admission letter',
-        'Visa application copy',
-        'Completed application form',
-        'Proof of payment',
-        'Address details',
+        'A valid Passport (bio-data page)',
+        'Letter of Admission from a German University',
+        'Your current address and contact details',
+        'Tax Identification Number (TIN) from your home country (if applicable)',
+        'Source of funds declaration (sometimes required for large transfers)'
       ]}
       storyBlocks={[
         {
-          title: 'Step‑by‑Step Process',
-          text:
-            'Choose an approved provider, complete the online application, upload required documents, transfer the blocked amount, receive the confirmation certificate, and submit it during your visa appointment. The process typically takes 5–10 working days.',
-          image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1400&auto=format&fit=crop',
+          title: 'Step‑by‑Step Opening Process',
+          text: '1. Compare providers and select one that fits your needs.\n2. Complete the online application on the provider\'s portal (takes less than 10 minutes).\n3. Receive your IBAN details for the blocked account.\n4. Transfer the required amount (EUR 11,208 + setup fees) using standard bank transfer or platforms like Remitly/Wise.\n5. Wait for the funds to arrive (usually 3-5 days). Once confirmed, you will receive your "06 Blocked Amount Confirmation", which is the exact document the embassy needs for your visa.',
         },
         {
-          title: 'Common Mistakes to Avoid',
-          text:
-            'Sending the wrong transfer amount, choosing non‑approved banks, delaying account opening, or submitting incomplete documents can slow your visa process.',
-          image: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=1400&auto=format&fit=crop',
+          title: 'Important: Activating the Account After Arrival',
+          text: 'Your blocked account does not work like a normal debit account. Once you arrive in Germany, you must open a regular checking account (Girokonto) at a local bank (e.g., Sparkasse, TK, N26). You then provide this local IBAN to your blocked account provider, who will automatically transfer your monthly allowance (EUR 934) to your new checking account every month.',
           align: 'right',
         },
         {
-          title: 'Provider Selection Support',
-          text:
-            'We compare processing time, fees, and customer support across providers so you can select the best option for your profile.',
-          image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1400&auto=format&fit=crop',
+          title: 'Common Mistakes to Avoid',
+          text: 'Delaying the account opening can delay your visa. Also, make sure to transfer slightly more than the exact amount to cover intermediary bank fees; otherwise, the account won\'t be fully funded and the confirmation letter won\'t be issued. Always use your application reference number in the transfer remarks.',
         },
       ]}
       faqs={[
         {
-          q: 'Is blocked account refundable?',
-          a: 'Yes. The money remains yours and is released monthly after arrival; if the visa is rejected, the amount is refunded minus bank charges.',
+          q: 'Is the money in the blocked account safe?',
+          a: 'Yes, absolutely. The approved providers operate under strict German federal banking regulations (BaFin). Your money is held in an escrow account securely.',
         },
         {
-          q: 'Can parents sponsor instead of a blocked account?',
-          a: 'Yes, in some cases with a formal obligation letter or full scholarship support.',
+          q: 'What happens if my visa gets rejected?',
+          a: 'If your visa is rejected, your money is completely safe. You need to provide the official visa rejection letter to your provider, and they will refund the full blocked amount back to the original bank account (minus the setup fee and transfer fees).',
         },
         {
-          q: 'Which blocked account is best for Germany?',
-          a: 'Fintiba, Expatrio, Coracle, and Deutsche Bank are popular accepted providers.',
+          q: 'Can I withdraw more than the monthly limit in an emergency?',
+          a: 'No. The German government sets strict rules. You can only access the maximum allowed monthly amount (EUR 934) to ensure the funds last for the entire year.',
         },
+        {
+          q: 'Do I need to renew the blocked account for my second year?',
+          a: 'If you need to extend your residence permit and haven\'t found a part-time job or other means of financial proof, the local Foreigners\' Office (Ausländerbehörde) may ask you to show a new blocked account for the subsequent year.',
+        }
       ]}
     />
   );

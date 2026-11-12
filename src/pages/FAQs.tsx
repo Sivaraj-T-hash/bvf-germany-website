@@ -1,10 +1,12 @@
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
-import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
 import { useSeo } from '@/lib/useSeo';
+import { subscribeToSiteSettings, type SiteSettings } from '@/lib/siteContentStore';
+import { buildWhatsappHref } from '@/lib/whatsapp';
 
 const faqs = [
   { q: 'What is APS?', a: 'APS (Akademische Prüfstelle) is the Academic Evaluation Centre. It verifies the authenticity of your academic certificates and is mandatory for Indian students applying to German universities. The process includes document verification and a personal interview.' },
@@ -38,12 +40,21 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 }
 
 export default function FAQsPage() {
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
   useSeo({
     title: 'FAQs | BVF Germany',
     description: 'Answers to common questions about APS, visas, blocked accounts, and studying in Germany.',
-    url: 'https://bvf-student-support.web.app/faqs',
+    url: '/faqs',
     image: '/hero-og.png',
   });
+
+  useEffect(() => {
+    const unsubscribe = subscribeToSiteSettings(setSettings);
+    return unsubscribe;
+  }, []);
+
+  const whatsappHref = buildWhatsappHref(settings);
+
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -82,7 +93,7 @@ export default function FAQsPage() {
         <div className="container-narrow px-4 md:px-8 text-center">
           <h2 className="text-2xl md:text-4xl font-extrabold text-primary-foreground mb-4">Still Have Questions?</h2>
           <p className="text-primary-foreground/80 mb-6">Our team is here to help. Reach out to us anytime.</p>
-          <a href="https://wa.me/919999999999" target="_blank" rel="noopener noreferrer" className="bg-background text-foreground px-8 py-4 rounded-[20px] font-bold inline-block hover:opacity-90 transition-opacity">
+          <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="bg-background text-foreground px-8 py-4 rounded-[20px] font-bold inline-block hover:opacity-90 transition-opacity">
             Ask on WhatsApp
           </a>
         </div>

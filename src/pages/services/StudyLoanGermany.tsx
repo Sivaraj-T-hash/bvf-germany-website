@@ -4,90 +4,74 @@ export default function StudyLoanGermanyPage() {
   return (
     <ServiceDetailPage
       title="Study Abroad Education Loan"
-      subtitle="Affordable, structured education loans so you can focus on your Germany dream."
-      heroImage="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=1400&auto=format&fit=crop"
-      ctaLabel="Apply Now"
+      subtitle="Comprehensive education loans tailored for studying in Germany. Access high loan amounts with low interest rates and zero collateral options."
+      heroImage="/images/services/study_loan_hero.png"
+      ctaLabel="Book Free Loan Consultation"
       ctaTo="/contact"
-      introTitle="Loan Guidance That Removes the Stress"
-      introText="BVF Germany helps you secure education loans with minimal hassle. You can apply before admission confirmation and access competitive rates from trusted lenders. Our team supports you through eligibility, documentation, and disbursement so you can focus on your studies."
-      introImage="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1400&auto=format&fit=crop"
+      introTitle="Why Apply for an Education Loan?"
+      introText="Studying abroad is a major financial commitment. Instead of depleting your family's savings, an education loan allows you to cover 100% of your academic and living expenses. For Germany specifically, a loan helps you fund the mandatory Blocked Account upfront and also brings substantial tax benefits under Section 80E (for Indian students). We partner with top banks and NBFCs to provide fast, hassle-free approvals, often before your university admission is fully confirmed."
+      introImage="/images/services/study_loan_intro.png"
       features={[
         {
-          title: 'Personalized Guidance',
-          text: 'Loan planning based on program, university, and total cost.',
+          title: 'Unsecured Loans Available',
+          text: 'Get up to EUR 50,000 (approx. INR 45 Lakhs) without any collateral or property pledge, based solely on academic profile and co-applicant income.',
         },
         {
-          title: 'Admission Guidance',
-          text: 'We align the loan process with your admission timeline.',
+          title: 'Pre-Admission Sanction',
+          text: 'Don\'t wait until the last minute. We can secure a loan sanction letter based on your GRE/IELTS scores and target universities, which helps in the visa process.',
         },
         {
-          title: 'Post-Admission Support',
-          text: 'Disbursement coordination, forex guidance, and travel prep.',
+          title: 'Coverage of All Expenses',
+          text: 'Our loan partners cover tuition fees, the required Blocked Account amount, travel tickets, laptop purchases, and initial settling-in costs.',
         },
       ]}
-      checklistTitle="Why Education Loans Make Sense"
+      checklistTitle="Our Loan Processing Support"
       checklist={[
-        'Income tax benefits under Section 80E',
-        'Preserve family savings for emergencies',
-        'Build a strong credit history early',
-        'Cover tuition + living costs up to 100%',
-        'Loan sanction even before admission confirmation',
+        'Profile evaluation & bank shortlisting',
+        'Checklist of required financial documents',
+        'Negotiation for lower interest rates',
+        'Assistance with property valuation (for secured loans)',
+        'Fast-track disbursement for Blocked Account funding',
       ]}
       storyBlocks={[
         {
-          title: 'Our Funding Advantage',
-          text:
-            'We have helped thousands of students secure funding to attend their dream university in Germany. With quick approvals and multiple partner options, you can choose a plan that fits your goals and budget.',
-          image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1400&auto=format&fit=crop',
+          title: 'Secured vs. Unsecured Loans',
+          text: 'Unsecured loans (without collateral) are faster to process but generally have slightly higher interest rates and strict co-applicant income requirements. Secured loans (with collateral like a house or fixed deposit) offer the lowest interest rates, longer repayment tenures, and higher approval chances for large amounts. We will help you choose the best option based on your family\'s financial standing.',
         },
         {
-          title: 'Common Questions We Handle',
-          text:
-            'We answer funding questions around eligibility, co‑borrower requirements, repayment tenures, and loan disbursement timelines. Our experts simplify the process and ensure zero hidden charges.',
-          image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1400&auto=format&fit=crop',
+          title: 'Tax Benefits (Section 80E)',
+          text: 'If you or your parents are paying the interest on your education loan, that entire interest amount can be claimed as a deduction from taxable income under Section 80E of the Income Tax Act for up to 8 years. This makes taking a loan extremely tax-efficient compared to self-funding.',
           align: 'right',
         },
         {
-          title: 'Loan to Visa Alignment',
-          text:
-            'We align your loan approval timeline with blocked account and visa documentation so there are no delays in the final visa appointment.',
-          image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1400&auto=format&fit=crop',
+          title: 'Seamless Blocked Account Integration',
+          text: 'One of the biggest hurdles is transferring funds to the German Blocked Account within the short timeframe before the visa appointment. We coordinate directly with your bank to ensure the loan amount is disbursed smoothly into your Expatrio, Fintiba, or Coracle account using the best forex rates.',
         },
       ]}
-      logoSection={{
-        title: 'Top Study Abroad Education Loan Providers',
-        logos: [
-          'https://upload.wikimedia.org/wikipedia/commons/9/9f/Axis_Bank_logo.svg',
-          'https://upload.wikimedia.org/wikipedia/en/9/9e/HDFC_Credila_logo.svg',
-          'https://upload.wikimedia.org/wikipedia/commons/4/4c/SBI_Logo.svg',
-          'https://upload.wikimedia.org/wikipedia/commons/1/12/ICICI_Bank_Logo.svg',
-          'https://upload.wikimedia.org/wikipedia/en/2/23/Bank_of_Maharashtra_logo.svg',
-          'https://upload.wikimedia.org/wikipedia/en/1/1d/Canara_Bank_Logo.svg',
-          'https://upload.wikimedia.org/wikipedia/en/4/42/InCred_Logo.png',
-          'https://upload.wikimedia.org/wikipedia/en/3/3a/Bank_of_Baroda_logo.svg',
-        ],
-        ctaLabel: 'Request a Call',
-        ctaTo: '/contact',
-      }}
+
       banner={{
-        title: 'Ready to Apply for Funding',
-        subtitle: 'Your gateway for education in Germany with flexible repayment options.',
-        image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1400&auto=format&fit=crop',
-        ctaLabel: 'Start My Application',
+        title: 'Start Your Loan Process Early',
+        subtitle: 'It takes 2-4 weeks to process an education loan. Apply today to avoid visa delays.',
+        image: '/images/services/study_loan_hero.png',
+        ctaLabel: 'Book Free Consultation Now',
         ctaTo: '/contact',
       }}
       faqs={[
         {
-          q: 'What is the best way to finance higher education?',
-          a: 'Most students use a mix of savings and education loans to keep finances stable and preserve family savings.',
+          q: 'Who can be a co-applicant for an education loan?',
+          a: 'Usually, parents, siblings, or spouse. They must have a stable income (salary or business) and a good CIBIL score (credit score).',
         },
         {
-          q: 'Who should opt for an education loan and why?',
-          a: 'Students who want structured repayments, tax benefits, and a clear funding plan should consider loans.',
+          q: 'When should I start the loan application process?',
+          a: 'You should ideally start the process 2-3 months before your expected visa appointment or immediately after receiving your first admission letter.',
         },
         {
-          q: 'Can I get a loan before admission confirmation?',
-          a: 'Yes. Many providers offer preliminary approval before final admission.',
+          q: 'What is the typical interest rate?',
+          a: 'Interest rates vary depending on the bank and loan type. Secured loans usually range from 8.5% to 10.5%, while unsecured loans range from 10.5% to 13.5%.',
+        },
+        {
+          q: 'Is there a moratorium period?',
+          a: 'Yes, most education loans offer a moratorium period (course duration + 6 months to 1 year). During this time, you usually only pay simple interest or partial interest, and the main EMI starts after you get a job.',
         },
       ]}
     />

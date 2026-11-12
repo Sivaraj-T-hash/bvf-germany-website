@@ -21,7 +21,7 @@ export default function BrandLogoMark({
         src={logo}
         alt="BVF Germany logo"
         className={cn(
-          'h-full w-full scale-[1.28] object-cover object-center',
+          'h-full w-full object-contain scale-[1.06]',
           imageClassName,
         )}
         loading="eager"

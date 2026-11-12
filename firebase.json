@@ -6,6 +6,38 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "redirects": [
+      {
+        "source": "/about-germany",
+        "destination": "/study-in-germany",
+        "type": 301
+      },
+      {
+        "source": "/about-germany/bachelor",
+        "destination": "/study-in-germany/bachelor",
+        "type": 301
+      },
+      {
+        "source": "/about-germany/engineering",
+        "destination": "/study-in-germany/engineering",
+        "type": 301
+      },
+      {
+        "source": "/about-germany/ms",
+        "destination": "/study-in-germany/ms",
+        "type": 301
+      },
+      {
+        "source": "/about-germany/mba",
+        "destination": "/study-in-germany/mba",
+        "type": 301
+      },
+      {
+        "source": "/about-germany/ausbildung",
+        "destination": "/study-in-germany/ausbildung",
+        "type": 301
+      }
+    ],
     "rewrites": [
       {
         "source": "**",

@@ -1,6 +1,23 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, BookOpenCheck, CheckCircle2, FileSearch, FileText, GraduationCap, Home, Languages, MessageCircle, SearchCheck, ShieldCheck, UserRoundCheck, Wrench } from 'lucide-react';
+import {
+  Activity,
+  ArrowRight,
+  BookOpenCheck,
+  CheckCircle2,
+  CircleDollarSign,
+  FileSearch,
+  FileText,
+  GraduationCap,
+  HeartPulse,
+  Home,
+  Languages,
+  MessageCircle,
+  SearchCheck,
+  ShieldCheck,
+  UserRoundCheck,
+  Wrench,
+} from 'lucide-react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -8,6 +25,7 @@ import WhatsAppFloat from '@/components/WhatsAppFloat';
 import { serviceCatalog } from '@/lib/serviceCatalog';
 import { getSiteSettings, type SiteSettings } from '@/lib/siteContentStore';
 import { useSeo } from '@/lib/useSeo';
+import { buildWhatsappHref } from '@/lib/whatsapp';
 
 const spring = { type: 'spring' as const, stiffness: 280, damping: 28 };
 
@@ -22,7 +40,12 @@ const iconMap = {
   arrival: UserRoundCheck,
   accommodation: Home,
   ausbildung: Wrench,
-};
+  sop: FileText,
+  cv: FileSearch,
+  loan: CircleDollarSign,
+  insurance: HeartPulse,
+  'uni-application': Activity,
+} as const;
 
 export default function ServicePage() {
   const { slug } = useParams();
@@ -50,10 +73,8 @@ export default function ServicePage() {
     return <Navigate to="/services" replace />;
   }
 
-  const whatsappHref = `https://wa.me/${settings?.whatsappNumber || '919999999999'}?text=${encodeURIComponent(
-    settings?.prefilledWhatsappMessage || `Hi BVF Germany! I want help with ${service.title}.`,
-  )}`;
-  const Icon = iconMap[service.icon];
+  const whatsappHref = buildWhatsappHref(settings);
+  const Icon = iconMap[service.icon as keyof typeof iconMap] || MessageCircle;
 
   return (
     <div className="site-shell home-showcase">
@@ -97,7 +118,10 @@ export default function ServicePage() {
                   <p className="mt-4 text-sm leading-7 text-muted-foreground">{service.urgencyLine}</p>
                   <div className="mt-5 space-y-3">
                     {service.whatYouGet.slice(0, 3).map((item) => (
-                      <div key={item} className="flex items-start gap-3 rounded-[20px] border border-border/70 bg-background/70 px-4 py-3 text-sm text-foreground">
+                      <div
+                        key={item}
+                        className="flex items-start gap-3 rounded-[20px] border border-border/70 bg-background/70 px-4 py-3 text-sm text-foreground"
+                      >
                         <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
                         <span>{item}</span>
                       </div>
@@ -233,6 +257,35 @@ export default function ServicePage() {
           </div>
         </section>
 
+        {service.pricingOptions && service.pricingOptions.length > 0 && (
+          <section className="px-4 py-16 md:px-8 md:py-20 bg-background/50">
+            <div className="container-narrow">
+              <div className="max-w-3xl">
+                <p className="section-kicker">Pricing & Enrollment</p>
+                <h2 className="section-title">Transparent pricing for this service.</h2>
+              </div>
+              <div className="mt-10 grid gap-6 md:grid-cols-2">
+                {service.pricingOptions.map((option) => (
+                  <div key={option.label} className={`surface-panel flex flex-col p-8 ${option.featured ? 'border-primary ring-1 ring-primary/20' : ''}`}>
+                    <h3 className="text-xl font-semibold text-foreground">{option.label}</h3>
+                    <p className="mt-3 text-3xl font-bold text-foreground">{option.price}</p>
+                    <p className="mt-4 flex-1 text-sm leading-7 text-muted-foreground">{option.note}</p>
+                    {(service.badgeTone === 'paid' || service.badgeTone === 'premium') ? (
+                      <Link to={`/checkout?plan=${service.id}`} className="button-primary mt-8 w-full justify-center">
+                        Proceed to Checkout (Razorpay)
+                      </Link>
+                    ) : (
+                      <Link to="/bookings" className="button-secondary mt-8 w-full justify-center">
+                        Get Started
+                      </Link>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
         <section className="px-4 py-16 md:px-8 md:py-20">
           <div className="container-narrow">
             <div className="max-w-3xl">
@@ -269,26 +322,32 @@ export default function ServicePage() {
                   If this service feels like the right next step, we can help you move forward with clarity instead of guesswork.
                 </p>
               </div>
-                <div className="w-full max-w-[28rem] lg:justify-self-end">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <Link to="/bookings" className="button-primary w-full">
-                      Get Started
-                    </Link>
-                    <a href={whatsappHref} target="_blank" rel="noreferrer" className="button-secondary w-full">
-                      WhatsApp
-                    </a>
-                    <Link to="/services" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/12 px-4 py-3 text-sm font-semibold text-white/80 transition hover:border-white/20 hover:text-white">
-                      Back to Services
-                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                    </Link>
-                    <Link to="/tools" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/12 px-4 py-3 text-sm font-semibold text-white/80 transition hover:border-white/20 hover:text-white">
-                      Check Eligibility
-                      <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                    </Link>
-                  </div>
+              <div className="w-full max-w-[28rem] lg:justify-self-end">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Link to="/bookings" className="button-primary w-full">
+                    Get Started
+                  </Link>
+                  <a href={whatsappHref} target="_blank" rel="noreferrer" className="button-secondary w-full">
+                    WhatsApp
+                  </a>
+                  <Link
+                    to="/services"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/12 px-4 py-3 text-sm font-semibold text-white/80 transition hover:border-white/20 hover:text-white"
+                  >
+                    Back to Services
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </Link>
+                  <Link
+                    to="/tools"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/12 px-4 py-3 text-sm font-semibold text-white/80 transition hover:border-white/20 hover:text-white"
+                  >
+                    Check Eligibility
+                    <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                  </Link>
                 </div>
               </div>
             </div>
+          </div>
         </section>
       </main>
 

@@ -4,247 +4,243 @@ export default function AusbildungGermanyPage() {
   return (
     <StudyProgramPage
       title="Ausbildung in Germany"
-      subtitle="Ausbildung is Germany's structured vocational-training route for students who want practical learning, workplace exposure, and a clear skills-based path into employment. The most important first step is to check whether this route fits your academic stage, your German-language readiness, and the field you want to train in."
-      heroBadge="Vocational training pathway"
+      subtitle="Ausbildung is Germany's vocational training route for students who want paid practical training, German workplace exposure, and a skills-first path into employment."
+      heroBadge="Vocational training"
       heroImage="https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1600&auto=format&fit=crop"
-      heroHighlights={['Practice-led training', 'German language matters', 'Career-focused route']}
+      heroHighlights={[
+        'Duration: 2-3 years',
+        'German B1-B2 mandatory',
+        'Paid apprenticeship with monthly stipend',
+      ]}
       primaryCta={{
-        label: 'Talk to an advisor',
+        label: 'Discuss Ausbildung fit',
         to: '/bookings',
       }}
-      secondaryCta={{ label: 'Check your profile', to: '/tools' }}
+      secondaryCta={{ label: 'Compare study paths', to: '/study-in-germany' }}
       summaryFacts={[
-        { label: 'Typical duration', value: '2 to 3.5 years' },
-        { label: 'Training style', value: 'Company training plus vocational school' },
-        { label: 'Language expectation', value: 'Mostly German-led' },
-        { label: 'Best fit', value: 'Skills-first career pathway' },
+        { label: 'Duration', value: '2-3 years' },
+        { label: 'Eligibility', value: '10th-12th Grade, no degree required' },
+        { label: 'Language Req', value: 'German B1-B2 (mandatory)' },
+        { label: 'Tuition / Cost', value: 'Paid apprenticeship - EUR 600-EUR 1,200/month stipend' },
       ]}
-      overviewTitle="Ausbildung is for students who want a practical route, not a classic university degree"
-      overviewText="Unlike a bachelor's or master's degree, Ausbildung is a vocational route built around practical training. Students usually split time between a company and vocational school, which means the route works best when you are comfortable with hands-on learning, daily workplace structure, and building language confidence for real-life communication."
+      overviewTitle="Ausbildung is built for students who want practical training instead of a classic university degree"
+      overviewText="Germany's Ausbildung route combines workplace training and vocational learning, making it a strong option for students who want hands-on skills, early earning potential, and a direct career path."
       overviewBullets={[
-        'This path suits students who want employable skills and practical work exposure early.',
-        'German language readiness is often more important here than in many English-taught university programmes.',
-        'The smartest shortlist starts with job role fit, training provider quality, and city practicality.',
+        'The route is open to students after 10th to 12th Grade and does not require a degree.',
+        'German B1 to B2 is mandatory because daily training and workplace communication happen in German.',
+        'Common key fields include Nursing, IT, Mechatronics, Hospitality, and Logistics.',
       ]}
-      checklistTitle="What to confirm before choosing Ausbildung"
+      checklistTitle="Ausbildung planning checklist"
       checklistItems={[
-        'Whether Ausbildung fits your goal better than a university degree.',
-        'Whether your current German level is realistic for training and workplace communication.',
-        'Which field you want to train in and what that daily work actually looks like.',
-        'How you will plan documents, finances, and relocation before the start date.',
+        'Confirm that a practical, work-based route suits you better than a university degree.',
+        'Plan German B1 to B2 early because the language requirement is mandatory.',
+        'Choose a training field that fits your strengths and daily-work preference.',
+        'Understand stipend expectations, accommodation planning, and relocation before committing.',
       ]}
-      warningText="Ausbildung is not a shortcut version of university. It is a different pathway with different expectations around language, training culture, employer fit, and day-to-day responsibility."
-      pathwaysTitle="Which Ausbildung route sounds closest to your goal?"
-      pathwaysIntro="Students usually do better when they start with the type of work they want to learn rather than choosing only by country or salary expectations."
+      warningText="Ausbildung is not a shortcut version of university study. It is a different route with workplace expectations, mandatory German, and a more practical day-to-day routine."
+      pathwaysTitle="Three decisions shape a realistic Ausbildung plan"
+      pathwaysIntro="Students usually do better when they decide whether the route fits their lifestyle, language readiness, and field interest before they apply."
       pathways={[
         {
-          title: 'Technical and industrial training',
-          audience: 'Path 1',
-          summary: 'Useful for students interested in machines, production, electronics, automotive work, and practical technical systems.',
+          title: 'Route fit',
+          audience: 'Decision 1',
+          summary: 'Ausbildung is strongest for students who prefer structured, practical training over classroom-heavy academic study.',
           bullets: [
-            'Best for hands-on learners who like structured technical environments.',
-            'Can connect well with Germany’s strong industrial sectors.',
-            'Often needs steady German communication ability in real work settings.',
+            'It can be a strong fit after 10th, 11th, or 12th Grade.',
+            'No university degree is required to begin this route.',
+            'The best decision starts with honest lifestyle fit, not trend-following.',
           ],
-          linkLabel: 'Book guidance for technical routes',
+          linkLabel: 'Compare all Germany routes',
+          linkTo: '/study-in-germany',
+        },
+        {
+          title: 'Language readiness',
+          audience: 'Decision 2',
+          summary: 'German is mandatory for Ausbildung, so language planning should start before field-specific applications.',
+          bullets: [
+            'German B1 to B2 is the key requirement from your brief.',
+            'Workplace communication makes language more important than students often expect.',
+            'A stronger language base usually creates more options and smoother settlement.',
+          ],
+          linkLabel: 'Plan German language support',
+          linkTo: '/services/germany-language',
+        },
+        {
+          title: 'Field choice',
+          audience: 'Decision 3',
+          summary: 'The best Ausbildung plans begin with the kind of daily work you can realistically see yourself doing for 2 to 3 years.',
+          bullets: [
+            'Popular fields include Nursing, IT, Mechatronics, Hospitality, and Logistics.',
+            'Your field should match both your strengths and communication comfort.',
+            'A better field match reduces the risk of confusion after arrival.',
+          ],
+          linkLabel: 'Talk through my field options',
           linkTo: '/bookings',
         },
-        {
-          title: 'Healthcare and care-related training',
-          audience: 'Path 2',
-          summary: 'Relevant for students exploring patient-facing, support, and care-oriented vocational roles.',
-          bullets: [
-            'Usually needs stronger communication comfort and responsibility in daily interaction.',
-            'Can be demanding but practical and career-focused.',
-            'Language preparation should be taken seriously from the start.',
-          ],
-          linkLabel: 'Discuss your profile',
-          linkTo: '/tools',
-        },
-        {
-          title: 'Hospitality, retail, and service training',
-          audience: 'Path 3',
-          summary: 'Good fit for students who are comfortable with customer-facing work, routines, and practical team environments.',
-          bullets: [
-            'Can suit students who enjoy active, people-oriented work.',
-            'City choice, cost of living, and work environment matter a lot.',
-            'Helps to shortlist by real job fit rather than broad popularity.',
-          ],
-          linkLabel: 'Compare Germany pathways',
-          linkTo: '/about-germany',
-        },
       ]}
-      requirementsTitle="What Ausbildung applicants usually need to show"
-      requirementsIntro="This route usually depends on practical fit, communication readiness, and application basics rather than only academic ambition."
+      requirementsTitle="What Ausbildung applicants usually need to prove"
+      requirementsIntro="The strongest Ausbildung plans balance language readiness, practical fit, and a realistic expectation of work life in Germany."
       requirements={[
         {
+          eyebrow: 'Eligibility',
+          title: 'School completion is enough to begin planning the route',
+          text: 'Students can usually start Ausbildung planning after 10th to 12th Grade, without needing a university degree.',
+          bullets: [
+            "The route is open even if you do not have a bachelor's degree.",
+            'It is a skills-first path rather than an academic-university path.',
+            'Field choice matters more than collecting extra academic certificates.',
+          ],
+        },
+        {
           eyebrow: 'Language',
-          title: 'German matters for daily training life',
-          text: 'Because Ausbildung usually involves vocational school, workplace routines, and direct communication, German is often central to the route.',
+          title: 'German B1-B2 is mandatory, not optional',
+          text: 'Because the route is practical and workplace-focused, students need German for both training and everyday life.',
           bullets: [
-            'Daily communication can matter as much as formal classroom understanding.',
-            'The stronger your German, the broader your realistic options usually become.',
-            'Do not treat language as a last-minute step for this path.',
+            'German B1 to B2 is the language requirement in your brief.',
+            'Communication comfort affects training performance directly.',
+            'Students should treat German prep as a core step, not a side task.',
           ],
         },
         {
-          eyebrow: 'Fit',
-          title: 'Your chosen field should match your strengths and expectations',
-          text: 'Students usually do better when they choose a training area that fits their strengths, comfort with practical work, and long-term interest.',
+          eyebrow: 'Cost',
+          title: 'Ausbildung is paid, but budgeting still matters',
+          text: 'Students receive a stipend, but they should still plan for housing, transport, food, and first-month setup in Germany.',
           bullets: [
-            'Think about whether you prefer technical, service, healthcare, or trade settings.',
-            'Check what the daily routine looks like before committing.',
-            'A good fit usually reduces drop-off and confusion later.',
-          ],
-        },
-        {
-          eyebrow: 'Documents',
-          title: 'A clean application still matters',
-          text: 'Even for vocational routes, your file should be organized, clear, and ready for review.',
-          bullets: [
-            'Academic records and identity documents',
-            'CV and supporting paperwork if requested',
-            'Language proof where needed',
-            'Clear preparation for interviews or employer communication',
+            'The typical stipend range in your brief is EUR 600 to EUR 1,200 per month.',
+            'Living costs still change by city.',
+            'A better budget plan helps students pick the right training location.',
           ],
         },
       ]}
-      stepsTitle="How to plan an Ausbildung application in a better order"
-      stepsIntro="The strongest route usually starts with fit, then language, then field selection, then practical application planning."
+      stepsTitle="A practical order for Ausbildung planning"
+      stepsIntro="Students usually move faster when they handle route fit and language before searching widely for training positions."
       steps={[
         {
-          title: 'Decide if Ausbildung is truly your best route',
-          text: 'Compare this pathway against bachelor and business or engineering study options before locking in your direction.',
+          title: 'Decide if Ausbildung fits your goals',
+          text: "Compare Ausbildung with bachelor's and master's pathways before you commit to the vocational route.",
         },
         {
-          title: 'Pick a training field',
-          text: 'Start with the kind of work you want to learn, not just a broad idea of studying in Germany.',
+          title: 'Choose the field',
+          text: 'Start with Nursing, IT, Mechatronics, Hospitality, Logistics, or another practical area that fits your strengths.',
         },
         {
-          title: 'Plan your German improvement',
-          text: 'Language readiness can decide how realistic your application is, so this should begin early.',
+          title: 'Build German B1-B2 readiness',
+          text: 'Treat language as a major milestone because it directly affects training and daily life.',
         },
         {
-          title: 'Prepare your documents and profile',
-          text: 'Keep academic records, CV, identity documents, and any field-relevant preparation in order before applying.',
+          title: 'Prepare your profile and documents',
+          text: 'Keep academic records, identity proof, CV, and any relevant field experience organized before applying.',
         },
         {
-          title: 'Apply with a realistic shortlist',
-          text: 'Choose roles, providers, and cities that match your profile rather than applying randomly everywhere.',
+          title: 'Apply in realistic locations',
+          text: 'Ausbildung is available Germany-wide, so compare city cost and field demand before finalizing where to apply.',
         },
         {
-          title: 'Prepare relocation and next steps',
-          text: 'Once your route becomes clear, move early on finances, housing, and travel planning.',
+          title: 'Plan arrival and settlement',
+          text: 'Once the route is clear, move into accommodation, travel, insurance, and early-city planning.',
         },
       ]}
-      planningTitle="Ausbildung still needs planning around language, money, and everyday life"
-      planningIntro="Students often focus only on the training opportunity, but real success also depends on communication, city affordability, housing, and how prepared you are for a structured work routine."
+      planningTitle="Ausbildung planning should connect field, language, and lifestyle"
+      planningIntro="Students usually do best in Ausbildung when they understand the daily reality of the route before they arrive in Germany."
       planningCards={[
         {
-          eyebrow: 'Budget',
-          title: 'Living costs still need a realistic plan',
-          text: 'Even with a practical training route, accommodation, food, transport, insurance, and first-month setup costs need early planning.',
+          eyebrow: 'Field planning',
+          title: 'Choose the work itself, not just the country',
+          text: 'The route can work well across Nursing, IT, Mechatronics, Hospitality, and Logistics when students pick a field that genuinely fits their strengths.',
           bullets: [
-            'City choice can change your budget significantly.',
-            'Do not assume a practical route removes all financial planning needs.',
-            'Daily living costs should be understood before you commit.',
+            'Practical comfort matters as much as salary or popularity.',
+            'Different fields demand different styles of communication and daily work.',
+            'The right field match creates a more stable long-term outcome.',
           ],
         },
         {
-          eyebrow: 'Lifestyle',
-          title: 'This route is structured and responsibility-heavy',
-          text: 'Ausbildung often works best for students who are ready for routine, practical expectations, and real communication in a work setting.',
+          eyebrow: 'Location',
+          title: 'Ausbildung is available Germany-wide',
+          text: 'Students should compare cities and states by field demand, rent, and settling ease rather than assuming every location feels the same.',
           bullets: [
-            'Punctuality and consistency matter.',
-            'Workplace communication can feel demanding at first.',
-            'A good mental picture of daily life helps prevent wrong expectations.',
+            'The route is Germany-wide across all states.',
+            'Cheaper cities can ease the first-year budget.',
+            'Location planning should happen alongside field planning.',
           ],
         },
         {
-          eyebrow: 'Common mistakes',
-          title: 'Students often choose by trend instead of fit',
-          text: 'A lot of confusion comes from picking Ausbildung only because it sounds practical or popular, without checking language, field suitability, and lifestyle readiness.',
+          eyebrow: 'Money planning',
+          title: 'A stipend helps, but life still needs budgeting',
+          text: 'The monthly stipend can support the route, but students still need to budget carefully for housing, food, transport, and personal expenses.',
           bullets: [
-            'Do not skip field research.',
-            'Do not underestimate the language side.',
-            'Do not treat this as identical to a university route.',
+            'The stipend range in your brief is EUR 600 to EUR 1,200 per month.',
+            'Major cities can still be expensive to live in.',
+            'A clearer financial plan makes the route more sustainable.',
           ],
         },
       ]}
-      toolsTitle="Useful BVF pages to open before you go deeper"
+      toolsTitle="Useful BVF pages before you finalize an Ausbildung plan"
       tools={[
         {
-          title: 'About Germany overview',
-          description: 'Compare Ausbildung with bachelor’s, engineering, and business-management routes before deciding what fits you best.',
-          href: '/about-germany',
+          title: 'Study in Germany overview',
+          description: "Compare Ausbildung against bachelor's and master's routes before choosing one.",
+          href: '/study-in-germany',
         },
         {
-          title: 'BVF tools',
-          description: 'Use our tools to understand your current profile and where you may need stronger preparation.',
-          href: '/tools',
+          title: 'German Language Guidance',
+          description: 'Build the B1 to B2 German level needed for vocational training.',
+          href: '/services/germany-language',
         },
         {
-          title: 'Book a guidance session',
-          description: 'Get help deciding whether Ausbildung is a good fit and what next steps make sense for your case.',
+          title: 'Accommodation Help',
+          description: 'Plan housing early if you are moving into an Ausbildung city.',
+          href: '/services/accommodation-help',
+        },
+        {
+          title: 'Book route guidance',
+          description: 'Talk through whether Ausbildung is the right Germany path for you.',
           href: '/bookings',
         },
-        {
-          title: 'Resources',
-          description: 'Explore supporting materials that can help you plan more clearly before applying.',
-          href: '/resources',
-        },
       ]}
-      tracksTitle="Ausbildung fields students often ask about"
-      tracksIntro="The right field usually depends on your strengths, language comfort, and the kind of daily work you can genuinely see yourself doing."
+      tracksTitle="Key Ausbildung fields students usually compare"
+      tracksIntro="The strongest Ausbildung plans begin with a field that matches both your personality and your practical strengths."
       tracks={[
-        { title: 'Industrial and manufacturing roles', text: 'Good fit for students who prefer machines, systems, and process-driven practical work.', icon: 'TECH' },
-        { title: 'Automotive and maintenance roles', text: 'Useful for students interested in vehicles, tools, and technical troubleshooting environments.', icon: 'AUTO' },
-        { title: 'Healthcare support roles', text: 'Relevant for students who are comfortable with responsibility, care routines, and people-facing work.', icon: 'CARE' },
-        { title: 'Hospitality and service roles', text: 'A strong option for active, customer-facing students who work well in dynamic team settings.', icon: 'SERV' },
-        { title: 'Retail and operations roles', text: 'Suitable for students who are organized, practical, and comfortable with customer or store processes.', icon: 'SHOP' },
-        { title: 'Trade and skilled-work roles', text: 'Can fit students who want a concrete hands-on trade route rather than a classroom-heavy study path.', icon: 'WORK' },
+        { title: 'Nursing', text: 'A strong route for students comfortable with responsibility, care routines, and people-facing work.', icon: 'NUR' },
+        { title: 'IT', text: 'Useful for students interested in systems, support, and technology-linked work environments.', icon: 'IT' },
+        { title: 'Mechatronics', text: 'A practical technical route that blends mechanics, systems, and hands-on problem solving.', icon: 'MECH' },
+        { title: 'Hospitality', text: 'A service-focused route for students who work well in fast-moving team environments.', icon: 'HOSP' },
+        { title: 'Logistics', text: 'A strong option for students interested in movement, operations, and structured workflows.', icon: 'LOG' },
+        { title: 'Service Roles', text: 'Additional practical routes can fit students who prefer active, work-based learning over classroom-heavy study.', icon: 'SERV' },
       ]}
-      universitiesTitle="Training sectors students commonly explore under Ausbildung"
+      universitiesTitle="Ausbildung opportunities are available across Germany"
       universities={[
-        'Industrial and manufacturing training providers',
-        'Automotive and technical training routes',
-        'Healthcare and care-focused training pathways',
-        'Hospitality and hotel-management training routes',
-        'Retail and customer-service training pathways',
-        'Trade and practical skilled-work routes',
+        'Germany-wide training providers across all states',
+        'Nursing-focused routes',
+        'IT and systems training pathways',
+        'Mechatronics and technical training routes',
+        'Hospitality pathways',
+        'Logistics pathways',
       ]}
-      logos={[
-        'Technical University of Munich',
-        'RWTH Aachen University',
-        'Heidelberg University',
-        'University of Bonn',
-        'University of Stuttgart',
-        'Karlsruhe Institute of Technology',
-      ]}
+      logos={[]}
       faqs={[
         {
-          q: 'Is Ausbildung the same as a university degree in Germany?',
-          a: 'No. Ausbildung is a vocational training pathway, while a bachelor’s or master’s route is an academic university degree pathway. The structure, expectations, and long-term fit can be very different.',
+          q: 'How long does Ausbildung usually take?',
+          a: 'The usual duration is 2 to 3 years, depending on the field and training route.',
         },
         {
-          q: 'Do I need German for Ausbildung?',
-          a: 'In most cases, strong German readiness is very important because the route usually includes workplace communication and vocational-school learning in German-led settings.',
+          q: 'Do I need a degree for Ausbildung?',
+          a: 'No. The eligibility route in your brief says 10th to 12th Grade is enough and no degree is required.',
         },
         {
-          q: 'Who should consider Ausbildung seriously?',
-          a: 'Students who prefer practical learning, early workplace exposure, and a skills-first route often find Ausbildung more suitable than a traditional academic degree.',
+          q: 'How much German do I need?',
+          a: 'German B1 to B2 is mandatory because the route involves workplace communication and vocational learning in German.',
         },
         {
-          q: 'What is the most common mistake students make with Ausbildung?',
-          a: 'They choose it only because it sounds practical or popular, without checking language readiness, field fit, and whether they are actually comfortable with the daily training environment.',
+          q: 'Is Ausbildung paid?',
+          a: 'Yes. The brief you shared lists a typical paid apprenticeship stipend of EUR 600 to EUR 1,200 per month.',
         },
       ]}
-      finalCtaTitle="Need help deciding whether Ausbildung is your best Germany route?"
-      finalCtaText="We can help you compare Ausbildung with academic study routes, evaluate your readiness, and choose a more realistic next step before you commit."
-      finalPrimaryCta={{ label: 'Book an Ausbildung guidance call', to: '/bookings' }}
+      finalCtaTitle="Need help deciding if Ausbildung is the right Germany route for you?"
+      finalCtaText="We can help you compare Ausbildung with academic study, plan German readiness, and choose a training field that fits your strengths before you commit."
+      finalPrimaryCta={{ label: 'Book Ausbildung guidance', to: '/bookings' }}
       finalSecondaryCta={{
-        label: 'Compare all Germany routes',
-        to: '/about-germany',
+        label: 'Compare all study paths',
+        to: '/study-in-germany',
       }}
     />
   );

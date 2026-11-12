@@ -6,7 +6,7 @@ export default function ServiceGermanyPage() {
       title="Service in Germany"
       subtitle="On‑ground support for accommodation, insurance, and settling in."
       heroImage="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?q=80&w=1400&auto=format&fit=crop"
-      ctaLabel="Get Arrival Support"
+      ctaLabel="Book Free Consultation Now"
       ctaTo="/contact"
       introTitle="Support That Feels Like Home"
       introText="Moving to a new country can feel overwhelming. BVF Germany stays with you even after admission — helping with accommodation, city orientation, insurance, and more."

@@ -1,203 +1,125 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import {
-  ArrowRight,
-  BriefcaseBusiness,
-  CheckCircle2,
-  Coins,
-  FileText,
-  Globe2,
-  GraduationCap,
-  House,
-  Languages,
-  PlaneTakeoff,
-  SearchCheck,
-  ShieldCheck,
-  WalletCards,
-} from 'lucide-react';
+import { ArrowRight, BriefcaseBusiness, CheckCircle2, Languages, ShieldCheck, Clock, GraduationCap, Coins, Building2, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
 import { getSiteSettings, type SiteSettings } from '@/lib/siteContentStore';
 import { useSeo } from '@/lib/useSeo';
+import { buildWhatsappHref } from '@/lib/whatsapp';
 import germanyLandmark from '@/assets/germany-landmark.jpg';
 import germanCampus from '@/assets/german-campus.jpg';
 import studentsGroup from '@/assets/students-group.jpg';
 import heroStudent from '@/assets/hero-student.png';
 
-const spring = { type: 'spring' as const, stiffness: 280, damping: 30 };
-
-const trustStrip = [
-  'Low tuition at many public universities',
-  'Globally respected degrees',
-  'Work opportunities during and after study',
-  'End-to-end student support',
-];
-
-const sectionNavItems = [
-  { label: 'Why Germany', href: '#why' },
-  { label: 'Study paths', href: '#paths' },
-  { label: 'Journey', href: '#journey' },
-  { label: 'Costs', href: '#costs' },
-  { label: 'Eligibility', href: '#eligibility' },
-  { label: 'Life in Germany', href: '#life' },
-];
-
-const whyGermanyCards = [
+const studyPrograms = [
   {
-    number: '01',
-    title: 'High-quality education',
-    text: 'Germany offers respected universities with strong academic standards, research depth, and practical industry links.',
-  },
-  {
-    number: '02',
-    title: 'Low study costs',
-    text: 'Public universities often charge no tuition, with students usually paying a semester contribution instead.',
-  },
-  {
-    number: '03',
-    title: 'Wide programme choice',
-    text: 'Students can choose technical, academic, and business-focused routes across German- and English-medium options.',
-  },
-  {
-    number: '04',
-    title: 'Career pathway',
-    text: 'Germany offers student work rights during study and post-study time to search for a relevant job after graduation.',
-  },
-];
-
-const studyPaths = [
-  {
-    title: "Bachelor's",
-    audience: 'Undergraduate degree programs in Germany',
-    duration: 'Usually 3 to 4 years',
-    language: 'Mostly German, some English options',
-    to: '/about-germany/bachelor',
+    title: "Bachelor's Degree",
+    to: '/study-in-germany/bachelor',
     image: germanyLandmark,
-    imageAlt: "Students exploring bachelor's study routes in Germany",
-    badge: 'Undergraduate',
+    duration: '3-4 years',
+    eligibility: 'A-Levels / 12th Grade (PCM/PCB/Commerce)',
+    language: 'IELTS 6.0-6.5 or German B2',
+    tuition: 'Free (Semester fee EUR 150-350)',
+    universities: 'TU Munich, RWTH Aachen, Heidelberg, FU Berlin, KIT',
+    fields: 'Mechanical Eng, CS, Business, Medicine, Architecture',
   },
   {
     title: "Master's in Engineering",
-    audience: 'Postgraduate engineering specializations',
-    duration: 'Usually 1.5 to 2 years',
-    language: 'Many English-taught options, plus some German routes',
-    to: '/about-germany/engineering',
+    to: '/study-in-germany/engineering',
     image: germanCampus,
-    imageAlt: 'Engineering students on a German campus',
-    badge: 'Engineering',
+    duration: '2 years (4 semesters)',
+    eligibility: 'B.Tech / B.E. in relevant field (min 55-60%)',
+    language: 'IELTS 6.5-7.0 or German B2/C1',
+    tuition: 'Free (Semester fee EUR 150-350)',
+    universities: 'TU Munich, TU Berlin, Stuttgart, Darmstadt, Hamburg',
+    fields: 'Mechanical, Electrical, Civil, CS, Automotive, Robotics',
   },
   {
     title: "Master's in Business Management",
-    audience: 'MBA & management postgraduate programs',
-    duration: 'Usually 1.5 to 2 years',
-    language: 'Mostly English with some mixed-format options',
-    to: '/about-germany/mba',
+    to: '/study-in-germany/mba',
     image: studentsGroup,
-    imageAlt: 'Business management students planning postgraduate study in Germany',
-    badge: 'Management',
+    duration: '1.5-2 years',
+    eligibility: 'BBA / B.Com / MBA-equivalent (min 55%)',
+    language: 'IELTS 6.5-7.0, sometimes GMAT',
+    tuition: 'Free (Semester fee EUR 150-350)',
+    universities: 'Mannheim, Frankfurt, Cologne, HHL Leipzig, WHU',
+    fields: 'International Business, Supply Chain, Finance, Marketing',
   },
   {
     title: 'Ausbildung',
-    audience: 'German vocational training programs',
-    duration: 'Usually 2 to 3.5 years',
-    language: 'Mostly German',
-    to: '/about-germany/ausbildung',
+    to: '/study-in-germany/ausbildung',
     image: heroStudent,
-    imageAlt: 'Students exploring Ausbildung and vocational training options in Germany',
-    badge: 'Vocational',
+    duration: '2-3 years',
+    eligibility: '10th-12th Grade, no degree required',
+    language: 'German B1-B2 (mandatory)',
+    tuition: 'Paid apprenticeship - EUR 600-EUR 1,200/month stipend',
+    universities: 'Germany-wide - all states',
+    fields: 'Nursing, IT, Mechatronics, Hospitality, Logistics',
   },
 ];
 
-const journeySteps = [
+const whyGermanyStats = [
   {
-    step: '01',
-    title: 'Choose your study goal',
-    text: "Start with the route that matches your current stage: bachelor's, master's in engineering, business management, or Ausbildung.",
-    icon: GraduationCap,
+    value: '426',
+    label: 'Public Universities',
+    detail: 'Tuition-free for all international students',
   },
   {
-    step: '02',
-    title: 'Check eligibility',
-    text: 'Verify your academic background, route, and whether you need direct admission, prior study, or Studienkolleg.',
-    icon: SearchCheck,
-  },
-  {
-    step: '03',
-    title: 'Prepare language and documents',
-    text: 'Plan German or English proof and organise transcripts, passport documents, and other required paperwork.',
-    icon: FileText,
-  },
-  {
-    step: '04',
-    title: 'Apply to universities or via uni-assist',
-    text: 'Submit through the correct channel based on the programme and university instructions.',
-    icon: ArrowRight,
-  },
-  {
-    step: '05',
-    title: 'Arrange visa, finances, and accommodation',
-    text: 'Plan blocked account, health insurance, housing, and visa preparation with enough time.',
-    icon: ShieldCheck,
-  },
-  {
-    step: '06',
-    title: 'Arrive and start your studies',
-    text: 'Move from planning into Germany with clearer expectations on enrolment, settlement, and student life.',
-    icon: PlaneTakeoff,
-  },
-];
-
-const costCards = [
-  {
+    value: 'EUR 0',
     label: 'Tuition',
-    value: 'Often none',
-    note: 'At many public universities',
+    detail: 'Pay only semester fee (EUR 150-350 per semester)',
   },
   {
-    label: 'Semester contribution',
-    value: 'Around EUR 300',
-    note: 'Depends on the institution and city',
+    value: 'EUR 45,000-EUR 50,000',
+    label: 'Average Annual Living Cost',
+    detail: 'Accommodation + food + transport',
   },
   {
-    label: 'Monthly living cost',
-    value: 'About EUR 1,150',
-    note: 'Including rent, food, transport, and insurance',
+    value: '70 Lakh+',
+    label: 'Skilled Job Vacancies',
+    detail: 'Federal Employment Agency figure used in your brief',
+  },
+  {
+    value: '18 Months',
+    label: 'Post-Study Work Visa',
+    detail: 'Job seeker visa after graduation',
+  },
+  {
+    value: '42,000+',
+    label: 'Indian Students',
+    detail: 'Studying in Germany annually',
   },
 ];
 
-const budgetingItems = ['Accommodation', 'Food', 'Health insurance', 'Local transport', 'Study materials'];
+const supportHighlights = [
+  'University shortlisting based on your profile',
+  'APS, language, SOP, CV, and visa support in the right order',
+  'Public-university-first strategy built for Indian students',
+  'Guidance before departure and after landing in Germany',
+];
 
-const lifeCards = [
-  {
-    title: 'Accommodation',
-    text: 'Student residences, shared flats, and private rentals are common options depending on city and availability.',
-    icon: House,
-  },
-  {
-    title: 'Student work',
-    text: 'International students can usually work 120 full days or 240 half days per year while studying.',
-    icon: BriefcaseBusiness,
-  },
-  {
-    title: 'Campus life',
-    text: 'Universities offer international offices, student communities, events, and local support structures.',
-    icon: Globe2,
-  },
-  {
-    title: 'After graduation',
-    text: 'Graduates can usually stay up to 18 months to search for relevant work after completing their degree.',
-    icon: WalletCards,
-  },
+const jobsPoints = [
+  '18-month post-study job seeker visa after graduation',
+  'In-demand sectors: IT and Software, Mechanical Engineering, Healthcare, Automotive, Finance',
+  'Average salaries for fresh graduates: EUR 35,000-EUR 60,000 per year',
+  'German Skilled Immigration Act (2023) creates a simpler route for non-EU workers',
 ];
 
 export default function AboutGermanyPage() {
   useSeo({
-    title: 'Study in Germany | BVF Germany',
+    title: 'Study in Germany | Tuition-Free Public Universities | BVF Germany',
     description:
-      "Explore bachelor's, master's in engineering, master's in business management, and Ausbildung pathways in Germany with a clearer view of eligibility, language, costs, planning, and next steps.",
-    url: 'https://bvf-student-support.web.app/about-germany',
+      "BVF Germany helps Indian students apply to tuition-free German public universities. Expert guidance for Bachelor's, Master's, and Ausbildung programs.",
+    keywords: [
+      'study in germany',
+      'german universities for indian students',
+      'free education germany',
+      'ausbildung india',
+      'masters in germany',
+      'APS certificate',
+    ],
+    url: '/study-in-germany',
     image: '/hero-og.png',
   });
 
@@ -206,81 +128,74 @@ export default function AboutGermanyPage() {
   useEffect(() => {
     let active = true;
 
-    const load = async () => {
+    const loadSettings = async () => {
       const siteSettings = await getSiteSettings();
-      if (!active) return;
-      setSettings(siteSettings);
+      if (active) {
+        setSettings(siteSettings);
+      }
     };
 
-    void load();
+    void loadSettings();
 
     return () => {
       active = false;
     };
   }, []);
 
-  const whatsappHref = `https://wa.me/${settings?.whatsappNumber || '919999999999'}?text=${encodeURIComponent(
-    settings?.prefilledWhatsappMessage || 'Hi BVF Germany! I want help planning my study route for Germany.',
-  )}`;
+  const whatsappHref = buildWhatsappHref(settings);
 
   return (
     <div className="min-h-screen bg-[#f5f1e8] text-foreground">
       <Navbar />
 
       <main>
-        <section className="relative overflow-hidden bg-[linear-gradient(135deg,#13231f_0%,#1d3a31_48%,#f0dcc2_100%)] pb-14 pt-28 text-white">
+        <section className="relative overflow-hidden bg-[linear-gradient(135deg,#13231f_0%,#1d3a31_46%,#f0dcc2_100%)] pb-16 pt-28 text-white">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(242,201,76,0.16),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.12),transparent_30%)]" />
-          <div className="relative mx-auto grid max-w-[1280px] gap-10 px-4 md:px-8 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
-            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="max-w-3xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.34em] text-[#f2c94c]">About Germany</p>
+          <div className="relative mx-auto grid max-w-[1280px] gap-10 px-4 md:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+            <div className="max-w-3xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.34em] text-[#f2c94c]">Study in Germany</p>
               <h1 className="mt-4 text-5xl font-semibold leading-[0.95] md:text-7xl">
-                Study in Germany with clarity, not confusion
+                Tuition-free public universities, clear routes, and expert support from India.
               </h1>
               <p className="mt-6 max-w-2xl text-base leading-8 text-white/80 md:text-lg">
-                Explore the best route for your goals - bachelor's, master's in engineering, master's in business
-                management, or Ausbildung - and understand eligibility, costs, language, and application steps before
-                you apply. Germany is known for strong universities, low tuition at many public institutions, and solid
-                career opportunities after graduation.
+                Explore the four routes students ask about most: Bachelor's Degree, Master's in Engineering,
+                Master's in Business Management, and Ausbildung. Then build the right plan for APS, language,
+                applications, visa, and life in Germany.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <a href="#paths" className="inline-flex items-center justify-center rounded-full bg-[#0f766e] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#115e59]">
-                  Explore study paths
-                </a>
-                <Link to="/bookings" className="inline-flex items-center justify-center rounded-full bg-white/92 px-6 py-3 text-sm font-semibold text-foreground ring-1 ring-white/30 transition hover:bg-white">
-                  Book expert guidance
+                <Link to="/bookings" className="inline-flex items-center justify-center rounded-full bg-[#f2c94c] px-6 py-3 text-sm font-semibold text-[#13231f] transition hover:-translate-y-0.5">
+                  Book Free Consultation Now
                 </Link>
+                <a href={whatsappHref} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center rounded-full bg-white/92 px-6 py-3 text-sm font-semibold text-foreground ring-1 ring-white/30 transition hover:bg-white">
+                  Chat on WhatsApp
+                </a>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ ...spring, delay: 0.06 }}
-              className="rounded-[34px] border border-white/18 bg-white/10 p-4 shadow-2xl backdrop-blur-md"
-            >
+            <div className="rounded-[34px] border border-white/18 bg-white/10 p-4 shadow-2xl backdrop-blur-md">
               <div className="rounded-[28px] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,242,232,0.96))] p-6 text-foreground">
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-secondary">Germany study snapshot</p>
-                <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                  {[
-                    { label: 'Main routes', value: '4 clear study paths' },
-                    { label: 'Public tuition', value: 'Often low or none' },
-                    { label: 'Language mix', value: 'German plus English options' },
-                    { label: 'Student future', value: 'Work during and after study' },
-                  ].map((item) => (
-                    <div key={item.label} className="rounded-[22px] border border-border/70 bg-white/80 px-4 py-4 shadow-sm">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">{item.label}</p>
-                      <p className="mt-2 text-lg font-semibold text-foreground">{item.value}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-secondary">What BVF Germany helps with</p>
+                <div className="mt-6 space-y-3">
+                  {supportHighlights.map((item) => (
+                    <div key={item} className="flex items-start gap-3 rounded-[22px] border border-border/70 bg-white/80 px-4 py-4 shadow-sm">
+                      <CheckCircle2 className="mt-0.5 h-5 w-5 text-primary" aria-hidden="true" />
+                      <p className="text-sm leading-7 text-foreground/88">{item}</p>
                     </div>
                   ))}
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </section>
 
         <section className="border-y border-[#d5c5af] bg-[#f0dfc9] py-5">
           <div className="mx-auto grid max-w-[1280px] gap-4 px-4 md:grid-cols-2 md:px-8 lg:grid-cols-4">
-            {trustStrip.map((item) => (
+            {[
+              'Bachelor\'s Degree',
+              "Master's in Engineering",
+              "Master's in Business Management",
+              'Ausbildung',
+            ].map((item) => (
               <div key={item} className="rounded-[22px] border border-black/5 bg-white/72 px-4 py-4 text-sm font-medium text-foreground shadow-sm">
                 {item}
               </div>
@@ -288,293 +203,205 @@ export default function AboutGermanyPage() {
           </div>
         </section>
 
-        <section className="sticky top-16 z-30 border-b border-[#dbcab3] bg-[#f5f1e8]/92 backdrop-blur md:top-20">
-          <div className="mx-auto flex max-w-[1280px] gap-3 overflow-x-auto px-4 py-3 md:px-8">
-            {sectionNavItems.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="whitespace-nowrap rounded-full border border-[#d9cab7] bg-white/88 px-4 py-2 text-sm font-medium text-foreground transition hover:border-primary/35 hover:text-primary"
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
-        </section>
-
-        <section id="why" className="mx-auto max-w-[1180px] px-4 py-14 md:px-8 md:py-20">
-          <div className="max-w-3xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-secondary">Why Germany</p>
-            <h2 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">Why students choose Germany</h2>
-            <p className="mt-4 text-base leading-8 text-muted-foreground">
-              Germany stands out because it combines academic quality, lower public-study costs, strong student support,
-              and a practical route into European study and work life.
+        {/* Study Programs Section Redesigned */}
+        <section className="relative mx-auto max-w-[1280px] px-4 py-20 md:px-8 md:py-32">
+          {/* Section Header */}
+          <div className="flex flex-col items-center text-center">
+            <div className="mb-6 inline-flex items-center justify-center rounded-full bg-primary/10 px-5 py-2">
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">Study Programs</p>
+            </div>
+            <h2 className="max-w-3xl text-4xl font-bold tracking-tight text-foreground md:text-5xl lg:text-5xl">
+              Choose the Germany route that <span className="bg-gradient-to-r from-primary to-[#f2c94c] bg-clip-text text-transparent">matches your stage</span>
+            </h2>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
+              Each route below uses the exact duration, eligibility, language requirement, tuition structure, top universities, and key fields from your content brief.
             </p>
           </div>
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
-            {whyGermanyCards.map((card, index) => (
-              <motion.article
-                key={card.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ ...spring, delay: index * 0.05 }}
-                className="rounded-[30px] border border-border/80 bg-white/92 p-6 shadow-card"
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-secondary">{card.number}</p>
-                <h3 className="mt-3 text-2xl font-semibold text-foreground">{card.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-muted-foreground">{card.text}</p>
-              </motion.article>
-            ))}
-          </div>
-        </section>
 
-        <section id="paths" className="mx-auto max-w-[1180px] px-4 py-4 md:px-8 md:py-8">
-          <div className="max-w-3xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-secondary">Choose your path</p>
-            <h2 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">Pick the Germany study route that fits your stage</h2>
-            <p className="mt-4 text-base leading-8 text-muted-foreground">
-              This page is your route selector. Go deeper only into the path that matches your academic stage and goal.
-            </p>
-          </div>
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
-            {studyPaths.map((path, index) => (
-              <motion.article
-                key={path.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ ...spring, delay: index * 0.05 }}
-                className="group overflow-hidden rounded-[30px] border border-border/80 bg-white/92 shadow-card transition hover:-translate-y-1 hover:border-primary/30"
+          {/* Programs Grid */}
+          <div className="mt-16 grid gap-8 lg:grid-cols-2 lg:gap-10">
+            {studyPrograms.map((program) => (
+              <article 
+                key={program.title} 
+                className="group relative flex flex-col overflow-hidden rounded-[40px] border border-border/50 bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)]"
               >
-                <div className="relative h-56 overflow-hidden">
-                  <img
-                    src={path.image}
-                    alt={path.imageAlt}
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                {/* Image Header wrapper */}
+                <div className="relative h-[280px] w-full overflow-hidden sm:h-[320px]">
+                  <div className="absolute inset-0 z-10 bg-black/20 transition-opacity duration-300 group-hover:bg-black/10" />
+                  <img 
+                    src={program.image} 
+                    alt={program.title} 
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                    loading="lazy" 
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#14231f]/80 via-[#14231f]/15 to-transparent" />
-                  <div className="absolute left-5 top-5 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-foreground">
-                    {path.badge}
-                  </div>
-                  <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#f2c94c]">Best for</p>
-                    <h3 className="mt-2 text-2xl font-semibold">{path.title}</h3>
+                  
+                  {/* Floating Title Card */}
+                  <div className="absolute bottom-6 left-6 right-6 z-20 overflow-hidden rounded-[24px] border border-white/20 bg-white/10 p-5 backdrop-blur-xl transition-all duration-300 group-hover:bg-white/20">
+                    <h3 className="text-2xl font-bold text-white drop-shadow-sm md:text-3xl">{program.title}</h3>
                   </div>
                 </div>
-                <div className="p-6">
-                  <p className="text-sm leading-7 text-muted-foreground">{path.audience}</p>
-                  <div className="mt-5 grid gap-3 rounded-[24px] bg-[#f7f2ea] p-4 text-sm text-foreground/88">
-                    <div>
-                      <span className="font-semibold text-foreground">Duration:</span> {path.duration}
-                    </div>
-                    <div>
-                      <span className="font-semibold text-foreground">Language:</span> {path.language}
-                    </div>
+
+                <div className="flex flex-1 flex-col p-6 sm:p-8">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {[
+                      { label: 'Duration', value: program.duration, icon: Clock },
+                      { label: 'Eligibility', value: program.eligibility, icon: GraduationCap },
+                      { label: 'Language Req', value: program.language, icon: Languages },
+                      { label: 'Tuition / Cost', value: program.tuition, icon: Coins },
+                      { label: 'Top Universities', value: program.universities, icon: Building2 },
+                      { label: 'Key Fields', value: program.fields, icon: BookOpen },
+                    ].map(({ label, value, icon: Icon }) => (
+                      <div key={label} className="group/item flex items-start gap-4 rounded-[24px] border border-transparent bg-[#f8f9fa] p-4 transition-colors hover:border-primary/10 hover:bg-primary/5">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-white text-primary shadow-sm transition-transform group-hover/item:scale-110">
+                          <Icon className="h-5 w-5" strokeWidth={2} />
+                        </div>
+                        <div>
+                          <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">{label}</p>
+                          <p className="text-sm font-medium leading-[1.6] text-foreground/90">{value}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <Link to={path.to} className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                    View pathway
-                    <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" aria-hidden="true" />
-                  </Link>
+
+                  <div className="mt-8 border-t border-border/50 pt-6 mt-auto">
+                    <Link 
+                      to={program.to} 
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-foreground px-6 py-4 text-sm font-semibold text-white transition-all duration-300 hover:bg-primary hover:shadow-lg hover:shadow-primary/25"
+                    >
+                      Explore {program.title}
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                  </div>
                 </div>
-              </motion.article>
+              </article>
             ))}
           </div>
         </section>
 
-        <section id="journey" className="mx-auto max-w-[1180px] px-4 py-14 md:px-8 md:py-20">
-          <div className="max-w-3xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-secondary">How it works</p>
-            <h2 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">The Germany study journey in the right order</h2>
-            <p className="mt-4 text-base leading-8 text-muted-foreground">
-              The process feels much easier when students understand the order of decisions early: goal, eligibility,
-              documents, application, visa, and arrival.
-            </p>
-          </div>
-          <div className="mt-8 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-            {journeySteps.map((step, index) => (
-              <motion.article
-                key={step.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ ...spring, delay: index * 0.04 }}
-                className="rounded-[30px] border border-border/80 bg-white/92 p-6 shadow-card"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#0f766e] text-white">
-                    <step.icon className="h-5 w-5" aria-hidden="true" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-secondary">Step {step.step}</p>
-                    <h3 className="mt-1 text-xl font-semibold text-foreground">{step.title}</h3>
-                  </div>
-                </div>
-                <p className="mt-4 text-sm leading-7 text-muted-foreground">{step.text}</p>
-              </motion.article>
-            ))}
-          </div>
-        </section>
-
-        <section id="costs" className="mx-auto max-w-[1180px] px-4 py-4 md:px-8 md:py-8">
-          <div className="grid gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:items-start">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-secondary">Costs and planning</p>
-              <h2 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">What students usually want to know first about cost</h2>
+        <section className="bg-[#fff8ee] px-4 py-16 md:px-8 md:py-20">
+          <div className="container-narrow">
+            <div className="max-w-3xl">
+              <p className="section-kicker">Why Germany</p>
+              <h2 className="section-title">The public-university opportunity that makes Germany stand out</h2>
               <p className="mt-4 text-base leading-8 text-muted-foreground">
-                Germany is cost-conscious compared with many study destinations, but good planning still matters. Public
-                tuition, semester contribution, and monthly living costs should all be understood early.
-              </p>
-              <div className="mt-8 grid gap-4 md:grid-cols-3">
-                {costCards.map((card, index) => (
-                  <motion.article
-                    key={card.label}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.2 }}
-                    transition={{ ...spring, delay: index * 0.04 }}
-                    className="rounded-[28px] border border-border/80 bg-white/92 p-5 shadow-card"
-                  >
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-secondary">{card.label}</p>
-                    <p className="mt-3 text-3xl font-semibold text-foreground">{card.value}</p>
-                    <p className="mt-3 text-sm leading-7 text-muted-foreground">{card.note}</p>
-                  </motion.article>
-                ))}
-              </div>
-              <p className="mt-5 text-sm leading-7 text-muted-foreground">
-                Private universities and some specialised programmes may charge tuition fees.
+                Germany combines tuition-free public universities, long-term career opportunity, and a cleaner post-study route for international students.
               </p>
             </div>
-
-            <div className="rounded-[32px] border border-border/80 bg-[#14231f] p-6 text-white shadow-card">
-              <div className="flex items-center gap-3">
-                <Coins className="h-5 w-5 text-[#f2c94c]" aria-hidden="true" />
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#f2c94c]">What to budget for</p>
-              </div>
-              <div className="mt-6 space-y-3">
-                {budgetingItems.map((item) => (
-                  <div key={item} className="flex items-start gap-3 rounded-2xl bg-white/8 px-4 py-3">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#f2c94c]" aria-hidden="true" />
-                    <p className="text-sm leading-7 text-white/84">{item}</p>
-                  </div>
-                ))}
-              </div>
+            <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {whyGermanyStats.map((stat) => (
+                <article key={stat.label} className="surface-panel p-6">
+                  <p className="text-3xl font-semibold text-secondary">{stat.value}</p>
+                  <h3 className="mt-3 text-xl font-semibold text-foreground">{stat.label}</h3>
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">{stat.detail}</p>
+                </article>
+              ))}
             </div>
           </div>
         </section>
 
-        <section id="eligibility" className="mx-auto max-w-[1180px] px-4 py-14 md:px-8 md:py-20">
-          <div className="grid gap-6 lg:grid-cols-2">
-            <motion.article
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={spring}
-              className="rounded-[32px] border border-border/80 bg-white/92 p-7 shadow-card"
-            >
-              <div className="flex items-center gap-3">
-                <Languages className="h-5 w-5 text-primary" aria-hidden="true" />
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-secondary">Language</p>
+        <section className="px-4 py-16 md:px-8 md:py-20">
+          <div className="container-narrow grid gap-6 lg:grid-cols-2">
+            <div className="rounded-[32px] border border-border/80 bg-white/92 p-8 shadow-card">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Languages className="h-6 w-6" aria-hidden="true" />
               </div>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-foreground">Language matters</h2>
-              <p className="mt-4 text-sm leading-8 text-muted-foreground">
-                Most bachelor's and Ausbildung programmes are taught in German, while English-taught options exist but
-                are fewer. For master's in engineering and business management pathways, English options are more
-                common depending on the field and institution.
+              <p className="mt-6 text-xs font-semibold uppercase tracking-[0.22em] text-secondary">Application Journey</p>
+              <h2 className="mt-3 text-3xl font-semibold text-foreground">What students usually need after choosing the route</h2>
+              <div className="mt-6 space-y-3">
+                {[
+                  'University shortlisting based on profile and target field',
+                  'APS certificate planning for Indian applicants',
+                  'IELTS, German, or GRE support where required',
+                  'SOP, LOR, and CV support before applications go out',
+                  'Visa guidance, blocked account planning, and on-arrival support',
+                ].map((item) => (
+                  <div key={item} className="flex items-start gap-3 rounded-[22px] border border-border/70 bg-background/70 px-4 py-4">
+                    <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                    <span className="text-sm text-foreground">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[32px] border border-border/80 bg-[#132033] p-8 text-white shadow-card">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-[#f2c94c]">
+                <ShieldCheck className="h-6 w-6" aria-hidden="true" />
+              </div>
+              <p className="mt-6 text-xs font-semibold uppercase tracking-[0.22em] text-white/60">Student Support</p>
+              <h2 className="mt-3 text-3xl font-semibold text-[#f2c94c]">Built for Indian students navigating Germany from scratch</h2>
+              <p className="mt-4 text-sm leading-7 text-white/78">
+                BVF Germany exists to simplify the path from India to Germany by connecting study-route decisions with APS, language prep, blocked accounts, visa work, and landing support.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link to="/tools#eligibility" className="inline-flex items-center justify-center rounded-full bg-[#0f766e] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#115e59]">
-                  Check bachelor eligibility
+                <Link to="/services" className="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-foreground transition hover:-translate-y-0.5">
+                  Explore Services
                 </Link>
-                <Link to="/about-germany/ms" className="inline-flex items-center justify-center rounded-full bg-[#f7f2ea] px-5 py-3 text-sm font-semibold text-foreground ring-1 ring-border transition hover:bg-white">
-                  Explore English-taught routes
-                </Link>
+                <a href={whatsappHref} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+                  Start on WhatsApp
+                </a>
               </div>
-            </motion.article>
+            </div>
+          </div>
+        </section>
 
-            <motion.article
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ ...spring, delay: 0.05 }}
-              className="rounded-[32px] border border-border/80 bg-[#f7f2ea] p-7 shadow-card"
-            >
-              <div className="flex items-center gap-3">
-                <ShieldCheck className="h-5 w-5 text-primary" aria-hidden="true" />
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-secondary">Eligibility</p>
-              </div>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight text-foreground">Eligibility depends on your background</h2>
-              <p className="mt-4 text-sm leading-8 text-muted-foreground">
-                Your school or university qualification may lead to direct admission, additional requirements, or a
-                Studienkolleg pathway. Always verify your route before applying instead of assuming the same path works
-                for every student.
+        <section className="bg-[#fff8ee] px-4 py-16 md:px-8 md:py-20">
+          <div className="container-narrow rounded-[36px] border border-border/70 bg-white/86 p-8 shadow-card md:p-10">
+            <div className="max-w-3xl">
+              <p className="section-kicker">Germany Jobs / Career</p>
+              <h2 className="section-title">70 Lakh+ Skilled Job Vacancies in Germany</h2>
+              <p className="mt-4 text-base leading-8 text-muted-foreground">
+                Germany remains attractive not only for study, but also for the long-term career path that comes after graduation.
               </p>
-              <div className="mt-6 grid gap-3">
-                {[
-                  'Some students can apply directly.',
-                  'Some need prior study or a Studienkolleg route.',
-                  "Bachelor's pathways are usually more recognition-sensitive than postgraduate management or engineering routes.",
-                ].map((item) => (
-                  <div key={item} className="flex gap-3 rounded-2xl bg-white/90 px-4 py-3 text-sm leading-7 text-foreground/86">
-                    <span className="mt-2 h-2 w-2 rounded-full bg-[#0f766e]" />
-                    <span>{item}</span>
+            </div>
+            <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.9fr]">
+              <div className="space-y-4">
+                {jobsPoints.map((item) => (
+                  <div key={item} className="flex items-start gap-3 rounded-[22px] border border-border/70 bg-background/70 px-4 py-4">
+                    <BriefcaseBusiness className="mt-1 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                    <span className="text-sm leading-7 text-foreground">{item}</span>
                   </div>
                 ))}
               </div>
-            </motion.article>
+              <div className="rounded-[28px] bg-[linear-gradient(160deg,rgba(9,18,39,1),rgba(18,33,70,0.96))] p-6 text-white shadow-[0_28px_90px_-52px_rgba(3,7,18,0.9)]">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">Official Resource</p>
+                <h3 className="mt-3 text-2xl font-semibold text-[#f2c94c]">Explore jobs and career guidance from the official Germany portal</h3>
+                <p className="mt-4 text-sm leading-7 text-white/76">
+                  Use Make it in Germany to understand job sectors, skilled-worker pathways, and post-study opportunities in the German market.
+                </p>
+                <a
+                  href="https://www.make-it-in-germany.com/en"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-foreground transition hover:-translate-y-0.5"
+                >
+                  Visit make-it-in-germany.com
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </a>
+                <a href={whatsappHref} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-white/88 transition hover:text-[#f2c94c]">
+                  Start your Germany journey today
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </a>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section id="life" className="mx-auto max-w-[1180px] px-4 py-4 md:px-8 md:py-8">
-          <div className="max-w-3xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-secondary">Life and work in Germany</p>
-            <h2 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">Practical reasons Germany feels like a real long-term option</h2>
-            <p className="mt-4 text-base leading-8 text-muted-foreground">
-              Germany is not only about the classroom. Students also care about housing, campus support, part-time work,
-              and what happens after graduation.
-            </p>
-          </div>
-          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {lifeCards.map((card, index) => (
-              <motion.article
-                key={card.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ ...spring, delay: index * 0.05 }}
-                className="rounded-[30px] border border-border/80 bg-white/92 p-6 shadow-card"
-              >
-                <card.icon className="h-5 w-5 text-primary" aria-hidden="true" />
-                <h3 className="mt-4 text-2xl font-semibold text-foreground">{card.title}</h3>
-                <p className="mt-3 text-sm leading-7 text-muted-foreground">{card.text}</p>
-              </motion.article>
-            ))}
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-[1180px] px-4 py-16 md:px-8 md:py-20">
-          <div className="rounded-[38px] border border-border/80 bg-[linear-gradient(135deg,#f0ddbe_0%,#efe8da_48%,#ffffff_100%)] p-7 shadow-card md:p-10">
-            <div className="grid gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
+        <section className="px-4 pb-20 pt-6 md:px-8 md:pb-24">
+          <div className="container-narrow rounded-[36px] bg-[linear-gradient(135deg,rgba(9,18,39,1),rgba(18,33,70,0.96))] px-6 py-12 text-white shadow-[0_32px_110px_-58px_rgba(3,7,18,0.95)] md:px-10 md:py-14">
+            <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-secondary">Support CTA</p>
-                <h2 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">Not sure which Germany path is right for you?</h2>
-                <p className="mt-4 max-w-2xl text-base leading-8 text-muted-foreground">
-                  Start with the right route instead of guessing. Explore your study option, understand your eligibility,
-                  and get support for the next step.
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">Final CTA</p>
+                <h2 className="mt-3 text-4xl font-semibold text-[#f2c94c] md:text-5xl">Study in Germany with the right route from day one</h2>
+                <p className="mt-5 max-w-2xl text-sm leading-7 text-white/76 md:text-base">
+                  Whether you are planning a bachelor's degree, engineering master's, business-management route, or Ausbildung, BVF Germany can help you map the next step with more clarity.
                 </p>
               </div>
-              <div className="flex flex-col gap-4 lg:items-start">
-                <div className="flex flex-wrap gap-3">
-                  <a href="#paths" className="inline-flex items-center justify-center rounded-full bg-[#0f766e] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#115e59]">
-                    Find your Germany study path
-                  </a>
-                  <Link to="/bookings" className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-foreground ring-1 ring-border transition hover:bg-[#fbfaf7]">
-                    Talk to a mentor
-                  </Link>
-                </div>
-                <a href={whatsappHref} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-foreground/80 transition hover:text-foreground">
+              <div className="space-y-4 lg:justify-self-end">
+                <Link to="/bookings" className="button-primary w-full text-center lg:min-w-[220px]">
+                  Book Free Consultation Now
+                </Link>
+                <a href={whatsappHref} target="_blank" rel="noreferrer" className="button-secondary w-full text-center lg:min-w-[220px]">
                   Chat on WhatsApp
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </a>
               </div>
             </div>

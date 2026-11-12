@@ -6,7 +6,7 @@ export default function StudentAccommodationPage() {
       title="Student Accommodation"
       subtitle="Find safe, student‑friendly housing options before you land."
       heroImage="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1400&auto=format&fit=crop"
-      ctaLabel="Find Accommodation Support"
+      ctaLabel="Book Free Consultation Now"
       ctaTo="/contact"
       introTitle="Housing Support That Feels Secure"
       introText="We help students shortlist housing options, understand contracts, and avoid last‑minute stress. Your accommodation plan is prepared well before arrival."

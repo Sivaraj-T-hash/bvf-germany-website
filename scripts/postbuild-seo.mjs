@@ -2,10 +2,13 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  DEFAULT_LANGUAGE,
+  DEFAULT_LOCALE,
   DEFAULT_LOGO_PATH,
   DEFAULT_OG_IMAGE_ALT,
   DEFAULT_OG_IMAGE_PATH,
   DEFAULT_ROBOTS,
+  DEFAULT_THEME_COLOR,
   DEFAULT_TWITTER_HANDLE,
   SITE_NAME,
   SITE_URL,
@@ -79,6 +82,16 @@ const buildWebPageData = (route) => ({
   description: route.description,
   url: toAbsoluteUrl(route.path),
   inLanguage: 'en-IN',
+  ...(route.authorName
+    ? {
+        author: {
+          '@type': 'Person',
+          name: route.authorName,
+        },
+      }
+    : {}),
+  ...(route.publishedTime ? { datePublished: route.publishedTime } : {}),
+  ...(route.modifiedTime ? { dateModified: route.modifiedTime } : {}),
   primaryImageOfPage: {
     '@type': 'ImageObject',
     url: toAbsoluteUrl(DEFAULT_OG_IMAGE_PATH),
@@ -133,26 +146,42 @@ const injectStructuredData = (html, route) => {
 
 const renderRouteHtml = (template, route) => {
   const keywords = route.keywords?.join(', ') || '';
+  const ogType = route.pageType === 'Article' ? 'article' : 'website';
   let html = template;
   html = upsertTitle(html, route.title);
   html = upsertMeta(html, 'name', 'description', route.description);
   html = upsertMeta(html, 'name', 'keywords', keywords);
+  html = upsertMeta(html, 'name', 'author', route.authorName || SITE_NAME);
+  html = upsertMeta(html, 'name', 'publisher', SITE_NAME);
+  html = upsertMeta(html, 'name', 'referrer', 'strict-origin-when-cross-origin');
+  html = upsertMeta(html, 'name', 'theme-color', DEFAULT_THEME_COLOR);
+  html = upsertMeta(html, 'name', 'application-name', SITE_NAME);
+  html = upsertMeta(html, 'name', 'apple-mobile-web-app-title', SITE_NAME);
+  html = upsertMeta(html, 'name', 'language', DEFAULT_LANGUAGE);
   html = upsertMeta(html, 'name', 'robots', DEFAULT_ROBOTS);
   html = upsertMeta(html, 'name', 'googlebot', DEFAULT_ROBOTS);
   html = upsertMeta(html, 'property', 'og:title', route.title);
   html = upsertMeta(html, 'property', 'og:description', route.description);
-  html = upsertMeta(html, 'property', 'og:type', route.pageType === 'CollectionPage' ? 'website' : 'website');
+  html = upsertMeta(html, 'property', 'og:type', ogType);
   html = upsertMeta(html, 'property', 'og:site_name', SITE_NAME);
+  html = upsertMeta(html, 'property', 'og:locale', DEFAULT_LOCALE);
   html = upsertMeta(html, 'property', 'og:url', toAbsoluteUrl(route.path));
   html = upsertMeta(html, 'property', 'og:image', toAbsoluteUrl(DEFAULT_OG_IMAGE_PATH));
   html = upsertMeta(html, 'property', 'og:image:secure_url', toAbsoluteUrl(DEFAULT_OG_IMAGE_PATH));
   html = upsertMeta(html, 'property', 'og:image:alt', DEFAULT_OG_IMAGE_ALT);
   html = upsertMeta(html, 'name', 'twitter:card', 'summary_large_image');
   html = upsertMeta(html, 'name', 'twitter:site', DEFAULT_TWITTER_HANDLE);
+  html = upsertMeta(html, 'name', 'twitter:creator', DEFAULT_TWITTER_HANDLE);
   html = upsertMeta(html, 'name', 'twitter:title', route.title);
   html = upsertMeta(html, 'name', 'twitter:description', route.description);
   html = upsertMeta(html, 'name', 'twitter:image', toAbsoluteUrl(DEFAULT_OG_IMAGE_PATH));
   html = upsertMeta(html, 'name', 'twitter:image:alt', DEFAULT_OG_IMAGE_ALT);
+  if (route.publishedTime) {
+    html = upsertMeta(html, 'property', 'article:published_time', route.publishedTime);
+  }
+  if (route.modifiedTime) {
+    html = upsertMeta(html, 'property', 'article:modified_time', route.modifiedTime);
+  }
   html = upsertLink(html, 'canonical', toAbsoluteUrl(route.path));
   html = injectStructuredData(html, route);
   return html;
@@ -168,4 +197,3 @@ for (const route of seoRoutes) {
   await mkdir(outputDir, { recursive: true });
   await writeFile(path.join(outputDir, 'index.html'), routeHtml, 'utf8');
 }
-

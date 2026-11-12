@@ -3,255 +3,249 @@ import StudyProgramPage from '@/components/StudyProgramPage';
 export default function BachelorGermanyPage() {
   return (
     <StudyProgramPage
-      title="Bachelor's in Germany for International Students"
-      subtitle="Germany offers respected 3-year bachelor's degrees, mostly at public universities with low tuition or no tuition fees. The real decision is not whether Germany is worth considering, but which admission route applies to you, what language proof you need, and what to prepare before you apply."
-      heroBadge="Bachelor pathway"
+      title="Bachelor's Degree in Germany"
+      subtitle="A bachelor's degree in Germany is a strong route for students who want tuition-free public university education, clear academic direction, and long-term career opportunities in Europe."
+      heroBadge="Bachelor's pathway"
       heroImage="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?q=80&w=1600&auto=format&fit=crop"
-      heroHighlights={['Recognition first', 'German-taught is most common', 'Studienkolleg may be required']}
+      heroHighlights={[
+        'Duration: 3-4 years',
+        'IELTS 6.0-6.5 or German B2',
+        'Public universities with low semester fees',
+      ]}
       primaryCta={{
-        label: 'Check your eligibility',
-        to: '/tools',
+        label: 'Apply for Bachelor guidance',
+        to: '/bookings',
       }}
-      secondaryCta={{ label: 'Book application planning', to: '/bookings' }}
+      secondaryCta={{ label: 'Explore study paths', to: '/study-in-germany' }}
       summaryFacts={[
-        { label: 'Typical duration', value: '6 to 8 semesters' },
-        { label: 'Teaching language', value: 'Mostly German, some English' },
-        { label: 'Tuition context', value: 'Public universities often low or no tuition' },
-        { label: 'Big decision', value: 'Direct entry vs Studienkolleg vs prior study' },
+        { label: 'Duration', value: '3-4 years' },
+        { label: 'Eligibility', value: 'A-Levels / 12th Grade (PCM/PCB/Commerce)' },
+        { label: 'Language Req', value: 'IELTS 6.0-6.5 or German B2' },
+        { label: 'Tuition / Cost', value: 'Free (Semester fee EUR 150-350)' },
       ]}
-      overviewTitle="Start by identifying your admission route, not just your dream course"
-      overviewText="DAAD's admission guidance makes one thing clear: not every international school certificate leads straight into a German bachelor's programme. Depending on your school-leaving qualification, you may qualify for direct admission, need a Studienkolleg foundation year, or need prior university study in your home country before you can apply."
+      overviewTitle="Bachelor's in Germany works best when students plan recognition, language, and course fit early"
+      overviewText="Germany offers strong public-university bachelor's programmes across engineering, computer science, business, medicine, and architecture. The smartest first move is to confirm your eligibility, language route, and course direction before applications open."
       overviewBullets={[
-        'Check whether your school qualification is recognised for direct higher-education entry.',
-        'Confirm whether your target programme is taught in German or English before planning tests.',
-        'Expect the final admission decision to depend on the university, programme, and your complete document set.',
+        'Top universities students often target include TU Munich, RWTH Aachen, Heidelberg, FU Berlin, and KIT.',
+        'Popular fields include Mechanical Engineering, Computer Science, Business, Medicine, and Architecture.',
+        'Most public universities stay tuition-free, with students paying only a semester contribution.',
       ]}
-      checklistTitle="What to confirm before you shortlist programmes"
+      checklistTitle="Bachelor planning checklist"
       checklistItems={[
-        'Which Germany study route fits you best: direct bachelor entry, Studienkolleg, or a guided preparation path.',
-        'Whether your target course is German-taught, English-taught, or mixed-language.',
-        'Whether the university applies directly or through uni-assist.',
-        'Whether you need APS, certified translations, and which BVF tools or resources can support your next step.',
+        'Confirm whether your 12th-grade route supports your target subject and admission path.',
+        'Choose between English and German language preparation before building the final shortlist.',
+        'Plan APS, translations, and application documents early if you are applying from India.',
+        'Track semester fees, city costs, and intake deadlines before applying widely.',
       ]}
-      warningText="Requirements vary by university and final admission decisions are made by the institution. Treat general guidance as orientation, then verify every requirement on the programme page before you apply."
-      pathwaysTitle="Choose the admission path that sounds most like you"
-      pathwaysIntro="These are the three routes students usually need to check first. If you are unsure, start with the BVF Germany route hub and tools before spending time on applications, language exams, or document translations."
+      warningText="Bachelor's routes in Germany vary by university, subject, and language of instruction, so the official programme page should always be your final reference before submission."
+      pathwaysTitle="Three core decisions shape a strong bachelor's application"
+      pathwaysIntro="Students usually get better outcomes when they lock the route, language plan, and field direction before chasing rankings alone."
       pathways={[
         {
-          title: 'Direct admission',
-          audience: 'Path 1',
-          summary: 'Some school-leaving qualifications such as certain EU/EEA credentials or the IB Diploma can lead directly to bachelor entry in Germany.',
+          title: 'Eligibility route',
+          audience: 'Decision 1',
+          summary: 'Your school background and subject stream should align with the course you want to pursue in Germany.',
           bullets: [
-            'Best fit if your school certificate is already recognised for higher education entry.',
-            'Still confirm course-specific language requirements and application channel.',
-            'Use the BVF Germany route pages to understand what to shortlist and prepare next.',
+            'A-Levels and 12th Grade students should review subject fit carefully.',
+            'PCM, PCB, and Commerce students should shortlist fields that match their academic background.',
+            'BVF guidance helps connect eligibility to realistic course choices.',
           ],
-          linkLabel: 'Explore Germany routes',
-          linkTo: '/about-germany#paths',
+          linkLabel: 'Check your route fit',
+          linkTo: '/tools',
         },
         {
-          title: 'Need Studienkolleg',
-          audience: 'Path 2',
-          summary: 'If your qualification is not enough for direct admission, you may need a one-year Studienkolleg and the Feststellungsprufung before starting a degree.',
+          title: 'Language route',
+          audience: 'Decision 2',
+          summary: 'Students should decide early whether their shortlist will be built around English-taught or German-taught programmes.',
           bullets: [
-            'Common for many non-EU school certificates.',
-            'Useful when your academic route needs a formal bridge into German higher education.',
-            'Plan extra time for language preparation and application timing.',
+            'English-taught options often ask for IELTS 6.0 to 6.5.',
+            'German-taught routes commonly need German B2.',
+            'Your language choice directly changes the shortlist quality.',
           ],
-          linkLabel: 'Open Bachelor resources',
-          linkTo: '/resources',
+          linkLabel: 'Plan language support',
+          linkTo: '/services/germany-language',
         },
         {
-          title: 'Prior study required',
-          audience: 'Path 3',
-          summary: 'Some applicants must complete comparable university study in their home country before becoming eligible for a German bachelor programme.',
+          title: 'Field direction',
+          audience: 'Decision 3',
+          summary: 'The best bachelor plans start with a field you can sustain for 3 to 4 years, not just a famous university name.',
           bullets: [
-            'Often relevant when Class 12 alone is not enough for direct entry.',
-            'Module and study-field comparability can matter, not just the number of semesters.',
-            'Check this before assuming you can apply straight after school.',
+            'Popular key fields include Mechanical Engineering, CS, Business, Medicine, and Architecture.',
+            'A cleaner field direction usually leads to a stronger SOP, CV, and document story later.',
+            'Choose by academic fit, not only by city or ranking.',
           ],
-          linkLabel: 'Use BVF tools',
-          linkTo: '/tools#eligibility',
+          linkLabel: 'See all study paths',
+          linkTo: '/study-in-germany',
         },
       ]}
-      requirementsTitle="The requirements students usually overlook"
-      requirementsIntro="A strong bachelor application is usually less about writing long essays and more about getting recognition, language, and documents right early."
+      requirementsTitle="What bachelor applicants usually need to prove"
+      requirementsIntro="The strongest bachelor's applications keep academic fit, language readiness, and document quality aligned from the start."
       requirements={[
         {
           eyebrow: 'Eligibility',
-          title: 'Qualification recognition comes first',
-          text: 'Do not shortlist only on ranking or city. First verify whether your qualification gives direct access, requires a Studienkolleg, or needs prior study in your home country.',
+          title: 'School background should support the target subject',
+          text: 'German universities look closely at academic background and whether your subject stream fits the course you want to study.',
           bullets: [
-            'Use the BVF Germany route hub to identify the best-fit study path first.',
-            'Use the BVF tools page to estimate profile strength and next steps.',
-            'If you are an Indian applicant, confirm whether APS will later be needed for your file.',
+            '12th Grade students from PCM often explore engineering and CS.',
+            'PCB students often target science and health-linked pathways.',
+            'Commerce students usually focus on business and management routes.',
           ],
         },
         {
           eyebrow: 'Language',
-          title: 'German is still the main route for bachelor study',
-          text: 'Most bachelor programmes in Germany are taught in German. English-taught options exist, but they are fewer than at the masters level and programme-specific proof matters.',
+          title: 'Language proof changes which universities stay realistic',
+          text: 'The exact shortlist depends on whether you are applying through English or German.',
           bullets: [
-            'German-taught programmes commonly expect B2 to C1 evidence such as TestDaF, DSH, Goethe, or telc depending on the university.',
-            'English-taught programmes usually expect IELTS or TOEFL proof.',
-            'Always read the exact language section on the university page.',
+            "IELTS 6.0-6.5 is common for English-taught bachelor's routes.",
+            'German B2 is a common baseline for German-taught programmes.',
+            'Language planning should happen before final shortlisting, not after.',
           ],
-          note: 'A course being listed in English somewhere does not replace the official programme page requirement.',
         },
         {
-          eyebrow: 'Documents',
-          title: 'Prepare formal documents earlier than you think',
-          text: 'International applications often fail on missing or incorrectly formatted documents rather than weak intent. Certified translations, scans, and naming conventions matter.',
+          eyebrow: 'Cost',
+          title: 'Public universities stay affordable, but planning still matters',
+          text: 'Public routes are usually tuition-free, but semester fees and living costs still need planning.',
           bullets: [
-            'School certificates and transcripts',
-            'Passport copy and photographs if requested',
-            'Language certificate and CV',
-            'Certified translations for non-German or non-English documents where required',
+            'Semester fee usually falls in the EUR 150-350 range.',
+            'Accommodation, food, transport, and insurance should be planned separately.',
+            'A stronger budget plan reduces last-minute stress after admission.',
           ],
         },
       ]}
-      stepsTitle="How to apply in a practical order"
-      stepsIntro="The smoothest applications start with recognition and language planning before students rush into portal uploads."
+      stepsTitle="A practical order for bachelor's applications"
+      stepsIntro="Students usually move faster when they follow a clean order instead of preparing everything at once."
       steps={[
         {
-          title: 'Research programmes',
-          text: 'Use Hochschulkompass, DAAD, and university websites to shortlist programmes by language, city, and application intake.',
+          title: 'Select your field and route',
+          text: 'Start with the subject that fits your school background and long-term interest.',
         },
         {
-          title: 'Confirm your route',
-          text: 'Start with the BVF Germany overview and bachelor pathway page to understand whether you may qualify directly, need Studienkolleg, or need a slower preparation route.',
+          title: 'Lock the language plan',
+          text: 'Choose whether the shortlist will be English-first or German-first and begin preparation early.',
         },
         {
-          title: 'Plan language proof',
-          text: 'Book your German or English exam around realistic application timelines. Do not wait until the last deadline window.',
+          title: 'Build the shortlist',
+          text: 'Target strong public universities like TU Munich, RWTH Aachen, Heidelberg, FU Berlin, and KIT only after your route is clear.',
         },
         {
-          title: 'Prepare documents',
-          text: 'Collect school records, translations, passport copy, CV, and any route-specific forms. Keep clean digital scans ready for uploads.',
+          title: 'Prepare APS and academic documents',
+          text: 'Students applying from India should organize APS timing, marksheets, passport, and translations early.',
         },
         {
-          title: 'Apply through the right channel',
-          text: 'Some universities accept international applications directly, while many use uni-assist. The programme page decides which route applies.',
+          title: 'Submit applications',
+          text: 'Apply through the correct university or uni-assist process based on the course page.',
         },
         {
-          title: 'Prepare for visa after admission',
-          text: 'Once admitted, move quickly on blocked account planning, health insurance, and embassy appointment preparation if you need a student visa.',
+          title: 'Plan visa and relocation',
+          text: 'Once admission starts moving, shift into blocked account, housing, insurance, and visa preparation.',
         },
       ]}
-      planningTitle="Plan costs, visa, and timing before you get the offer"
-      planningIntro="Bachelor study in Germany can be affordable, but the application route still requires budget planning. Costs depend on city, housing, insurance, and whether you attend a public or private institution."
+      planningTitle="Bachelor planning should connect academics, money, and timing"
+      planningIntro="A strong bachelor's plan is not only about admission. It also includes fee expectations, language readiness, and city-level budget planning."
       planningCards={[
         {
+          eyebrow: 'Top universities',
+          title: 'Aim high, but shortlist realistically',
+          text: 'Bachelor applicants often compare TU Munich, RWTH Aachen, Heidelberg, FU Berlin, and KIT because they combine public-university value with strong academic reputations.',
+          bullets: [
+            'Compare universities by field fit, not just overall reputation.',
+            'Use deadlines and entry requirements to narrow the final list.',
+            'Course language can be as important as university name.',
+          ],
+        },
+        {
+          eyebrow: 'Key fields',
+          title: 'Field choice shapes every later step',
+          text: 'Mechanical Engineering, CS, Business, Medicine, and Architecture are some of the most common bachelor interests for Indian students targeting Germany.',
+          bullets: [
+            'Different fields may expect different documents or subject preparation.',
+            'Some routes become easier with stronger German.',
+            'A clearer field choice improves SOP, CV, and admissions messaging.',
+          ],
+        },
+        {
           eyebrow: 'Cost planning',
-          title: 'Public can be affordable, but living costs are real',
-          text: 'Public universities often charge only semester contributions, while private universities can be much more expensive. Your monthly budget should include rent, food, insurance, transport, and study materials.',
+          title: 'Low tuition does not remove the need for a budget plan',
+          text: 'Public tuition may stay free, but students still need to budget for semester fees, housing, travel, food, and insurance.',
           bullets: [
-            'Public universities often have low semester fees rather than full tuition.',
-            'Private providers can be significantly more expensive.',
-            'Living costs vary by city and housing availability.',
-          ],
-        },
-        {
-          eyebrow: 'Visa and insurance',
-          title: 'Non-EU students need a financial and insurance plan',
-          text: 'If you need a visa, expect to prove financial resources, health insurance, and an admission basis. Embassy processes and blocked-account requirements can change, so verify the latest official amount before applying.',
-          bullets: [
-            'Student visa after receiving the admission basis or required documents',
-            'Health insurance is mandatory after arrival and often needed for enrolment',
-            'Blocked-account requirements should be checked against the latest official guidance',
-          ],
-          note: 'For Indian, Chinese, and Vietnamese applicants, APS may also be part of the process depending on the route.',
-        },
-        {
-          eyebrow: 'Common mistakes',
-          title: 'Most delays come from avoidable errors',
-          text: 'Students often lose time by assuming all bachelor programmes are in English, applying before checking qualification recognition, or waiting too long to organise certified translations and exam scores.',
-          bullets: [
-            'Do not rely on generic deadlines alone; always verify on the university page.',
-            'Do not assume Class 12 alone is enough for every route.',
-            'Do not upload incomplete or unclear scans to application portals.',
+            'Semester fee usually stays around EUR 150-350.',
+            'City cost differences matter a lot.',
+            'Visa planning is easier when the money side is already organized.',
           ],
         },
       ]}
-      toolsTitle="Useful BVF tools and resources to open before you pay for application help"
+      toolsTitle="Useful BVF pages before you finalize a bachelor's plan"
       tools={[
         {
-          title: 'Germany study route hub',
-          description: 'Start with the BVF Germany overview page to compare bachelor, engineering, masters, and MBA pathways before deciding what fits you best.',
-          href: '/about-germany',
+          title: 'Study in Germany overview',
+          description: "Compare bachelor's, master's, and Ausbildung routes before you commit to one path.",
+          href: '/study-in-germany',
         },
         {
-          title: 'BVF free tools',
-          description: 'Use the CGPA converter, IELTS checker, and eligibility starter section to estimate your current profile and next move.',
-          href: '/tools#eligibility',
+          title: 'University Shortlisting',
+          description: 'Get 5 to 10 realistic public-university matches based on your profile.',
+          href: '/services/university-shortlist',
         },
         {
-          title: 'Resources page',
-          description: 'Open BVF resources for planning sheets, support bundles, and practical materials that help you shortlist and prepare better.',
-          href: '/resources',
+          title: 'APS Support',
+          description: 'Plan APS early so your application timeline does not stall later.',
+          href: '/services/aps-application',
         },
         {
-          title: 'Book a guidance session',
-          description: 'Move from general information to a personalized route when you need clarity on admissions, language, or university shortlisting.',
+          title: 'Book guidance',
+          description: "Talk through the best bachelor's route for your profile with BVF Germany.",
           href: '/bookings',
         },
       ]}
-      tracksTitle="Popular bachelor study options students often explore"
-      tracksIntro="Your best-fit route depends on language ability, academic preparation, and whether you want a broad degree or a more technical subject from the start."
+      tracksTitle="Key fields students usually explore at bachelor's level"
+      tracksIntro="Your strongest path is the one that matches both your academic background and long-term interest."
       tracks={[
-        { title: 'Engineering and technology', text: 'Strong option if you already enjoy math, physics, and problem-solving and can handle structured technical coursework.', icon: 'ENG' },
-        { title: 'Business and economics', text: 'Useful for students who want management, finance, or international business pathways with strong employability.', icon: 'BIZ' },
-        { title: 'Computer science', text: 'A strong path for students interested in software, systems, and applied digital skills.', icon: 'CS' },
-        { title: 'Natural sciences', text: 'Good fit if you want lab-based study and may later pursue research-heavy masters options.', icon: 'TAG' },
-        { title: 'Social sciences', text: 'Relevant for policy, society, communication, and interdisciplinary future pathways.', icon: 'SOC' },
-        { title: 'Design and media', text: 'More portfolio-sensitive and often more specific in admission requirements, so check carefully.', icon: 'ART' },
+        { title: 'Mechanical Engineering', text: 'A strong fit for students who enjoy physics, design, and problem solving.', icon: 'MECH' },
+        { title: 'Computer Science', text: 'Popular with students interested in software, systems, and digital careers.', icon: 'CS' },
+        { title: 'Business', text: 'Useful for commerce-focused students targeting management and finance routes.', icon: 'BIZ' },
+        { title: 'Medicine', text: 'A demanding path that needs careful planning, strong academics, and language readiness.', icon: 'MED' },
+        { title: 'Architecture', text: 'A route for students interested in design, planning, and technical creativity.', icon: 'ARC' },
+        { title: 'Science Pathways', text: 'Good for students targeting lab-based, analytical, or research-linked study.', icon: 'SCI' },
       ]}
-      universitiesTitle="Universities students often shortlist for bachelor's study"
+      universitiesTitle="Top universities commonly explored for bachelor's study"
       universities={[
         'Technical University of Munich',
         'RWTH Aachen University',
         'Heidelberg University',
-        'University of Hamburg',
-        'University of Cologne',
+        'FU Berlin',
         'Karlsruhe Institute of Technology',
-        'University of Bonn',
-        'University of Stuttgart',
       ]}
       logos={[
         'Technical University of Munich',
         'RWTH Aachen University',
         'Heidelberg University',
-        'University of Bonn',
-        'University of Stuttgart',
         'Karlsruhe Institute of Technology',
       ]}
       faqs={[
         {
-          q: 'Can I apply to a German bachelor programme directly after Class 12?',
-          a: 'Sometimes yes, sometimes no. The answer depends on whether your school-leaving qualification supports direct higher-education entry. Many students need either Studienkolleg or prior university study in their home country, so map your route clearly before assuming you qualify directly.',
+          q: 'How long is a bachelor\'s degree in Germany?',
+          a: 'The standard duration is 3 to 4 years, depending on the university and programme.',
         },
         {
-          q: 'Are English-taught bachelor programmes common in Germany?',
-          a: 'They exist, but they are less common than English-taught masters programmes. Most bachelor programmes are still taught in German, so language planning is often one of the biggest early decisions.',
+          q: 'What language score is usually needed?',
+          a: 'Many English-taught programmes ask for IELTS 6.0 to 6.5, while German-taught routes usually ask for German B2.',
         },
         {
-          q: 'Do I always need Studienkolleg?',
-          a: 'No. Studienkolleg is only one route. Some applicants qualify directly, while others may need prior university study instead. Your exact pathway depends on your qualification and country-specific recognition route.',
+          q: 'Is tuition really free?',
+          a: 'At many public universities, yes. Students usually pay only a semester fee of around EUR 150 to EUR 350.',
         },
         {
-          q: 'What is the safest way to avoid application mistakes?',
-          a: 'Check qualification recognition first, then confirm language requirements on the programme page, then prepare documents in the exact format requested. Most avoidable errors come from skipping one of those three steps.',
+          q: 'Which universities do students target most?',
+          a: 'Common names include TU Munich, RWTH Aachen, Heidelberg, FU Berlin, and KIT.',
         },
       ]}
-      finalCtaTitle="Ready to start your bachelor's application plan?"
-      finalCtaText="Start with recognition, then shortlist realistic programmes, then prepare language proof and documents in the right order. If you want help building a route that matches your qualification, we can help you map it clearly."
-      finalPrimaryCta={{ label: 'Book 30-minute session', to: '/bookings' }}
+      finalCtaTitle="Need help planning your bachelor's route in Germany?"
+      finalCtaText="We can help you shortlist the right universities, plan APS and language proof, and move toward a bachelor's application strategy that actually fits your profile."
+      finalPrimaryCta={{ label: "Book bachelor's guidance", to: '/bookings' }}
       finalSecondaryCta={{
-        label: 'Open BVF resources',
-        to: '/resources',
+        label: 'Start shortlisting',
+        to: '/services/university-shortlist',
       }}
     />
   );
 }
-
-

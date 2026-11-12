@@ -1,5 +1,5 @@
 import { CheckCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useSeo } from '@/lib/useSeo';
@@ -28,9 +28,12 @@ export default function InfoPageLayout({
   cta,
   sections,
 }: InfoPageLayoutProps) {
+  const location = useLocation();
+
   useSeo({
     title: `${title} | BVF Germany`,
     description: subtitle,
+    breadcrumb: [{ name: title, path: location.pathname }],
   });
 
   return (

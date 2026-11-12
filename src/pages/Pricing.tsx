@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, MessageCircle, Send, Sparkles } from 'lucide-react';
+import { Check, Send, Sparkles } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -13,6 +14,7 @@ import { useSeo } from '@/lib/useSeo';
 import { createLeadRecord } from '@/lib/leadStore';
 import { useAuth } from '@/components/AuthProvider';
 import { getStudentProfile } from '@/lib/studentStore';
+import { buildWhatsappHref } from '@/lib/whatsapp';
 
 const spring = { type: 'spring' as const, stiffness: 280, damping: 28 };
 
@@ -30,7 +32,7 @@ const pricingPlans = [
       '2-page PDF within 48 hours',
     ],
     bestFor: 'Students just exploring Germany',
-    primaryCta: { label: 'Get Started', to: '/services/profile-verification', type: 'link' as const },
+    primaryCta: { label: 'Book Free Consultation Now', to: '/services/profile-verification', type: 'link' as const },
     badge: 'Free Entry',
     tone: 'free' as const,
   },
@@ -48,7 +50,7 @@ const pricingPlans = [
       'Application checklist',
     ],
     bestFor: 'Students who want to do it themselves',
-    primaryCta: { label: 'Send Inquiry', to: '#pricing-inquiry', type: 'anchor' as const },
+    primaryCta: { label: 'Book Free Consultation Now', to: '#pricing-inquiry', type: 'anchor' as const },
     secondaryKind: 'whatsapp' as const,
     badge: 'Serious DIY',
     tone: 'diy' as const,
@@ -70,7 +72,7 @@ const pricingPlans = [
       '1:1 expert consultation',
     ],
     bestFor: 'Students serious about studying in Germany',
-    primaryCta: { label: 'Book Consultation', to: '/bookings', type: 'link' as const },
+    primaryCta: { label: 'Book Free Consultation Now', to: '/bookings', type: 'link' as const },
     secondaryKind: 'whatsapp' as const,
     badge: 'Most Popular',
     tone: 'full' as const,
@@ -116,7 +118,7 @@ export default function PricingPage() {
   useSeo({
     title: 'Pricing | BVF Germany',
     description: 'Compare BVF Germany support options from free profile verification to complete Germany guidance.',
-    url: 'https://bvf-student-support.web.app/pricing',
+    url: '/pricing',
     image: '/hero-og.png',
   });
 
@@ -168,9 +170,7 @@ export default function PricingPage() {
     void hydrateForm();
   }, [reset, user]);
 
-  const whatsappHref = `https://wa.me/${settings?.whatsappNumber || '919999999999'}?text=${encodeURIComponent(
-    'Hi BVF Germany, Iâ€™m interested in the Full Consultation Package. Please share details.',
-  )}`;
+  const whatsappHref = buildWhatsappHref(settings);
 
   const onSubmit = async (data: InquiryForm & { website?: string }) => {
     try {
@@ -308,7 +308,7 @@ export default function PricingPage() {
                 {renderPlanCta(plan)}
                 {plan.secondaryKind === 'whatsapp' ? (
                   <a href={whatsappHref} target="_blank" rel="noreferrer" className={`mt-4 inline-flex items-center justify-center gap-2 text-sm font-semibold transition ${plan.tone === 'full' ? 'text-white/84 hover:text-white' : 'text-secondary hover:text-primary'}`}>
-                    <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                    <FaWhatsapp className="h-4 w-4" aria-hidden="true" />
                     WhatsApp Inquiry
                   </a>
                 ) : null}
@@ -452,7 +452,7 @@ export default function PricingPage() {
                     {errors.message ? <p className="mt-1 text-xs text-destructive">{errors.message.message}</p> : null}
                   </div>
                   <button type="submit" disabled={isSubmitting} className="button-primary w-full disabled:opacity-50">
-                    {isSubmitting ? 'Sending...' : 'Send Inquiry'}
+                    {isSubmitting ? 'Sending...' : 'Get Free Evaluation'}
                   </button>
                   <p className={`text-xs ${submitError ? 'text-destructive' : 'text-muted-foreground'}`}>
                     {submitError || 'For faster replies, WhatsApp usually works best.'}
@@ -489,7 +489,7 @@ export default function PricingPage() {
               </div>
               <div className="flex flex-col gap-4 lg:items-start">
                 <Link to="/bookings" className="button-primary">
-                  Book Free Consultation
+                  Book Free Consultation Now
                 </Link>
                 <a href={whatsappHref} target="_blank" rel="noreferrer" className="button-secondary">
                   Chat on WhatsApp

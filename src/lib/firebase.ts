@@ -18,7 +18,11 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-const databaseTransportPreference = String(import.meta.env.VITE_FIREBASE_DATABASE_TRANSPORT || 'auto')
+const defaultDatabaseTransportPreference = import.meta.env.DEV ? 'long-polling' : 'auto';
+
+const databaseTransportPreference = String(
+  import.meta.env.VITE_FIREBASE_DATABASE_TRANSPORT || defaultDatabaseTransportPreference,
+)
   .trim()
   .toLowerCase();
 

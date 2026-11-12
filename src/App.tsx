@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -15,6 +15,8 @@ const Services = lazy(() => import("./pages/Services.tsx"));
 const ServicePage = lazy(() => import("./pages/ServicePage.tsx"));
 const About = lazy(() => import("./pages/About.tsx"));
 const Contact = lazy(() => import("./pages/Contact.tsx"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy.tsx"));
+const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions.tsx"));
 const FAQs = lazy(() => import("./pages/FAQs.tsx"));
 const Blog = lazy(() => import("./pages/Blog.tsx"));
 const BlogPost = lazy(() => import("./pages/BlogPost.tsx"));
@@ -55,6 +57,66 @@ const Checkout = lazy(() => import("./pages/Checkout.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const queryClient = new QueryClient();
+const GA_MEASUREMENT_ID = String(import.meta.env.VITE_GA_MEASUREMENT_ID || "").trim();
+
+const AnalyticsTracker = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!GA_MEASUREMENT_ID) {
+      return;
+    }
+
+    const trackerWindow = window as Window & {
+      dataLayer?: unknown[];
+      gtag?: (...args: unknown[]) => void;
+    };
+
+    if (!document.querySelector('script[data-bvf-ga="loader"]')) {
+      trackerWindow.dataLayer = trackerWindow.dataLayer || [];
+      trackerWindow.gtag =
+        trackerWindow.gtag ||
+        ((...args: unknown[]) => {
+          trackerWindow.dataLayer?.push(args);
+        });
+
+      trackerWindow.gtag("js", new Date());
+      trackerWindow.gtag("config", GA_MEASUREMENT_ID, { send_page_view: false });
+
+      const script = document.createElement("script");
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+      script.dataset.bvfGa = "loader";
+      document.head.appendChild(script);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!GA_MEASUREMENT_ID) {
+      return;
+    }
+
+    const trackerWindow = window as Window & {
+      gtag?: (...args: unknown[]) => void;
+    };
+
+    if (!trackerWindow.gtag) {
+      return;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      trackerWindow.gtag?.("config", GA_MEASUREMENT_ID, {
+        page_path: `${location.pathname}${location.search}`,
+        page_location: window.location.href,
+        page_title: document.title,
+      });
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [location.pathname, location.search]);
+
+  return null;
+};
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -66,6 +128,8 @@ const AnimatedRoutes = () => {
           <Route path="/services" element={<PageTransition><Services /></PageTransition>} />
           <Route path="/about" element={<PageTransition><About /></PageTransition>} />
           <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
+          <Route path="/privacy-policy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
+          <Route path="/terms-and-conditions" element={<PageTransition><TermsAndConditions /></PageTransition>} />
           <Route path="/faqs" element={<PageTransition><FAQs /></PageTransition>} />
           <Route path="/blog" element={<PageTransition><Blog /></PageTransition>} />
           <Route path="/blog/:slug" element={<PageTransition><BlogPost /></PageTransition>} />
@@ -82,6 +146,12 @@ const AnimatedRoutes = () => {
           <Route path="/about-germany/ms" element={<PageTransition><MsGermany /></PageTransition>} />
           <Route path="/about-germany/mba" element={<PageTransition><MbaGermany /></PageTransition>} />
           <Route path="/about-germany/ausbildung" element={<PageTransition><AusbildungGermany /></PageTransition>} />
+          <Route path="/study-in-germany" element={<PageTransition><AboutGermany /></PageTransition>} />
+          <Route path="/study-in-germany/bachelor" element={<PageTransition><BachelorGermany /></PageTransition>} />
+          <Route path="/study-in-germany/engineering" element={<PageTransition><EngineeringGermany /></PageTransition>} />
+          <Route path="/study-in-germany/ms" element={<PageTransition><MsGermany /></PageTransition>} />
+          <Route path="/study-in-germany/mba" element={<PageTransition><MbaGermany /></PageTransition>} />
+          <Route path="/study-in-germany/ausbildung" element={<PageTransition><AusbildungGermany /></PageTransition>} />
           <Route path="/checkout" element={<PageTransition><Checkout /></PageTransition>} />
           <Route path="/services/fft" element={<PageTransition><FftFlyForexTravel /></PageTransition>} />
           <Route path="/services/india" element={<PageTransition><ServiceIndia /></PageTransition>} />
@@ -107,6 +177,9 @@ const AnimatedRoutes = () => {
           <Route path="/admin" element={<PageTransition><AdminLogin /></PageTransition>} />
           <Route path="/admin/dashboard" element={<PageTransition><AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute></PageTransition>} />
           <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+          <Route path="/admin" element={<PageTransition><AdminLogin /></PageTransition>} />
+          <Route path="/admin/dashboard" element={<PageTransition><AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute></PageTransition>} />
+          <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
         </Routes>
       </Suspense>
     </AnimatePresence>
@@ -125,6 +198,7 @@ const App = () => (
             v7_relativeSplatPath: true,
           }}
         >
+          <AnalyticsTracker />
           <ScrollToTop />
           <AnimatedRoutes />
         </BrowserRouter>

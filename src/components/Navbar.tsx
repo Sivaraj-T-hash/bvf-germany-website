@@ -1,32 +1,46 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronDown, LogIn, Menu, PhoneCall, X } from 'lucide-react';
+import { ChevronDown, LogIn, Menu, X, CalendarDays } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { signOut } from 'firebase/auth';
 import { useAuth } from '@/components/AuthProvider';
 import { auth } from '@/lib/firebase';
-import { serviceCatalog } from '@/lib/serviceCatalog';
 import { getStudentProfile } from '@/lib/studentStore';
 import BrandLogoMark from '@/components/BrandLogoMark';
 
 const dropdowns = [
   {
-    label: 'About Germany',
-    to: '/about-germany',
+    label: 'Study in Germany',
+    to: '/study-in-germany',
+    matchPrefixes: ['/study-in-germany', '/about-germany'],
     items: [
-      { label: "Bachelor's", to: '/about-germany/bachelor' },
-      { label: "Master's in Engineering", to: '/about-germany/engineering' },
-      { label: "Master's in Business Management", to: '/about-germany/mba' },
-      { label: 'Ausbildung', to: '/about-germany/ausbildung' },
+      { label: "Bachelor's", to: '/study-in-germany/bachelor' },
+      { label: "Master's Engineering", to: '/study-in-germany/engineering' },
+      { label: "Master's Business", to: '/study-in-germany/mba' },
+      { label: 'Ausbildung', to: '/study-in-germany/ausbildung' },
     ],
   },
   {
     label: 'Services',
     to: '/services',
-    items: serviceCatalog.map((service) => ({
-      label: service.title,
-      to: `/services/${service.slug}`,
-    })),
+    matchPrefixes: ['/services'],
+    panelClassName: 'w-80',
+    items: [
+      { label: 'University Shortlisting', to: '/services/university-shortlist' },
+      { label: 'APS Support', to: '/services/aps-application' },
+      { label: 'IELTS Prep', to: '/services/ielts-preparation' },
+      { label: 'GRE Prep', to: '/services/gre-preparation' },
+      { label: 'German Language', to: '/services/germany-language' },
+      { label: 'Study Loan', to: '/services/study-loan' },
+      { label: 'Blocked Account', to: '/services/blocked-account' },
+      { label: 'Health Insurance', to: '/services/health-insurance' },
+      { label: 'Univ App Support', to: '/services/university-application' },
+      { label: 'Visa Guidance', to: '/services/visa-guidance' },
+      { label: 'On Arrival', to: '/services/on-arrival-support' },
+      { label: 'Accommodation', to: '/services/accommodation-help' },
+      { label: 'SOP & LOR', to: '/services/sop-lor-writing' },
+      { label: 'CV Writing', to: '/services/cv-writing' },
+    ],
   },
 ];
 
@@ -36,12 +50,10 @@ const navLinks = [
   { label: 'Resources', to: '/resources' },
   { label: 'Webinars', to: '/webinars' },
   { label: 'Blog', to: '/blog' },
-  { label: 'Contact', to: '/contact' },
 ];
 
 const linkClass = (active: boolean) =>
-  `rounded-full px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] transition-colors ${
-    active ? 'bg-foreground text-white' : 'text-muted-foreground hover:text-foreground'
+  `rounded-full px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] transition-colors ${active ? 'bg-foreground text-white' : 'text-muted-foreground hover:text-foreground'
   }`;
 
 export default function Navbar() {
@@ -113,13 +125,16 @@ export default function Navbar() {
     setAccountOpen(false);
   };
 
+  const isDropdownActive = (dropdown: (typeof dropdowns)[number]) =>
+    dropdown.matchPrefixes.some((prefix) => location.pathname.startsWith(prefix));
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 md:px-5">
       <div
         ref={navRef}
         className="container-narrow glass-panel flex min-h-[68px] items-center justify-between gap-3 border-[#e6ddcf] bg-white/90 px-4 py-2.5 md:px-5"
       >
-        <Link to="/" className="flex min-w-0 shrink-0 items-center gap-4">
+        <Link to="/" className="flex min-w-0 shrink-0 items-center gap-2.5 md:gap-3">
           <BrandLogoMark wrapperClassName="h-14 w-14 md:h-16 md:w-16" />
           <div className="min-w-0">
             <p className="truncate text-xs font-extrabold uppercase tracking-[0.16em] text-foreground md:text-lg">
@@ -137,37 +152,30 @@ export default function Navbar() {
               Home
             </Link>
             {dropdowns.map((dropdown) => (
-              <div key={dropdown.label} className="relative">
-                <button
-                  type="button"
-                  aria-expanded={openDropdown === dropdown.label}
-                  aria-haspopup="menu"
-                  aria-label={`Toggle ${dropdown.label} menu`}
-                  onClick={() => setOpenDropdown((prev) => (prev === dropdown.label ? null : dropdown.label))}
-                  className={`${linkClass(location.pathname.startsWith(dropdown.to))} font-home-body text-[12px] font-bold normal-case tracking-normal`}
-                >
-                  <span className="inline-flex items-center gap-1.5">
+              <div key={dropdown.label} className="relative flex items-center">
+                <div className={`${linkClass(isDropdownActive(dropdown))} font-home-body inline-flex items-center gap-0.5 text-[12px] font-bold normal-case tracking-normal`}>
+                  <Link to={dropdown.to} onClick={() => setOpenDropdown(null)} className="px-0.5">
                     {dropdown.label}
+                  </Link>
+                  <button
+                    type="button"
+                    aria-expanded={openDropdown === dropdown.label}
+                    aria-haspopup="menu"
+                    aria-label={`Toggle ${dropdown.label} menu`}
+                    onClick={() => setOpenDropdown((prev) => (prev === dropdown.label ? null : dropdown.label))}
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-full transition hover:bg-black/5"
+                  >
                     <ChevronDown
                       aria-hidden="true"
                       className={`h-3.5 w-3.5 transition-transform ${openDropdown === dropdown.label ? 'rotate-180' : ''}`}
                     />
-                  </span>
-                </button>
+                  </button>
+                </div>
                 <div
-                  className={`absolute left-0 top-full mt-3 w-72 rounded-[24px] border border-white/70 bg-white/90 p-2 shadow-card backdrop-blur transition ${
-                    openDropdown === dropdown.label ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
-                  }`}
+                  className={`absolute left-0 top-full mt-3 ${dropdown.panelClassName ?? 'w-72'} rounded-[24px] border border-white/70 bg-white/90 p-2 shadow-card backdrop-blur transition ${openDropdown === dropdown.label ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+                    }`}
                   role="menu"
                 >
-                  <Link
-                    to={dropdown.to}
-                    onClick={() => setOpenDropdown(null)}
-                    className="mb-1 block rounded-2xl px-4 py-3 text-sm font-home-body font-semibold text-foreground transition hover:bg-muted"
-                    role="menuitem"
-                  >
-                    Overview
-                  </Link>
                   {dropdown.items.map((item) => (
                     <Link
                       key={item.to}
@@ -191,11 +199,11 @@ export default function Navbar() {
 
           <Link
             to="/bookings"
-            aria-label="Book a call"
-            title="Book a call"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-white shadow-sm transition hover:-translate-y-0.5 hover:opacity-95"
+            aria-label="Book Free Consultation"
+            title="Book Free Consultation"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white shadow-sm transition hover:-translate-y-0.5 hover:opacity-95"
           >
-            <PhoneCall className="h-4.5 w-4.5" aria-hidden="true" />
+            <CalendarDays className="h-4 w-4" aria-hidden="true" />
           </Link>
 
           {user ? (
@@ -219,9 +227,8 @@ export default function Navbar() {
                 )}
               </button>
               <div
-                className={`absolute right-0 top-full mt-3 w-56 rounded-[24px] border border-white/70 bg-white/95 p-2 shadow-card backdrop-blur transition ${
-                  accountOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
-                }`}
+                className={`absolute right-0 top-full mt-3 w-56 rounded-[24px] border border-white/70 bg-white/95 p-2 shadow-card backdrop-blur transition ${accountOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+                  }`}
                 role="menu"
               >
                 <div className="rounded-2xl bg-muted/70 px-4 py-3">
@@ -310,7 +317,7 @@ export default function Navbar() {
                             onClick={() => setOpen(false)}
                             className="block rounded-2xl px-3 py-2 text-sm font-semibold text-foreground hover:bg-muted"
                           >
-                            Overview
+                            {dropdown.label}
                           </Link>
                           {dropdown.items.map((item) => (
                             <Link
@@ -338,8 +345,9 @@ export default function Navbar() {
                   </Link>
                 ))}
                 <div className="mt-2 grid gap-2">
-                  <Link to="/bookings" onClick={() => setOpen(false)} className="button-primary w-full">
-                    Book a Call
+                  <Link to="/bookings" onClick={() => setOpen(false)} className="button-primary w-full text-center flex items-center justify-center gap-2">
+                    <CalendarDays className="h-4 w-4" />
+                    Book Free Consultation Now
                   </Link>
                   {user ? (
                     <>

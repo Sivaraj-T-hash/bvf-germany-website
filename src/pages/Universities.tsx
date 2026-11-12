@@ -10,7 +10,7 @@ export default function UniversitiesPage() {
   useSeo({
     title: 'Universities | BVF Germany',
     description: 'Explore public university options in Germany for Indian students.',
-    url: 'https://bvf-student-support.web.app/universities',
+    url: '/universities',
     image: '/hero-og.png',
   });
 

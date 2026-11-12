@@ -3,255 +3,248 @@ import StudyProgramPage from '@/components/StudyProgramPage';
 export default function EngineeringGermanyPage() {
   return (
     <StudyProgramPage
-      title="Engineering in Germany"
-      subtitle="Germany remains one of the most credible destinations for engineering because the academic system is closely tied to manufacturing, automation, mobility, energy, and applied research. The best decision is not only which university to target, but whether your profile fits a bachelor's route, a master's route, or a more applied university-of-applied-sciences pathway."
-      heroBadge="Engineering pathway"
+      title="Master's in Engineering in Germany"
+      subtitle="Germany is one of the strongest destinations for engineering students who want public-university education, industry-linked specializations, and a high-value technical degree."
+      heroBadge="Engineering master's"
       heroImage="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1600&auto=format&fit=crop"
-      heroHighlights={['Industry-linked study', 'Strong applied labs', 'Public and applied-university options']}
+      heroHighlights={[
+        'Duration: 2 years (4 semesters)',
+        'IELTS 6.5-7.0 or German B2/C1',
+        'Public universities with low semester fees',
+      ]}
       primaryCta={{
-        label: 'Check eligibility',
-        to: '/tools',
+        label: 'Plan my engineering route',
+        to: '/bookings',
       }}
-      secondaryCta={{ label: 'Talk to an advisor', to: '/bookings' }}
+      secondaryCta={{ label: 'View all study paths', to: '/study-in-germany' }}
       summaryFacts={[
-        { label: 'Best known for', value: 'Mechanical, automotive, electrical, production' },
-        { label: 'Study formats', value: 'University and university of applied sciences' },
-        { label: 'Language split', value: 'German-heavy at bachelor level, broader at master level' },
-        { label: 'Decision point', value: 'Academic depth vs applied industry route' },
+        { label: 'Duration', value: '2 years (4 semesters)' },
+        { label: 'Eligibility', value: 'B.Tech / B.E. in relevant field (min 55-60%)' },
+        { label: 'Language Req', value: 'IELTS 6.5-7.0 or German B2/C1' },
+        { label: 'Tuition / Cost', value: 'Free (Semester fee EUR 150-350)' },
       ]}
-      overviewTitle="Engineering in Germany works best when your academic path and career style match the institution"
-      overviewText="DAAD's engineering overview highlights how broad the subject landscape is in Germany, from classical mechanical and electrical engineering to interdisciplinary areas such as mechatronics, automation, and environmental technologies. That means students should decide early whether they want a theory-strong university environment, an applied university-of-applied-sciences route, or a specialised master's after a relevant undergraduate degree."
+      overviewTitle="Engineering in Germany is strongest when your previous degree matches the specialization"
+      overviewText="Engineering admissions in Germany usually reward students who align their bachelor's degree, modules, and language profile with the exact specialisation they want to pursue. The more precise the fit, the stronger the shortlist becomes."
       overviewBullets={[
-        'Technical universities suit students looking for deeper theory, research, and long-term technical specialization.',
-        'Universities of applied sciences suit students who want closer links to practice, industry projects, and application-led teaching.',
-        'Language planning matters early because many engineering programmes at bachelor level are still German-led.',
+        'Top engineering universities often shortlisted include TU Munich, TU Berlin, Stuttgart, Darmstadt, and Hamburg.',
+        'Popular specialisations include Mechanical, Electrical, Civil, CS, Automotive, and Robotics.',
+        'Public universities usually remain tuition-free, with students paying only semester fees.',
       ]}
-      checklistTitle="Before you shortlist engineering programmes"
+      checklistTitle="Engineering shortlist checklist"
       checklistItems={[
-        'Decide whether you are applying for a bachelor route, a masters route, or an applied-sciences pathway.',
-        'Check whether your school or bachelor degree background is academically aligned with the target engineering field.',
-        'Confirm the teaching language and whether internships or practical semesters are built into the curriculum.',
-        'Review whether the university expects specific math, physics, or module prerequisites.',
+        'Confirm that your B.Tech or B.E. background matches the target engineering field.',
+        'Plan IELTS 6.5 to 7.0 or German B2/C1 before finalizing the shortlist.',
+        'Compare module overlap, not just university rankings.',
+        'Check intake deadlines, APS timing, and technical-document requirements early.',
       ]}
-      warningText="Engineering admissions can look similar on the surface, but course structure, language expectations, and module prerequisites vary sharply across universities. Always compare the programme handbook, not only the course title."
-      pathwaysTitle="Which engineering route sounds closest to your profile?"
-      pathwaysIntro="Students usually get better outcomes when they choose a route that matches their preparation level and learning style instead of chasing only the highest-ranked name."
+      warningText="Engineering course titles can look similar across Germany, but the curriculum, technical prerequisites, and language expectations can vary sharply by university."
+      pathwaysTitle="Three core decisions shape a stronger engineering application"
+      pathwaysIntro="Students usually do better when they decide the specialisation, university type, and language route before they apply widely."
       pathways={[
         {
-          title: 'Bachelor in engineering',
-          audience: 'Path 1',
-          summary: 'Best if you are applying after school and want a full engineering degree path in Germany from the foundation level upward.',
+          title: 'Specialisation fit',
+          audience: 'Decision 1',
+          summary: 'Engineering admissions get stronger when your undergraduate modules line up with the master\'s specialisation you want next.',
           bullets: [
-            'Recognition and language are the first filters.',
-            'German-taught routes are more common than English-taught ones at this level.',
-            'Good fit if you want the full long-term academic route in Germany.',
+            'Mechanical and Automotive routes often expect strong math and design foundations.',
+            'Electrical and Robotics programmes usually check technical-module depth closely.',
+            'CS-linked technical routes often reward stronger computing exposure.',
           ],
-          linkLabel: 'Check admission route',
-          linkTo: 'https://www2.daad.de/deutschland/nach-deutschland/voraussetzungen/en/57293-database-on-admission-requirements/',
+          linkLabel: 'Check your engineering fit',
+          linkTo: '/tools',
         },
         {
-          title: 'Master in engineering',
-          audience: 'Path 2',
-          summary: 'Best if you already have a related undergraduate degree and want to specialise in areas such as automotive, robotics, energy, or data-driven engineering.',
+          title: 'Language route',
+          audience: 'Decision 2',
+          summary: 'Students should choose early whether the shortlist will focus on English-taught or German-taught engineering programmes.',
           bullets: [
-            'Academic fit and module matching matter more than broad interest alone.',
-            'English-taught options are much more available at this level.',
-            'Great route for students targeting specialised research or industry roles.',
+            'IELTS 6.5 to 7.0 is common for English-taught programmes.',
+            'German B2/C1 is common for German-taught routes.',
+            'Basic German still helps internships and post-study employability even in English programmes.',
           ],
-          linkLabel: 'Find engineering programmes',
-          linkTo: 'https://www.daad.de/en/studying-in-germany/universities/subject-groups/engineering/',
+          linkLabel: 'Plan language prep',
+          linkTo: '/services/germany-language',
         },
         {
-          title: 'Applied sciences route',
-          audience: 'Path 3',
-          summary: 'Best if you want a more practice-oriented environment with project work, industry ties, and often a direct employability focus.',
+          title: 'University style',
+          audience: 'Decision 3',
+          summary: 'Choose between theory-heavy technical universities and more applied routes based on how you want to study and work later.',
           bullets: [
-            'Common in universities of applied sciences.',
-            'Can be especially strong for industry-facing students.',
-            'Still verify whether the degree route and visa plan fit your long-term goals.',
+            'Technical universities often suit research and deep specialization.',
+            'Applied routes can feel closer to project work and industry practice.',
+            'The best-fit environment depends on your long-term career style.',
           ],
-          linkLabel: 'Browse study options',
-          linkTo: 'https://www.hochschulkompass.de/en/study-in-germany.html',
+          linkLabel: 'Shortlist engineering universities',
+          linkTo: '/services/university-shortlist',
         },
       ]}
       requirementsTitle="What engineering applicants usually need to prove"
-      requirementsIntro="Engineering decisions are often made on academic fit, preparation, and language readiness rather than broad statements of motivation."
+      requirementsIntro="Engineering admissions usually revolve around academic alignment, language proof, and the quality of your technical profile."
       requirements={[
         {
-          eyebrow: 'Academic fit',
-          title: 'Math and technical background matter',
-          text: 'Engineering programmes expect a credible academic base. For bachelor routes this usually means strong school preparation in math and science. For masters routes, universities often check whether your prior modules align with the target specialisation.',
+          eyebrow: 'Eligibility',
+          title: 'Your degree should align with the specialisation',
+          text: 'A relevant B.Tech or B.E. is the baseline, but universities often look deeper at subject overlap and percentage requirements.',
           bullets: [
-            'Mechanical and automotive pathways often expect strong math and physics grounding.',
-            'Electrical and electronics pathways can be stricter on technical-module overlap.',
-            'For masters routes, read the admission regulations carefully for module requirements.',
+            'Most programmes expect a relevant engineering background.',
+            'A 55 to 60 percent academic range is a common benchmark in the brief you shared.',
+            'Projects, internships, and labs can strengthen the technical story.',
           ],
         },
         {
           eyebrow: 'Language',
-          title: 'Language track changes your shortlist',
-          text: 'At bachelor level, engineering often remains German-heavy. At masters level, there are more English-taught options, but programme-specific proof still matters.',
+          title: 'Language proof shapes both shortlist size and program quality',
+          text: 'Engineering students should usually plan around IELTS 6.5 to 7.0 for English-taught courses or German B2/C1 for German-medium routes.',
           bullets: [
-            'German-taught routes may expect strong B2 to C1 ability.',
-            'English-taught routes often expect IELTS or TOEFL-level proof.',
-            'Basic German still helps with internships, daily life, and networking even in English programmes.',
+            'English-taught options are common at master\'s level.',
+            'German-taught routes can widen your university options further.',
+            'Stronger language planning also helps internships and networking later.',
           ],
         },
         {
-          eyebrow: 'Documents',
-          title: 'Project and curriculum detail can help',
-          text: 'Engineering applications often become stronger when your transcripts, syllabus context, projects, and practical exposure are easy to understand for the admissions team.',
+          eyebrow: 'Cost',
+          title: 'Low tuition still needs a realistic total budget',
+          text: 'Public universities may stay tuition-free, but engineering students should still plan for semester fees, housing, travel, and student life costs.',
           bullets: [
-            'Detailed transcripts and degree certificates',
-            'CV with projects, internships, and lab exposure',
-            'Language certificates and translations where needed',
-            'Motivation statement where requested by the programme',
+            'Semester fee usually stays around EUR 150-350.',
+            'Major technical cities can carry higher rent pressure.',
+            'Budget planning becomes easier when the target cities are narrowed early.',
           ],
         },
       ]}
-      stepsTitle="A cleaner way to build an engineering application"
-      stepsIntro="Students usually save time when they narrow field, language, and institution type before they begin applying widely."
+      stepsTitle="A practical order for engineering applications"
+      stepsIntro="Students usually save time when they narrow the field and language route before building a large university list."
       steps={[
         {
-          title: 'Narrow the field',
-          text: 'Decide whether you want classical engineering, interdisciplinary engineering, or data-heavy technical areas such as AI, automation, or embedded systems.',
+          title: 'Choose the engineering specialization',
+          text: 'Start with the subject you want to pursue next: Mechanical, Electrical, Civil, CS, Automotive, or Robotics.',
         },
         {
-          title: 'Choose institution type',
-          text: 'Compare technical universities with universities of applied sciences based on how theoretical or industry-linked you want the learning environment to be.',
+          title: 'Check academic match',
+          text: 'Compare your B.Tech or B.E. modules with the target programme to avoid weak-fit applications.',
         },
         {
-          title: 'Check academic fit',
-          text: 'For masters applications especially, compare your modules with the admission regulations before you pay any application fee or translation cost.',
+          title: 'Plan IELTS or German',
+          text: 'Language proof should be scheduled around the shortlist and intake, not left to the last minute.',
         },
         {
-          title: 'Confirm language route',
-          text: 'Lock your shortlist based on German or English requirements and book exams early enough for the intake you want.',
+          title: 'Build a targeted shortlist',
+          text: 'Focus on universities like TU Munich, TU Berlin, Stuttgart, Darmstadt, and Hamburg only after fit and language are clear.',
         },
         {
-          title: 'Prepare documents and applications',
-          text: 'Organise transcripts, CV, language proof, and any project or internship evidence. Then apply directly or through uni-assist depending on the university.',
+          title: 'Prepare APS and technical documents',
+          text: 'Get transcripts, degree proof, passport, CV, APS, and supporting technical details ready for applications.',
         },
         {
-          title: 'Plan finances and relocation',
-          text: 'Once you have admission progress, line up housing, visa timing, and practical arrival planning because technical hubs can have competitive housing markets.',
+          title: 'Move into visa and settlement planning',
+          text: 'Once admissions are moving, shift into visa, housing, blocked account, and relocation preparation.',
         },
       ]}
-      planningTitle="Engineering planning is about more than tuition"
-      planningIntro="Students often focus on tuition first, but city choice, lab access, internship potential, language preparation, and housing availability can matter just as much in engineering routes."
+      planningTitle="Engineering planning should connect specialization, city, and employability"
+      planningIntro="Germany rewards engineering students who pick the right technical route early and then build the rest of the application around that fit."
       planningCards={[
         {
-          eyebrow: 'Budget',
-          title: 'Plan for city and lab reality, not only brochure pricing',
-          text: 'Public routes may be affordable academically, but engineering students should still budget for equipment, software needs, housing, transport, and daily living costs.',
+          eyebrow: 'Top universities',
+          title: 'Use top names carefully and realistically',
+          text: 'Engineering students often compare TU Munich, TU Berlin, Stuttgart, Darmstadt, and Hamburg because they offer strong technical reputations and public-university value.',
           bullets: [
-            'Semester contributions still apply at many public universities.',
-            'Cities with strong engineering ecosystems may also have tighter housing markets.',
-            'Private providers can carry far higher tuition than public options.',
+            'University reputation matters, but curriculum fit matters more.',
+            'Language and city cost should be considered alongside ranking.',
+            'The best shortlist balances ambition with academic realism.',
           ],
         },
         {
-          eyebrow: 'Visa and work',
-          title: 'Internship planning starts before arrival',
-          text: 'If you need a visa, your financial proof, insurance, and arrival timeline must be aligned. If you want internships, basic German can widen opportunities even when the degree is English-taught.',
+          eyebrow: 'Key fields',
+          title: 'Engineering is broad, so field choice matters early',
+          text: 'The most common key fields in your brief were Mechanical, Electrical, Civil, CS, Automotive, and Robotics.',
           bullets: [
-            'Health insurance remains mandatory.',
-            'Blocked-account and embassy guidance should be checked against current official rules.',
-            'Internship readiness improves when language and CV preparation start early.',
+            'Automotive and Robotics often require precise module alignment.',
+            'CS-linked technical routes may need stronger computing background.',
+            'Civil and Mechanical can differ sharply in document and course expectations.',
           ],
         },
         {
-          eyebrow: 'Common mistakes',
-          title: 'The title can mislead you',
-          text: 'Students often apply to any course with "engineering" in the title without checking whether it is theoretical, applied, interdisciplinary, or even truly aligned with their background.',
+          eyebrow: 'Cost planning',
+          title: 'Public tuition is low, but technical-city costs still matter',
+          text: 'Even with free tuition, technical students should plan for housing, transport, equipment, and daily living costs around their target city.',
           bullets: [
-            'Compare curricula, not just programme names.',
-            'Do not assume all engineering routes are equally practice-oriented.',
-            'Do not ignore module gaps in masters applications.',
+            'Semester fee usually stays around EUR 150-350.',
+            'Rent pressure can rise in major industrial hubs.',
+            'A strong city budget plan helps later visa preparation too.',
           ],
         },
       ]}
-      toolsTitle="Official tools to validate engineering choices"
+      toolsTitle="Useful BVF pages before you finalize your engineering route"
       tools={[
         {
-          title: 'DAAD engineering subject overview',
-          description: 'Helpful for understanding how broad engineering study options in Germany really are and where major subject clusters sit.',
-          href: 'https://www.daad.de/en/studying-in-germany/universities/subject-groups/engineering/',
+          title: 'Study in Germany overview',
+          description: 'Compare engineering against other Germany pathways before you commit.',
+          href: '/study-in-germany',
         },
         {
-          title: 'Hochschulkompass',
-          description: 'Useful for searching engineering programmes by degree level, place, and institution type.',
-          href: 'https://www.hochschulkompass.de/en/study-in-germany.html',
+          title: 'University Shortlisting',
+          description: 'Get a realistic list of engineering universities based on profile and field.',
+          href: '/services/university-shortlist',
         },
         {
-          title: 'uni-assist',
-          description: 'Important for many international applications, especially when the university does not take your file directly.',
-          href: 'https://www.uni-assist.de/en/',
+          title: 'IELTS Preparation',
+          description: 'Target the language score many English-taught engineering programmes expect.',
+          href: '/services/ielts-preparation',
         },
         {
-          title: 'DAAD admission requirements database',
-          description: 'Start here if you are entering engineering after school and need to know whether direct admission is possible.',
-          href: 'https://www2.daad.de/deutschland/nach-deutschland/voraussetzungen/en/57293-database-on-admission-requirements/',
+          title: 'Book engineering guidance',
+          description: 'Talk through field fit, universities, and application timing with BVF Germany.',
+          href: '/bookings',
         },
       ]}
-      tracksTitle="Engineering areas students most often compare"
-      tracksIntro="Germany is especially strong when students match their specialisation to a real sector rather than choosing a broad label too late."
+      tracksTitle="Key engineering fields students explore most"
+      tracksIntro="The stronger the specialisation match, the stronger the shortlist usually becomes."
       tracks={[
-        { title: 'Mechanical engineering', text: 'Strong fit for design, production, manufacturing systems, and industrial process roles.', icon: 'MECH' },
-        { title: 'Automotive and mobility', text: 'A classic Germany draw for students interested in vehicles, systems, and mobility innovation.', icon: 'AUTO' },
-        { title: 'Electrical and electronics', text: 'Useful for power systems, controls, hardware, and industrial electronics pathways.', icon: 'ELEC' },
-        { title: 'Mechatronics and robotics', text: 'Good for students who want interdisciplinary study across mechanics, controls, and computing.', icon: 'ROBO' },
-        { title: 'Embedded systems and AI', text: 'Growing route for students interested in intelligent products, sensors, and software-linked engineering.', icon: 'AI' },
-        { title: 'Energy and sustainability', text: 'Strong option for students interested in renewables, grids, and climate-linked infrastructure.', icon: 'ENER' },
+        { title: 'Mechanical Engineering', text: 'A strong route for design, thermals, manufacturing, and core engineering systems.', icon: 'MECH' },
+        { title: 'Electrical Engineering', text: 'Useful for power systems, electronics, controls, and high-value technical roles.', icon: 'ELEC' },
+        { title: 'Civil Engineering', text: 'Relevant for structures, infrastructure, transport, and construction pathways.', icon: 'CIV' },
+        { title: 'Computer Science', text: 'Popular for software-linked engineering, systems, and data-heavy technical routes.', icon: 'CS' },
+        { title: 'Automotive', text: 'A classic Germany draw for students targeting mobility and vehicle systems.', icon: 'AUTO' },
+        { title: 'Robotics', text: 'A strong path for students blending mechanics, controls, automation, and AI.', icon: 'ROBO' },
       ]}
-      universitiesTitle="Universities students often consider for engineering"
+      universitiesTitle="Top universities students compare for engineering"
       universities={[
         'Technical University of Munich',
-        'RWTH Aachen University',
-        'Karlsruhe Institute of Technology',
         'Technical University of Berlin',
-        'TU Darmstadt',
         'University of Stuttgart',
-        'TU Dresden',
-        'TU Braunschweig',
+        'TU Darmstadt',
+        'University of Hamburg',
       ]}
       logos={[
         'Technical University of Munich',
-        'RWTH Aachen University',
-        'Karlsruhe Institute of Technology',
         'Technical University of Berlin',
         'University of Stuttgart',
-        'TU Dresden',
       ]}
       faqs={[
         {
-          q: 'Is Germany better for engineering at bachelor or masters level?',
-          a: 'It can be strong at both levels, but the decision depends on your current profile. Bachelor routes are often more language- and recognition-sensitive, while masters routes put more weight on academic alignment and specialisation fit.',
+          q: 'How long is a master\'s in engineering in Germany?',
+          a: 'The standard duration is 2 years, usually spread across 4 semesters.',
         },
         {
-          q: 'Are English-taught engineering programmes common?',
-          a: 'They are much more common at masters level than at bachelor level. At bachelor level, many engineering routes still lean strongly toward German.',
+          q: 'What academic background is usually needed?',
+          a: 'A relevant B.Tech or B.E. is the standard eligibility route, usually with at least 55 to 60 percent depending on the programme.',
         },
         {
-          q: 'Should I choose a technical university or a university of applied sciences?',
-          a: 'Choose based on your learning style and goal. Technical universities often lean more theoretical and research-oriented. Universities of applied sciences often feel more practice-led and closer to application and project work.',
+          q: 'What language score is commonly expected?',
+          a: 'Many English-taught programmes ask for IELTS 6.5 to 7.0, while German-medium programmes often ask for German B2 or C1.',
         },
         {
-          q: 'What is the most common reason engineering applications get rejected?',
-          a: 'For masters routes, academic mismatch is a common issue. Students often apply based on interest or ranking without checking whether their earlier degree content actually fits the programme requirements.',
+          q: 'Which universities do students target most?',
+          a: 'Common names in your brief were TU Munich, TU Berlin, Stuttgart, Darmstadt, and Hamburg.',
         },
       ]}
-      finalCtaTitle="Need help choosing the right engineering route?"
-      finalCtaText="We can help you narrow field, institution type, language route, and realistic application targets so your shortlist is stronger before you spend time and money on the formal process."
-      finalPrimaryCta={{ label: 'Book an engineering planning call', to: '/bookings' }}
+      finalCtaTitle="Need help with a master's in engineering shortlist?"
+      finalCtaText="We can help you match your technical background to the right universities, language plan, and application order before you start spending money on the process."
+      finalPrimaryCta={{ label: 'Book engineering guidance', to: '/bookings' }}
       finalSecondaryCta={{
-        label: 'Open official engineering guide',
-        to: 'https://www.daad.de/en/studying-in-germany/universities/subject-groups/engineering/',
-        external: true,
+        label: 'Start shortlisting',
+        to: '/services/university-shortlist',
       }}
     />
   );
 }
-
-
-

@@ -87,7 +87,7 @@ export default function WebinarsPage() {
   useSeo({
     title: 'Webinars | BVF Germany',
     description: 'Register for BVF Germany webinars and watch replay sessions on admissions, visas, and student life in Germany.',
-    url: 'https://bvf-student-support.web.app/webinars',
+    url: '/webinars',
     image: '/hero-og.png',
   });
 

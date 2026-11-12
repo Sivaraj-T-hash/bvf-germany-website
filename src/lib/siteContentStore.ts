@@ -1,5 +1,6 @@
 import { get, onValue, push, ref, remove, set } from 'firebase/database';
 import { db } from '@/lib/firebase';
+import { DEFAULT_WHATSAPP_MESSAGE } from '@/lib/whatsapp';
 import germanyLandmark from '@/assets/germany-landmark.jpg';
 import germanCampus from '@/assets/german-campus.jpg';
 import studentsGroup from '@/assets/students-group.jpg';
@@ -45,6 +46,9 @@ export interface SiteSettings {
   prefilledWhatsappMessage: string;
   instagramUrl: string;
   youtubeUrl: string;
+  linkedinUrl?: string;
+  facebookUrl?: string;
+  tiktokUrl?: string;
   address: string;
 }
 
@@ -151,9 +155,12 @@ const defaultSettings: SiteSettings = {
   contactEmail: 'hello@bvfgermany.com',
   contactPhone: '+91 99999 99999',
   whatsappNumber: '919999999999',
-  prefilledWhatsappMessage: 'Hi BVF Germany! I want help with studying in Germany.',
-  instagramUrl: 'https://instagram.com',
-  youtubeUrl: 'https://youtube.com',
+  prefilledWhatsappMessage: DEFAULT_WHATSAPP_MESSAGE,
+  instagramUrl: 'https://www.instagram.com/bratlins_view?igsh=OHBzemJpZWhkYnVu&utm_source=qr',
+  youtubeUrl: 'https://youtube.com/@bvfgermany',
+  linkedinUrl: 'https://www.linkedin.com/company/bvfgermany',
+  facebookUrl: 'https://facebook.com/bvfgermany',
+  tiktokUrl: 'https://tiktok.com/@bvfgermany',
   address: 'India & Germany',
 };
 

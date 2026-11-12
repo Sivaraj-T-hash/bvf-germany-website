@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Instagram, Mail, MessageCircle, Phone, Send, Youtube } from 'lucide-react';
+import { Instagram, Mail, Phone, Send, Youtube } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,18 +11,29 @@ import Footer from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
 import { useSeo } from '@/lib/useSeo';
 import { subscribeToSiteSettings, type SiteSettings } from '@/lib/siteContentStore';
-import { createLeadRecord } from '@/lib/leadStore';
-import { sendSubmissionEmails } from '@/lib/submissionEmailApi';
 import { useAuth } from '@/components/AuthProvider';
 import { getStudentProfile } from '@/lib/studentStore';
+import { getPublicLeadCooldownMessage, markPublicLeadSubmitted, submitPublicLead } from '@/lib/publicLeadSubmission';
+import {
+  buildProfileEvaluationLeadMessage,
+  buildProfileEvaluationWhatsappMessage,
+  currentEducationOptions,
+  interestedProgramOptions,
+} from '@/lib/profileEvaluation';
+import { buildWhatsappHref } from '@/lib/whatsapp';
 
 const spring = { type: 'spring' as const, stiffness: 280, damping: 28 };
 
 const contactSchema = z.object({
   name: z.string().trim().min(1, 'Name is required').max(100),
   email: z.string().trim().email('Invalid email').max(255),
-  phone: z.string().trim().min(10, 'Enter a valid phone number').max(15),
-  message: z.string().trim().min(1, 'Message is required').max(1000),
+  phone: z.string().trim().min(10, 'Enter a valid WhatsApp number').max(20),
+  interestedProgram: z.enum(interestedProgramOptions, {
+    required_error: 'Select an interested program',
+  }),
+  currentEducation: z.enum(currentEducationOptions, {
+    required_error: 'Select your current education',
+  }),
   website: z.string().optional(),
 });
 
@@ -32,12 +44,14 @@ export default function ContactPage() {
   useSeo({
     title: 'Contact | BVF Germany',
     description: 'Get in touch with BVF Germany through WhatsApp, email, or the contact form for study-in-Germany guidance.',
-    url: 'https://bvf-student-support.web.app/contact',
+    url: '/contact',
     image: '/hero-og.png',
   });
 
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [submitSuccessMessage, setSubmitSuccessMessage] = useState('We\'ll get back to you within 24 hours.');
+  const [submitWhatsappHref, setSubmitWhatsappHref] = useState('');
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const {
     register,
@@ -62,16 +76,15 @@ export default function ContactPage() {
         name: profile?.name || '',
         email: user.email || profile?.email || '',
         phone: profile?.phone || '',
-        message: '',
+        interestedProgram: undefined,
+        currentEducation: undefined,
       });
     };
 
     void hydrateForm();
   }, [reset, user]);
 
-  const whatsappHref = `https://wa.me/${settings?.whatsappNumber || '919999999999'}?text=${encodeURIComponent(
-    settings?.prefilledWhatsappMessage || 'Hi BVF Germany, I need guidance.',
-  )}`;
+  const whatsappHref = buildWhatsappHref(settings);
 
   const onSubmit = async (data: ContactForm & { website?: string }) => {
     try {
@@ -80,40 +93,52 @@ export default function ContactPage() {
         return;
       }
 
-      const lastSubmit = Number(localStorage.getItem('bvf_last_submit') || '0');
-      if (Date.now() - lastSubmit < 30000) {
-        setSubmitError('Please wait 30 seconds before submitting again.');
+      const cooldownMessage = getPublicLeadCooldownMessage();
+      if (cooldownMessage) {
+        setSubmitError(cooldownMessage);
         return;
       }
 
-      await createLeadRecord({
+      const result = await submitPublicLead({
         source: 'contact',
         sourcePage: '/contact',
         name: data.name,
         email: data.email,
         phone: data.phone,
-        subject: 'Contact page inquiry',
-        message: data.message,
+        subject: 'Contact page free profile evaluation request',
+        message: buildProfileEvaluationLeadMessage({
+          interestedProgram: data.interestedProgram,
+          currentEducation: data.currentEducation,
+        }),
         userId: user?.uid || null,
+        metadata: {
+          placement: 'contact-page',
+          interestedProgram: data.interestedProgram,
+          currentEducation: data.currentEducation,
+        },
       });
 
-      try {
-        await sendSubmissionEmails({
-          formType: 'contact',
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-          message: data.message,
-        });
-      } catch (mailError) {
-        console.warn('Contact email notifications skipped', mailError);
-      }
-
-      localStorage.setItem('bvf_last_submit', Date.now().toString());
+      markPublicLeadSubmitted();
       setSubmitted(true);
       setSubmitError('');
+      setSubmitWhatsappHref(
+        buildWhatsappHref(
+          settings,
+          buildProfileEvaluationWhatsappMessage({
+            name: data.name,
+            phone: data.phone,
+            email: data.email,
+            interestedProgram: data.interestedProgram,
+            currentEducation: data.currentEducation,
+          }),
+        ),
+      );
+      setSubmitSuccessMessage(
+        result.emailSent
+          ? 'We\'ll review your free profile evaluation request and get back to you within 24 hours.'
+          : 'Your free profile evaluation request is saved. Our team can already see it and will follow up soon.',
+      );
       reset();
-      setTimeout(() => setSubmitted(false), 5000);
     } catch (error) {
       console.error('Failed to submit lead:', error);
       setSubmitError('Submission failed. Please try again later.');
@@ -173,7 +198,7 @@ export default function ContactPage() {
                 rel="noreferrer"
                 className="mt-7 inline-flex items-center justify-center gap-3 rounded-full bg-white px-7 py-4 text-base font-semibold text-emerald-700 transition hover:-translate-y-0.5"
               >
-                <MessageCircle className="h-5 w-5" aria-hidden="true" />
+                <FaWhatsapp className="h-5 w-5" aria-hidden="true" />
                 Chat with us on WhatsApp
               </a>
             </div>
@@ -194,14 +219,34 @@ export default function ContactPage() {
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-accent/10">
                     <Send className="h-8 w-8 text-accent" aria-hidden="true" />
                   </div>
-                  <h2 className="mt-5 font-heading text-4xl font-semibold text-foreground">Message sent.</h2>
-                  <p className="mt-3 text-muted-foreground">We&apos;ll get back to you within 24 hours.</p>
+                  <h2 className="mt-5 font-heading text-4xl font-semibold text-foreground">Profile evaluation requested.</h2>
+                  <p className="mt-3 text-muted-foreground">{submitSuccessMessage}</p>
+                  <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSubmitted(false);
+                        setSubmitSuccessMessage('We\'ll get back to you within 24 hours.');
+                        setSubmitWhatsappHref('');
+                        setSubmitError('');
+                      }}
+                      className="button-secondary"
+                    >
+                      Send another request
+                    </button>
+                    <a href={submitWhatsappHref || whatsappHref} target="_blank" rel="noreferrer" className="button-primary">
+                      Continue on WhatsApp
+                    </a>
+                  </div>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                   <div>
-                    <p className="section-kicker">Contact Form</p>
-                    <h2 className="mt-3 font-heading text-3xl font-semibold text-foreground">Prefer email or a form?</h2>
+                    <p className="section-kicker">Profile Evaluation</p>
+                    <h2 className="mt-3 font-heading text-3xl font-semibold text-foreground">Get Your Free Profile Evaluation</h2>
+                    <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                      Share your program interest and current education so we can guide you on the right next step for Germany.
+                    </p>
                   </div>
 
                   <input type="text" tabIndex={-1} autoComplete="off" className="hidden" {...register('website')} />
@@ -224,23 +269,46 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <label htmlFor="contact-phone" className="mb-1.5 block text-sm font-semibold text-foreground">
-                        Phone Number
+                        WhatsApp Number
                       </label>
                       <input id="contact-phone" type="tel" autoComplete="tel" className="input-premium" placeholder="+91 99999 99999" {...register('phone')} />
                       {errors.phone ? <p className="mt-1 text-xs text-destructive">{errors.phone.message}</p> : null}
                     </div>
                   </div>
 
-                  <div>
-                    <label htmlFor="contact-message" className="mb-1.5 block text-sm font-semibold text-foreground">
-                      Message
-                    </label>
-                    <textarea id="contact-message" rows={5} className="input-premium resize-none" placeholder="Tell us how we can help with your Germany journey" {...register('message')} />
-                    {errors.message ? <p className="mt-1 text-xs text-destructive">{errors.message.message}</p> : null}
+                  <div className="grid gap-5 md:grid-cols-2">
+                    <div>
+                      <label htmlFor="contact-program" className="mb-1.5 block text-sm font-semibold text-foreground">
+                        Interested Program
+                      </label>
+                      <select id="contact-program" className="input-premium" {...register('interestedProgram')}>
+                        <option value="">Select a program</option>
+                        {interestedProgramOptions.map((program) => (
+                          <option key={program} value={program}>
+                            {program}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.interestedProgram ? <p className="mt-1 text-xs text-destructive">{errors.interestedProgram.message}</p> : null}
+                    </div>
+                    <div>
+                      <label htmlFor="contact-education" className="mb-1.5 block text-sm font-semibold text-foreground">
+                        Current Education
+                      </label>
+                      <select id="contact-education" className="input-premium" {...register('currentEducation')}>
+                        <option value="">Select your current education</option>
+                        {currentEducationOptions.map((education) => (
+                          <option key={education} value={education}>
+                            {education}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.currentEducation ? <p className="mt-1 text-xs text-destructive">{errors.currentEducation.message}</p> : null}
+                    </div>
                   </div>
 
                   <button type="submit" disabled={isSubmitting} className="button-primary w-full disabled:opacity-50">
-                    {isSubmitting ? 'Sending...' : 'Send Message'}
+                    {isSubmitting ? 'Sending...' : 'Get Free Evaluation'}
                   </button>
                   <p aria-live="polite" className={`text-xs ${submitError ? 'text-destructive' : 'text-muted-foreground'}`}>
                     {submitError || 'We typically reply within 24 hours. WhatsApp is usually faster.'}
@@ -331,8 +399,8 @@ export default function ContactPage() {
                 <a href={whatsappHref} target="_blank" rel="noreferrer" className="button-primary">
                   Chat on WhatsApp
                 </a>
-                <Link to="/bookings" className="button-secondary">
-                  Book Consultation
+                <Link to="/register" className="button-secondary">
+                  Book Free Consultation Now
                 </Link>
               </div>
             </div>

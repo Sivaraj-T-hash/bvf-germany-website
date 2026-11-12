@@ -51,8 +51,20 @@ export default function BlogPostPage() {
   useSeo({
     title: post ? `${post.title} | BVF Germany` : 'Blog | BVF Germany',
     description: post ? post.content.replace(/[#*_]/g, '').slice(0, 140) : 'Guides and updates for studying in Germany.',
-    url: post ? `https://bvf-student-support.web.app/blog/${post.slug}` : 'https://bvf-student-support.web.app/blog',
+    url: post ? `/blog/${post.slug}` : '/blog',
     image: post?.featuredImage || '/hero-og.png',
+    type: post ? 'article' : 'website',
+    keywords: post?.keywords,
+    author: post?.authorName || 'BVF Germany',
+    publishedTime: post?.createdAt,
+    modifiedTime: post?.updatedAt || post?.createdAt,
+    section: post?.category,
+    breadcrumb: post
+      ? [
+          { name: 'Blog', path: '/blog' },
+          { name: post.title, path: `/blog/${post.slug}` },
+        ]
+      : [{ name: 'Blog', path: '/blog' }],
   });
 
   if (!post) {

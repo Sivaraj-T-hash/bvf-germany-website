@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CalendarDays, CheckCircle2, MessageCircle, Send } from 'lucide-react';
+import { CalendarDays, CheckCircle2, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -15,6 +15,7 @@ import { getStudentProfile } from '@/lib/studentStore';
 import { createBookingRecord } from '@/lib/bookingStore';
 import { sendSubmissionEmails } from '@/lib/submissionEmailApi';
 import { getSiteSettings, getTestimonials, type SiteSettings, type TestimonialItem } from '@/lib/siteContentStore';
+import { buildWhatsappHref } from '@/lib/whatsapp';
 
 const spring = { type: 'spring' as const, stiffness: 280, damping: 28 };
 
@@ -42,7 +43,7 @@ export default function BookingsPage() {
   useSeo({
     title: 'Consultation Booking | BVF Germany',
     description: 'Book your free 30-minute Germany consultation with BVF Germany.',
-    url: 'https://bvf-student-support.web.app/bookings',
+    url: '/bookings',
     image: '/hero-og.png',
   });
 
@@ -89,9 +90,7 @@ export default function BookingsPage() {
     void hydrateBookingForm();
   }, [setValue, user]);
 
-  const whatsappHref = `https://wa.me/${settings?.whatsappNumber || '919999999999'}?text=${encodeURIComponent(
-    settings?.prefilledWhatsappMessage || 'Hi BVF Germany! I want to book a free consultation.',
-  )}`;
+  const whatsappHref = buildWhatsappHref(settings);
 
   const onSubmit = async (data: BookingForm & { website?: string }) => {
     try {
@@ -293,7 +292,7 @@ export default function BookingsPage() {
                       <textarea id="booking-notes" rows={4} className="input-premium resize-none" {...register('notes')} />
                     </div>
                     <button type="submit" disabled={isSubmitting} className="button-primary w-full disabled:opacity-50">
-                      {isSubmitting ? 'Sending...' : 'Request Consultation'}
+                      {isSubmitting ? 'Sending...' : 'Get Free Evaluation'}
                     </button>
                     <p className={`text-xs ${submitError ? 'text-destructive' : 'text-muted-foreground'}`}>
                       {submitError || 'Manual requests stay public unless you are already logged in.'}
@@ -356,7 +355,7 @@ export default function BookingsPage() {
                 </a>
                 {!user ? (
                   <Link to="/register" className="button-secondary">
-                    Create Account For Dashboard Access
+                    Book Free Consultation Now
                   </Link>
                 ) : null}
               </div>

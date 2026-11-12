@@ -6,6 +6,7 @@ export type ResourceCatalogItem = {
   id: string;
   title: string;
   shortLabel: string;
+  department?: string;
   priceValue: number;
   originalPriceValue: number;
   rating: string;
@@ -23,11 +24,29 @@ export type ResourceCatalogItem = {
   files?: string[];
 };
 
+export const RESOURCE_DEPARTMENTS = [
+  'Masters in Engineering',
+  'Masters in Business & Management',
+  'Natural Sciences',
+  'Humanities & Social Sciences',
+  'IT & Computer Science',
+  'Health & Medicine',
+  'Architecture & Design',
+  'Law & Economics',
+  'Studienkolleg',
+  'Language & Test Prep',
+  'Visa & Documentation',
+  'Scholarships & Finance',
+  'Accommodation & Arrival',
+  'Career & CV',
+] as const;
+
 export const resourceCatalog: ResourceCatalogItem[] = [
   {
     id: 'bachelor',
     title: "Bachelor's in Germany",
     shortLabel: 'Course Bundle',
+    department: 'Studienkolleg',
     priceValue: 2499,
     originalPriceValue: 5499,
     rating: '4.8/5',
@@ -57,6 +76,7 @@ export const resourceCatalog: ResourceCatalogItem[] = [
     id: 'selfhelp',
     title: 'BVF Selfhelp Tool',
     shortLabel: 'Digital Tool',
+    department: 'Visa & Documentation',
     priceValue: 1450,
     originalPriceValue: 1450,
     rating: '4.5/5',
@@ -76,6 +96,7 @@ export const resourceCatalog: ResourceCatalogItem[] = [
     id: 'excel',
     title: 'University Excel Sheet',
     shortLabel: 'Data Pack',
+    department: 'Masters in Engineering',
     priceValue: 499,
     originalPriceValue: 499,
     rating: '4.7/5',
@@ -96,6 +117,7 @@ export const resourceCatalog: ResourceCatalogItem[] = [
     id: 'appointment',
     title: 'Personal Appointment',
     shortLabel: 'Mentor Session',
+    department: 'Career & CV',
     priceValue: 999,
     originalPriceValue: 999,
     rating: '4.7/5',

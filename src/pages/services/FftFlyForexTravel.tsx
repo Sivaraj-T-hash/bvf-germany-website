@@ -6,7 +6,7 @@ export default function FftFlyForexTravelPage() {
       title="FFT – Fly, Forex, Travel"
       subtitle="Tickets, forex, and travel prep handled end‑to‑end."
       heroImage="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1400&auto=format&fit=crop"
-      ctaLabel="Request Assistance"
+      ctaLabel="Book Free Consultation Now"
       ctaTo="/contact"
       introTitle="Travel Ready from Day One"
       introText="We simplify your travel planning so you arrive in Germany prepared and confident. From flight tickets to forex assistance, we cover every detail."

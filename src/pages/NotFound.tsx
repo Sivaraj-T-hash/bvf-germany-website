@@ -1,8 +1,15 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { useSeo } from "@/lib/useSeo";
 
 const NotFound = () => {
   const location = useLocation();
+
+  useSeo({
+    title: "Page Not Found | BVF Germany",
+    description: "The page you requested could not be found. Explore BVF Germany services, study guides, tools, and Germany student resources.",
+    noindex: true,
+  });
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
