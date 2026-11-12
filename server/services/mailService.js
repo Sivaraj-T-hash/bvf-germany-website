@@ -19,37 +19,16 @@ const smtpSocketTimeout = Number(process.env.SMTP_SOCKET_TIMEOUT || 20000);
 const resendApiKey = process.env.RESEND_API_KEY;
 const resendApiBase = String(process.env.RESEND_API_BASE || 'https://api.resend.com').replace(/\/+$/, '');
 
-function getMailConfigurationIssue() {
-  if (!mailFrom) {
-    return 'Missing MAIL_FROM in environment.';
-  }
-
-  if (mailTransport !== 'smtp' && mailTransport !== 'resend') {
-    return 'Unsupported MAIL_TRANSPORT. Use "smtp" or "resend".';
-  }
-
-  if (mailTransport === 'smtp' && (!smtpHost || !smtpPort || !smtpUser || !smtpPass)) {
-    return 'MAIL_TRANSPORT=smtp requires SMTP_HOST, SMTP_PORT, SMTP_USER, and SMTP_PASS in environment.';
-  }
-
-  if (mailTransport === 'resend' && !resendApiKey) {
-    return 'MAIL_TRANSPORT=resend requires RESEND_API_KEY in environment.';
-  }
-
-  return '';
-}
-
-const mailConfigurationIssue = getMailConfigurationIssue();
-
-if (mailConfigurationIssue) {
-  console.warn(`[mail] ${mailConfigurationIssue}`);
+if (!mailFrom) {
+  throw new Error('Missing MAIL_FROM in environment.');
 }
 
 let transporter = null;
-
-function getSmtpTransporter() {
-  if (transporter) {
-    return transporter;
+if (mailTransport === 'smtp') {
+  if (!smtpHost || !smtpPort || !smtpUser || !smtpPass) {
+    throw new Error(
+      'MAIL_TRANSPORT=smtp requires SMTP_HOST, SMTP_PORT, SMTP_USER, and SMTP_PASS in environment.',
+    );
   }
 
   transporter = nodemailer.createTransport({
@@ -65,12 +44,18 @@ function getSmtpTransporter() {
       pass: smtpPass,
     },
   });
+}
 
-  return transporter;
+if (mailTransport === 'resend' && !resendApiKey) {
+  throw new Error('MAIL_TRANSPORT=resend requires RESEND_API_KEY in environment.');
+}
+
+if (mailTransport !== 'smtp' && mailTransport !== 'resend') {
+  throw new Error('Unsupported MAIL_TRANSPORT. Use "smtp" or "resend".');
 }
 
 async function sendViaSmtp(message) {
-  return getSmtpTransporter().sendMail(message);
+  return transporter.sendMail(message);
 }
 
 async function sendViaResend(message) {
@@ -99,10 +84,6 @@ async function sendViaResend(message) {
 }
 
 async function sendMail(message) {
-  if (mailConfigurationIssue) {
-    throw new Error(mailConfigurationIssue);
-  }
-
   try {
     if (mailTransport === 'resend') {
       return sendViaResend(message);
@@ -149,25 +130,8 @@ function getTemplateForForm(formType, payload) {
     { label: 'Phone', value: payload.phone || '-' },
   ];
 
-  if (formType === 'profile_evaluation') {
-    return {
-      formLabel: 'Free Profile Evaluation',
-      adminSubject: 'New Free Profile Evaluation received',
-      userSubject: 'We received your Free Profile Evaluation | BVF Germany',
-      adminRows: [
-        ...baseRows,
-        { label: 'Interested Program', value: payload.interestedProgram || '-' },
-        { label: 'Current Education', value: payload.currentEducation || '-' },
-        { label: 'Message', value: payload.message || '-' },
-      ],
-      userMessage:
-        'Thank you for submitting your Free Profile Evaluation form. Our team will review your details and get back to you within 24 hours.',
-    };
-  }
-
   if (formType === 'contact') {
     return {
-      formLabel: 'Contact Inquiry',
       adminSubject: 'New contact inquiry received',
       userSubject: 'We received your contact inquiry | BVF Germany',
       adminRows: [...baseRows, { label: 'Message', value: payload.message || '-' }],
@@ -177,7 +141,6 @@ function getTemplateForForm(formType, payload) {
 
   if (formType === 'booking') {
     return {
-      formLabel: 'Consultation Booking',
       adminSubject: 'New consultation booking request',
       userSubject: 'Your consultation request is received | BVF Germany',
       adminRows: [
@@ -227,7 +190,6 @@ function getTemplateForForm(formType, payload) {
   }
 
   return {
-    formLabel: 'Webinar Registration',
     adminSubject: 'New webinar registration received',
     userSubject: 'Your webinar registration is confirmed | BVF Germany',
     adminRows: [
@@ -315,7 +277,7 @@ export async function sendFormSubmissionEmails(formType, payload) {
   const adminEmail = getAdminNotificationEmail();
 
   const adminHtml = `
-    <p>A new ${escapeHtml(template.formLabel)} form was submitted.</p>
+    <p>A new ${escapeHtml(formType)} form was submitted.</p>
     <table style="border-collapse:collapse;border:1px solid #e2e8f0;">${renderRows(template.adminRows)}</table>
   `;
 

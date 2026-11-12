@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { Bell, BookOpen, CalendarDays, CheckCircle2, FileText, Filter, GraduationCap, LayoutDashboard, LifeBuoy, LogOut, Search, ShoppingBag, Upload, UserCircle2, Video } from 'lucide-react';
-import { FaWhatsapp } from 'react-icons/fa';
+import { Bell, BookOpen, CalendarDays, CheckCircle2, FileText, Filter, GraduationCap, LayoutDashboard, LifeBuoy, LogOut, MessageCircle, Search, ShoppingBag, Upload, UserCircle2, Video } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { equalTo, onValue, orderByChild, query, ref } from 'firebase/database';
 import { auth, db } from '@/lib/firebase';
@@ -390,7 +389,7 @@ export default function StudentDashboardPage() {
     return [...bookingItems, ...adminItems].sort((a, b) => `${a.dueDate}${a.dueTime}`.localeCompare(`${b.dueDate}${b.dueTime}`));
   }, [adminDeadlines, bookings]);
 
-  const { calendarDays, calendarMonthLabel } = useMemo(() => {
+  const calendarDays = useMemo(() => {
     const today = new Date();
     const year = today.getFullYear();
     const month = today.getMonth();
@@ -404,10 +403,7 @@ export default function StudentDashboardPage() {
       const hasDeadline = deadlineItems.length > 0;
       cells.push({ day, key: iso, hasDeadline, deadlines: deadlineItems });
     }
-    return {
-      calendarDays: cells,
-      calendarMonthLabel: today.toLocaleString('en-US', { month: 'long', year: 'numeric' }),
-    };
+    return cells;
   }, [dashboardDeadlines]);
 
   const visibleNotifications = useMemo(() => {
@@ -471,14 +467,6 @@ export default function StudentDashboardPage() {
         .some((value) => String(value).toLowerCase().includes(normalizedSearch)),
     );
   }, [dashboardDeadlines, normalizedSearch]);
-
-  const openWebinarRegistration = useCallback((webinarId: string) => {
-    const params = new URLSearchParams({
-      webinarId,
-      from: 'dashboard',
-    });
-    navigate(`/webinars?${params.toString()}#register-webinar`);
-  }, [navigate]);
 
   const filteredTodayFocus = useMemo(() => {
     if (!normalizedSearch) return todayFocus;
@@ -791,7 +779,7 @@ export default function StudentDashboardPage() {
 
   const nav = [
     ['overview', 'Overview', LayoutDashboard], ['journey', 'My Journey', LayoutDashboard], ['universities', 'Universities', GraduationCap], ['applications', 'Applications', LayoutDashboard],
-    ['documents', 'Documents', FileText], ['blogs', 'Blogs', BookOpen], ['webinars', 'Webinars', Video], ['mentor', 'Mentor Chat', FaWhatsapp], ['resources', 'Resources', ShoppingBag], ['profile', 'Profile', UserCircle2],
+    ['documents', 'Documents', FileText], ['blogs', 'Blogs', BookOpen], ['webinars', 'Webinars', Video], ['mentor', 'Mentor Chat', MessageCircle], ['resources', 'Resources', ShoppingBag], ['profile', 'Profile', UserCircle2],
   ] as const;
 
   const stageToSection: Section[] = ['profile', 'universities', 'documents', 'documents', 'applications', 'documents', 'overview'];
@@ -883,7 +871,7 @@ export default function StudentDashboardPage() {
                     <div className="flex items-center justify-between gap-2">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">Deadline calendar</p>
-                        <p className="text-xs text-slate-500">{calendarMonthLabel}</p>
+                        <p className="text-xs text-slate-500">{today.toLocaleString('en-US', { month: 'long', year: 'numeric' })}</p>
                       </div>
                       <button type="button" onClick={() => setCalendarOpen(false)} className="text-xs font-semibold text-slate-500">Close</button>
                     </div>
@@ -1254,7 +1242,7 @@ export default function StudentDashboardPage() {
                       ) : (
                         <span className="rounded-lg border border-stone-300 px-2 py-1 text-xs text-slate-500">Link will appear here</span>
                       )}
-                      <Link to={`/webinars?webinarId=${encodeURIComponent(w.webinarId)}#register-webinar`} className="rounded-lg border border-stone-300 px-2 py-1 text-xs">Open</Link>
+                      <Link to="/webinars" className="rounded-lg border border-stone-300 px-2 py-1 text-xs">Open</Link>
                     </div>
                   </div>
                 );
@@ -1271,7 +1259,10 @@ export default function StudentDashboardPage() {
                       <p className="text-xs text-slate-500">{new Date(item.scheduleAt).toLocaleString()} | {item.speaker} | {item.accessType === 'paid' ? `INR ${item.priceValue}` : 'Free'}</p>
                       <button
                         type="button"
-                        onClick={() => openWebinarRegistration(item.id)}
+                        onClick={() => {
+                          setSelectedWebinarId(item.id);
+                          setSection('webinars');
+                        }}
                         className="mt-2 inline-block text-xs font-semibold text-teal-700"
                       >
                         {item.accessType === 'paid' ? 'Register and pay' : 'Register now'}
