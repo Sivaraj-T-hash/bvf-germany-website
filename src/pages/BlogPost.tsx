@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
 import ScrollReveal from '@/components/ScrollReveal';
+import CoverImage, { isOwnImage } from '@/components/CoverImage';
 import { BlogPost, getBlogPosts } from '@/lib/blogStore';
 import { useSeo } from '@/lib/useSeo';
 
@@ -67,13 +68,19 @@ function renderMarkdown(md: string) {
 export default function BlogPostPage() {
   const { slug } = useParams();
   const [post, setPost] = useState<BlogPost | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
+    setLoading(true);
     (async () => {
-      const posts = await getBlogPosts();
-      const found = posts.find((p) => p.slug === slug && p.published);
-      if (active) setPost(found || null);
+      try {
+        const posts = await getBlogPosts();
+        const found = posts.find((p) => p.slug === slug && p.published);
+        if (active) setPost(found || null);
+      } finally {
+        if (active) setLoading(false);
+      }
     })();
     return () => { active = false; };
   }, [slug]);
@@ -82,7 +89,7 @@ export default function BlogPostPage() {
     title: post ? `${post.title} | BVF Germany` : 'Blog | BVF Germany',
     description: post ? post.content.replace(/[#*_]/g, '').slice(0, 140) : 'Guides and updates for studying in Germany.',
     url: post ? `/blog/${post.slug}` : '/blog',
-    image: post?.featuredImage || '/hero-og.png',
+    image: post && isOwnImage(post.featuredImage) ? post.featuredImage : '/hero-og.png',
     type: post ? 'article' : 'website',
     keywords: post?.keywords,
     author: post?.authorName || 'BVF Germany',
@@ -102,7 +109,11 @@ export default function BlogPostPage() {
       <div className="min-h-screen">
         <Navbar />
         <div className="pt-32 pb-20 text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-4">Post Not Found</h1>
+          {loading ? (
+            <p className="text-lg text-muted-foreground" role="status">Loading the guide…</p>
+          ) : (
+            <h1 className="text-2xl font-bold text-foreground mb-4">Post Not Found</h1>
+          )}
           <Link to="/blog" className="text-primary font-semibold">← Back to Blog</Link>
         </div>
         <Footer />
@@ -122,11 +133,9 @@ export default function BlogPostPage() {
             </Link>
           </ScrollReveal>
 
-          {post.featuredImage && (
-            <ScrollReveal delay={0.05}>
-              <img src={post.featuredImage} alt={post.title} className="w-full aspect-video object-cover rounded-xl mb-8" />
-            </ScrollReveal>
-          )}
+          <ScrollReveal delay={0.05}>
+            <CoverImage src={post.featuredImage} title={post.title} className="mb-8 aspect-[2/1] w-full rounded-xl" eager />
+          </ScrollReveal>
 
           <ScrollReveal delay={0.1}>
             <div className="flex items-center gap-3 mb-4">

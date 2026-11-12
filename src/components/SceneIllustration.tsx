@@ -30,10 +30,13 @@ const GREEN = '#15803d';
 const SAFFRON = '#f59e0b';
 
 const keywordScenes: Array<[RegExp, SceneName]> = [
-  [/loan|fund|financ|account|bank|money|price|pay|resource|shop|store|bundle/i, 'finance'],
+  [/loan|fund|financ|account|bank|money|price|pay|cost|fee|budget|resource|shop|store|bundle/i, 'finance'],
   [/visa|document|aps|passport|checklist|insurance|legal|policy|sop|cv|lor|application/i, 'documents'],
   [/hous|accommodation|home|room|flat|wg|settle|arriv/i, 'home'],
-  [/german|language|a1|a2|b1|b2|class|course|ielts|gre|gmat|test|exam|dmat/i, 'language'],
+  // "german(?!y)" so that "Germany" alone does not count as a language topic.
+  // English and admission tests get a study desk, not the German-language scene.
+  [/ielts|toefl|\bgre\b|gmat|dmat|test|exam/i, 'study'],
+  [/german(?!y)|language|a1|a2|b1|b2|class|course/i, 'language'],
   [/flight|travel|journey|fly|airport|india to|abroad|visit/i, 'journey'],
   [/team|mentor|support|people|community|counsel|expert|contact|whatsapp|talk|consult/i, 'support'],
   [/success|admit|graduat|achiev|story|result|outcome/i, 'graduation'],

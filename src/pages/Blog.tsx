@@ -5,6 +5,7 @@ import { Calendar, Tag, ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import WhatsAppFloat from '@/components/WhatsAppFloat';
+import CoverImage from '@/components/CoverImage';
 import { BlogPost, getBlogPosts } from '@/lib/blogStore';
 import { useSeo } from '@/lib/useSeo';
 
@@ -23,13 +24,18 @@ export default function BlogPage() {
   });
 
   const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   useEffect(() => {
     let active = true;
     (async () => {
-      const allPosts = (await getBlogPosts()).filter((post) => post.published);
-      if (active) setPosts(allPosts);
+      try {
+        const allPosts = (await getBlogPosts()).filter((post) => post.published);
+        if (active) setPosts(allPosts);
+      } finally {
+        if (active) setLoading(false);
+      }
     })();
     return () => {
       active = false;
@@ -84,7 +90,11 @@ export default function BlogPage() {
 
         <section className="px-4 pb-20 md:px-8 md:pb-24">
           <div className="container-narrow">
-            {filtered.length === 0 ? (
+            {loading ? (
+              <div className="surface-panel py-20 text-center" role="status">
+                <p className="text-lg text-muted-foreground">Loading guides…</p>
+              </div>
+            ) : filtered.length === 0 ? (
               <div className="surface-panel py-20 text-center">
                 <p className="text-lg text-muted-foreground">No blog posts yet. Check back soon.</p>
               </div>
@@ -102,16 +112,13 @@ export default function BlogPage() {
                       to={`/blog/${post.slug}`}
                       className="group block overflow-hidden rounded-[30px] border border-border/90 bg-white/82 shadow-card transition hover:-translate-y-1 hover:shadow-card-hover"
                     >
-                      {post.featuredImage ? (
-                        <div className="aspect-[16/10] overflow-hidden">
-                          <img
-                            src={post.featuredImage}
-                            alt={post.title}
-                            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                            loading="lazy"
-                          />
-                        </div>
-                      ) : null}
+                      <div className="aspect-[16/10] overflow-hidden">
+                        <CoverImage
+                          src={post.featuredImage}
+                          title={post.title}
+                          className="h-full w-full transition duration-500 group-hover:scale-105"
+                        />
+                      </div>
                       <div className="p-6">
                         <div className="flex flex-wrap items-center gap-3">
                           <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">

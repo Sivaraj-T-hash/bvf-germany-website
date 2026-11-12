@@ -19,6 +19,7 @@ import { subscribeToStudentDeadlines, type StudentDeadlineItem } from '@/lib/stu
 import { markStudentNotificationRead, subscribeToStudentNotifications, type StudentNotification } from '@/lib/notificationStore';
 import { getResourceCatalogItem } from '@/lib/resourceCatalog';
 import { subscribeToResourceCatalog, type ResourcePackage } from '@/lib/resourceCatalogStore';
+import CoverImage from '@/components/CoverImage';
 
 interface BookingItem { id: string; preferredDate: string; preferredTime: string; createdAt: string; status: string; email?: string; studentEmail?: string }
 interface WebinarRegistration {
@@ -1061,7 +1062,7 @@ export default function StudentDashboardPage() {
                 </div>
                 <div className="space-y-4 xl:col-span-3">
                   <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm"><p className="text-sm font-semibold">Recommended blogs</p><div className="mt-2 space-y-2">{filteredBlogs.length ? filteredBlogs.slice(0, 3).map((b) => <Link key={b.id} to={`/blog/${b.slug}`} className="block rounded-lg bg-stone-50 p-2 text-sm"><div className="flex gap-3">{b.featuredImage ? <img src={b.featuredImage} alt={b.title} className="h-14 w-20 rounded-lg object-cover" /> : null}<div className="min-w-0"><p className="font-semibold text-slate-900">{b.title}</p><p className="text-xs text-teal-700">{b.category}</p></div></div></Link>) : <p className="text-sm text-slate-500">{normalizedSearch ? 'No blogs match this search.' : 'No published blogs available yet.'}</p>}</div></div>
-                  <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm"><p className="text-sm font-semibold">Recommended webinars</p>{filteredRecommendedCatalogWebinars.length ? <div className="mt-2 space-y-2">{filteredRecommendedCatalogWebinars.map((w) => <div key={w.id} className="rounded-lg bg-stone-50 p-2 text-sm"><div className="flex gap-3">{w.imageUrl ? <img src={w.imageUrl} alt={w.title} className="h-14 w-20 rounded-lg object-cover" /> : null}<div className="min-w-0"><p className="font-semibold">{w.title}</p><p className="text-xs text-slate-500">{new Date(w.scheduleAt).toLocaleString()} | {w.speaker} | {w.accessType === 'paid' ? `INR ${w.priceValue}` : 'Free'}</p></div></div></div>)}</div> : <p className="mt-2 text-sm text-slate-500">{normalizedSearch ? 'No webinars match this search.' : 'No upcoming webinars available right now.'}</p>}</div>
+                  <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm"><p className="text-sm font-semibold">Recommended webinars</p>{filteredRecommendedCatalogWebinars.length ? <div className="mt-2 space-y-2">{filteredRecommendedCatalogWebinars.map((w) => <div key={w.id} className="rounded-lg bg-stone-50 p-2 text-sm"><div className="flex gap-3"><CoverImage src={w.imageUrl} title={w.title} className="h-14 w-20 shrink-0 rounded-lg" /><div className="min-w-0"><p className="font-semibold">{w.title}</p><p className="text-xs text-slate-500">{new Date(w.scheduleAt).toLocaleString()} | {w.speaker} | {w.accessType === 'paid' ? `INR ${w.priceValue}` : 'Free'}</p></div></div></div>)}</div> : <p className="mt-2 text-sm text-slate-500">{normalizedSearch ? 'No webinars match this search.' : 'No upcoming webinars available right now.'}</p>}</div>
                 </div>
               </div>
             </div>
@@ -1240,7 +1241,7 @@ export default function StudentDashboardPage() {
                         : 'border-slate-200'
                     }`}
                   >
-                    {catalogItem?.imageUrl ? <img src={catalogItem.imageUrl} alt={w.webinarTitle || w.webinarId} className="mb-3 h-40 w-full rounded-xl object-cover" /> : null}
+                    <CoverImage src={catalogItem?.imageUrl} title={w.webinarTitle || catalogItem?.title || 'Webinar'} className="mb-3 h-40 w-full rounded-xl" />
                     <p className="font-semibold text-slate-900">{w.webinarTitle || w.webinarId}</p>
                     <p className="text-xs text-slate-500">Registered | {new Date(w.createdAt).toLocaleDateString()}</p>
                     <p className="mt-1 text-[11px] text-slate-500">{accessType === 'paid' ? `Paid webinar | ${catalogItem ? `INR ${catalogItem.priceValue}` : 'Payment confirmed'}` : 'Free webinar'}</p>
@@ -1264,7 +1265,7 @@ export default function StudentDashboardPage() {
                   {filteredRecommendedCatalogWebinars.length ? filteredRecommendedCatalogWebinars.map((item) => (
                     <div key={item.id} className="rounded-lg bg-stone-50 p-2 text-sm">
                       <div className="flex gap-3">
-                        {item.imageUrl ? <img src={item.imageUrl} alt={item.title} className="h-16 w-24 rounded-lg object-cover" /> : null}
+                        <CoverImage src={item.imageUrl} title={item.title} className="h-16 w-24 shrink-0 rounded-lg" />
                         <div className="min-w-0">
                       <p className="font-semibold text-slate-900">{item.title}</p>
                       <p className="text-xs text-slate-500">{new Date(item.scheduleAt).toLocaleString()} | {item.speaker} | {item.accessType === 'paid' ? `INR ${item.priceValue}` : 'Free'}</p>

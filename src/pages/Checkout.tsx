@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { isOwnImage } from '@/components/CoverImage';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle2, Clock3, ReceiptText, ShieldCheck, ShoppingBag } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -101,7 +102,7 @@ export default function CheckoutPage() {
         subtitle: `${selectedWebinar.topic} | ${new Date(selectedWebinar.scheduleAt).toLocaleString('en-IN')}`,
         priceValue: Number(selectedWebinar.priceValue) || 0,
         originalPriceValue: Number(selectedWebinar.priceValue) || 0,
-        image: selectedWebinar.imageUrl || undefined,
+        image: isOwnImage(selectedWebinar.imageUrl) ? selectedWebinar.imageUrl : undefined,
       };
     }
 

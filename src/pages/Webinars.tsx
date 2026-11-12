@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import CoverImage from '@/components/CoverImage';
 import { motion } from 'framer-motion';
 import { CalendarDays, Clock3, PlayCircle, Send, Users } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -310,13 +311,7 @@ export default function WebinarsPage() {
               transition={spring}
               className="rounded-[36px] bg-[linear-gradient(135deg,rgba(9,18,39,1),rgba(18,33,70,0.96))] p-8 text-white shadow-[0_32px_110px_-58px_rgba(3,7,18,0.95)] md:p-10"
             >
-              {selectedCatalogItem?.imageUrl ? (
-                <img
-                  src={selectedCatalogItem.imageUrl}
-                  alt={upcomingWebinar.title}
-                  className="mb-6 h-52 w-full rounded-[28px] object-cover"
-                />
-              ) : null}
+              <CoverImage src={selectedCatalogItem?.imageUrl} title={upcomingWebinar.title} className="mb-6 h-52 w-full rounded-[28px]" />
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">{selectedCatalogItem ? 'Upcoming Webinar' : 'Register Your Interest'}</p>
               <h2 className="mt-4 font-heading text-4xl font-semibold text-secondary md:text-5xl">{upcomingWebinar.title}</h2>
               <p className="mt-4 max-w-2xl text-sm leading-7 text-white/76">{upcomingWebinar.description}</p>

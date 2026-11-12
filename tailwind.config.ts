@@ -14,6 +14,11 @@ export default {
       },
     },
     extend: {
+      // The design uses opacity steps such as text-white/76 and bg-white/92.
+      // Tailwind only ships steps of 5, so without these the classes produce no CSS.
+      opacity: Object.fromEntries(
+        [8, 12, 18, 22, 58, 68, 72, 76, 78, 82, 86, 88, 92].map((step) => [String(step), String(step / 100)]),
+      ),
       fontFamily: {
         heading: ['Cormorant Garamond', 'serif'],
         body: ['DM Sans', 'sans-serif'],

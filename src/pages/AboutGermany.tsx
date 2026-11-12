@@ -59,21 +59,25 @@ const studyPrograms = [
 const whyGermanyStats = [
   {
     value: '€0',
+    scene: 'campus' as const,
     label: 'Tuition at most public universities',
     detail: 'You pay only a small semester contribution. Some states, such as Baden-Württemberg, charge non-EU students tuition.',
   },
   {
     value: '€992',
+    scene: 'finance' as const,
     label: 'A month in your blocked account',
     detail: '€11,904 for a year (rules as of 2026). This is your own money for living costs.',
   },
   {
     value: '20 hrs',
+    scene: 'study' as const,
     label: 'Part-time work a week',
     detail: 'Allowed during the semester to support yourself.',
   },
   {
     value: '18 months',
+    scene: 'graduation' as const,
     label: 'Post-study job search',
     detail: 'Stay after graduating to look for a job in Germany. Rules can change; we share the latest in your consultation.',
   },
@@ -204,7 +208,7 @@ export default function AboutGermanyPage() {
               Choose the Germany route that <span className="bg-gradient-to-r from-primary to-[#f2c94c] bg-clip-text text-transparent">matches your stage</span>
             </h2>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
-              Each route below uses the exact duration, eligibility, language requirement, tuition structure, top universities, and key fields from your content brief.
+              Each route below shows the usual duration, eligibility, language requirement, costs, example universities and key fields, so you can compare them side by side.
             </p>
           </div>
 
@@ -221,7 +225,7 @@ export default function AboutGermanyPage() {
                   <SceneIllustration scene={program.scene} className="transition-transform duration-700 group-hover:scale-105" />
                   
                   {/* Floating Title Card */}
-                  <div className="absolute bottom-6 left-6 right-6 z-20 overflow-hidden rounded-[24px] border border-white/20 bg-white/10 p-5 backdrop-blur-xl transition-all duration-300 group-hover:bg-white/20">
+                  <div className="absolute bottom-6 left-6 right-6 z-20 overflow-hidden rounded-[24px] border border-white/20 bg-[#132033]/75 p-5 backdrop-blur-xl transition-all duration-300 group-hover:bg-[#132033]/85">
                     <h3 className="text-2xl font-bold text-white drop-shadow-sm md:text-3xl">{program.title}</h3>
                   </div>
                 </div>
@@ -272,12 +276,17 @@ export default function AboutGermanyPage() {
                 Germany combines tuition-free public universities, long-term career opportunity, and a cleaner post-study route for international students.
               </p>
             </div>
-            <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
               {whyGermanyStats.map((stat) => (
-                <article key={stat.label} className="surface-panel p-6">
-                  <p className="text-3xl font-semibold text-secondary">{stat.value}</p>
-                  <h3 className="mt-3 text-xl font-semibold text-foreground">{stat.label}</h3>
-                  <p className="mt-3 text-sm leading-7 text-muted-foreground">{stat.detail}</p>
+                <article key={stat.label} className="surface-panel overflow-hidden p-0">
+                  <div className="h-36 overflow-hidden">
+                    <SceneIllustration scene={stat.scene} />
+                  </div>
+                  <div className="p-6">
+                    <p className="text-3xl font-semibold text-secondary">{stat.value}</p>
+                    <h3 className="mt-3 text-xl font-semibold text-foreground">{stat.label}</h3>
+                    <p className="mt-3 text-sm leading-7 text-muted-foreground">{stat.detail}</p>
+                  </div>
                 </article>
               ))}
             </div>
@@ -286,7 +295,10 @@ export default function AboutGermanyPage() {
 
         <section className="px-4 py-16 md:px-8 md:py-20">
           <div className="container-narrow grid gap-6 lg:grid-cols-2">
-            <div className="rounded-[32px] border border-border/80 bg-white/92 p-8 shadow-card">
+            <div className="overflow-hidden rounded-[32px] border border-border/80 bg-white/92 p-8 shadow-card">
+              <div className="-mx-8 -mt-8 mb-8 h-48 overflow-hidden">
+                <SceneIllustration scene="documents" label="Illustration of application documents and a passport" />
+              </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                 <Languages className="h-6 w-6" aria-hidden="true" />
               </div>
@@ -308,7 +320,10 @@ export default function AboutGermanyPage() {
               </div>
             </div>
 
-            <div className="rounded-[32px] border border-border/80 bg-[#132033] p-8 text-white shadow-card">
+            <div className="overflow-hidden rounded-[32px] border border-border/80 bg-[#132033] p-8 text-white shadow-card">
+              <div className="-mx-8 -mt-8 mb-8 h-48 overflow-hidden">
+                <SceneIllustration scene="journey" label="Illustration of the journey from India to Germany" />
+              </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-[#f2c94c]">
                 <ShieldCheck className="h-6 w-6" aria-hidden="true" />
               </div>
@@ -347,7 +362,10 @@ export default function AboutGermanyPage() {
                   </div>
                 ))}
               </div>
-              <div className="rounded-[28px] bg-[linear-gradient(160deg,rgba(9,18,39,1),rgba(18,33,70,0.96))] p-6 text-white shadow-[0_28px_90px_-52px_rgba(3,7,18,0.9)]">
+              <div className="overflow-hidden rounded-[28px] bg-[linear-gradient(160deg,rgba(9,18,39,1),rgba(18,33,70,0.96))] p-6 text-white shadow-[0_28px_90px_-52px_rgba(3,7,18,0.9)]">
+                <div className="-mx-6 -mt-6 mb-6 h-44 overflow-hidden">
+                  <SceneIllustration scene="city" label="Illustration of a German city where graduates work" />
+                </div>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">Official Resource</p>
                 <h3 className="mt-3 text-2xl font-semibold text-[#f2c94c]">Explore jobs and career guidance from the official Germany portal</h3>
                 <p className="mt-4 text-sm leading-7 text-white/76">
