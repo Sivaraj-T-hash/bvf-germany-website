@@ -20,11 +20,35 @@ export default {
         [8, 12, 18, 22, 58, 68, 72, 76, 78, 82, 86, 88, 92].map((step) => [String(step), String(step / 100)]),
       ),
       fontFamily: {
-        heading: ['Cormorant Garamond', 'serif'],
-        body: ['DM Sans', 'sans-serif'],
-        numeric: ['Bebas Neue', 'sans-serif'],
+        heading: ['Manrope', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        body: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        numeric: ['Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
+        navy: {
+          DEFAULT: "#0F172A",
+          deep: "#132033",
+          surface: "#1E293B",
+          light: "#334155",
+        },
+        forest: {
+          DEFAULT: "#1E3A2F",
+          muted: "#2D6A4F",
+          light: "#40916C",
+          subtle: "#EBF4F0",
+        },
+        gold: {
+          DEFAULT: "#D4AF37",
+          light: "#F5EBC1",
+          muted: "#B89628",
+        },
+        bvf: {
+          offwhite: "#FAF8F5",
+          text: "#202A36",
+          muted: "#64748B",
+          border: "#E7E5E0",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

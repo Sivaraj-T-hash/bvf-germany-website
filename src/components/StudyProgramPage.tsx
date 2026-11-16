@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowRight, BadgeCheck, ChevronDown, ChevronUp, ExternalLink, ShieldCheck, Clock, GraduationCap, Languages, Coins, Settings, Briefcase, HeartPulse, Building, FlaskConical, Zap, Truck, Cpu, Box, Banknote, Target, AreaChart, Laptop, HandPlatter, Phone, Code } from 'lucide-react';
+import { ArrowRight, BadgeCheck, ChevronDown, ChevronUp, ExternalLink, ShieldCheck, Clock, GraduationCap, Languages, Coins, Settings, Briefcase, HeartPulse, Building, FlaskConical, Zap, Truck, Cpu, Box, Banknote, Target, AreaChart, Laptop, HandPlatter, Phone, Code, LucideIcon } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -196,7 +196,7 @@ const getIconForFact = (label: string) => {
 };
 
 const getIconForTrack = (iconCode: string) => {
-  const icons: Record<string, any> = {
+  const icons: Record<string, LucideIcon> = {
     MECH: Settings,
     CS: Code,
     BIZ: Briefcase,
