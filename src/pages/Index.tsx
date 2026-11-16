@@ -259,7 +259,7 @@ export default function HomePage() {
           <div aria-hidden="true" className="pointer-events-none absolute inset-0">
             <div className="absolute -left-20 top-20 h-72 w-72 rounded-full bg-[#2D6A4F]/5 blur-3xl" />
             <div className="absolute right-0 top-32 h-96 w-96 rounded-full bg-[#0F172A]/5 blur-3xl" />
-            <div className="absolute inset-0 opacity-[0.03] [background-image:linear-gradient(#0F172A_1px,transparent_1px),linear-gradient(90deg,#0F172A_1px,transparent_1px)] [background-size:48px_48px]" />
+            <div className="absolute inset-0 opacity-[0.015] [background-image:linear-gradient(#0F172A_1px,transparent_1px),linear-gradient(90deg,#0F172A_1px,transparent_1px)] [background-size:56px_56px]" />
           </div>
 
           <div className="container-narrow relative z-10 px-4 md:px-8">
@@ -280,7 +280,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Main Heading */}
-                <h1 className="mt-6 font-heading text-4xl font-extrabold tracking-tight text-[#0F172A] sm:text-5xl lg:text-[52px] xl:text-[58px] leading-[1.1]">
+                <h1 className="mt-6 font-heading text-3xl font-extrabold tracking-tight text-[#0F172A] sm:text-4xl lg:text-[46px] xl:text-[52px] leading-[1.12]">
                   Your Future in Germany Starts With the Right Guidance.
                 </h1>
 
@@ -337,7 +337,7 @@ export default function HomePage() {
                       <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-xl bg-white/95 px-3.5 py-2.5 backdrop-blur-md border border-[#E7E5E0]/80 shadow-sm">
                         <div className="min-w-0">
                           <p className="text-[10px] font-bold uppercase tracking-wider text-[#2D6A4F]">German Public Universities</p>
-                          <p className="truncate text-xs font-semibold text-[#0F172A]">Tuition-Free & High-Standard Education</p>
+                          <p className="truncate text-xs font-semibold text-[#0F172A]">Explore World-Class Degree Programs</p>
                         </div>
                         <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FAF8F5] text-[#2D6A4F]">
                           <GraduationCap className="h-4 w-4" aria-hidden="true" />

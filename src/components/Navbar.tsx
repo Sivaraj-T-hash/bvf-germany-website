@@ -313,26 +313,26 @@ export default function Navbar() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-[#E7E5E0] bg-white/95 shadow-[0_1px_3px_0_rgba(15,23,42,0.03)] backdrop-blur-md transition-shadow">
-      <div ref={navRef} className="container-narrow flex h-[74px] items-center justify-between gap-3 px-4 md:px-6">
+      <div ref={navRef} className="container-narrow flex h-[74px] items-center justify-between gap-2 xl:gap-3 px-3 sm:px-4 md:px-6">
         {/* Left: Brand Logo */}
-        <Link to="/" className="group flex shrink-0 items-center gap-3" aria-label="BVF Germany Home">
-          <BrandLogoMark wrapperClassName="h-11 w-11 rounded-xl border-[#E7E5E0] shadow-none transition-colors group-hover:border-[#CBD5E1]" />
+        <Link to="/" className="group flex shrink-0 items-center gap-2.5 lg:gap-3" aria-label="BVF Germany Home">
+          <BrandLogoMark wrapperClassName="h-10 w-10 md:h-11 md:w-11 rounded-xl border-[#E7E5E0] shadow-none transition-colors group-hover:border-[#CBD5E1]" />
           <div className="flex flex-col">
-            <span className="font-heading text-base font-extrabold tracking-tight text-[#0F172A] leading-tight md:text-lg">
+            <span className="font-heading text-base font-extrabold tracking-tight text-[#0F172A] leading-tight md:text-lg whitespace-nowrap">
               BVF Germany
             </span>
-            <span className="hidden text-[10px] font-medium text-[#64748B] leading-none tracking-normal sm:inline-block">
+            <span className="hidden text-[10px] font-medium text-[#64748B] leading-none tracking-normal xl:inline-block whitespace-nowrap">
               Public University Experts
             </span>
           </div>
         </Link>
 
         {/* Center: Desktop Navigation */}
-        <nav aria-label="Main Navigation" className="hidden lg:flex items-center gap-1 xl:gap-1.5">
+        <nav aria-label="Main Navigation" className="hidden lg:flex items-center gap-0.5 xl:gap-1">
           {/* Home */}
           <Link
             to="/"
-            className={`rounded-lg px-3 py-2 text-[13px] font-medium transition-colors ${
+            className={`whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-colors ${
               location.pathname === '/'
                 ? 'bg-[#FAF8F5] font-semibold text-[#0F172A]'
                 : 'text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
@@ -350,7 +350,7 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => setOpenDropdown((prev) => (prev === 'pathways' ? null : 'pathways'))}
-              className={`inline-flex items-center gap-1 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors ${
+              className={`whitespace-nowrap inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-colors ${
                 isPathwaysActive || openDropdown === 'pathways'
                   ? 'bg-[#FAF8F5] font-semibold text-[#0F172A]'
                   : 'text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
@@ -426,7 +426,7 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => setOpenDropdown((prev) => (prev === 'services' ? null : 'services'))}
-              className={`inline-flex items-center gap-1 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors ${
+              className={`whitespace-nowrap inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-colors ${
                 isServicesActive || openDropdown === 'services'
                   ? 'bg-[#FAF8F5] font-semibold text-[#0F172A]'
                   : 'text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
@@ -496,7 +496,7 @@ export default function Navbar() {
           {/* Student Stories */}
           <Link
             to="/success-stories"
-            className={`rounded-lg px-3 py-2 text-[13px] font-medium transition-colors ${
+            className={`whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-colors ${
               location.pathname.startsWith('/success-stories')
                 ? 'bg-[#FAF8F5] font-semibold text-[#0F172A]'
                 : 'text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
@@ -514,7 +514,7 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => setOpenDropdown((prev) => (prev === 'resources' ? null : 'resources'))}
-              className={`inline-flex items-center gap-1 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors ${
+              className={`whitespace-nowrap inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-colors ${
                 isResourcesActive || openDropdown === 'resources'
                   ? 'bg-[#FAF8F5] font-semibold text-[#0F172A]'
                   : 'text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
@@ -584,7 +584,7 @@ export default function Navbar() {
           {/* About */}
           <Link
             to="/about"
-            className={`rounded-lg px-3 py-2 text-[13px] font-medium transition-colors ${
+            className={`whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-colors ${
               isAboutActive
                 ? 'bg-[#FAF8F5] font-semibold text-[#0F172A]'
                 : 'text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
@@ -596,7 +596,7 @@ export default function Navbar() {
           {/* Contact */}
           <Link
             to="/contact"
-            className={`rounded-lg px-3 py-2 text-[13px] font-medium transition-colors ${
+            className={`whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-colors ${
               location.pathname === '/contact'
                 ? 'bg-[#FAF8F5] font-semibold text-[#0F172A]'
                 : 'text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
@@ -607,22 +607,22 @@ export default function Navbar() {
         </nav>
 
         {/* Right: Actions (CTA, Account, Mobile toggle) */}
-        <div className="flex items-center gap-2.5 md:gap-3">
+        <div className="flex shrink-0 items-center gap-2 xl:gap-2.5">
           {/* Primary CTA: Free Profile Evaluation */}
           <Link
             to="/#profile-evaluation"
             onClick={handleProfileEvaluationClick}
-            className="inline-flex items-center justify-center rounded-full bg-[#0F172A] px-4 py-2.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#1E293B] hover:shadow-md"
+            className="whitespace-nowrap inline-flex items-center justify-center rounded-full bg-[#0F172A] px-3.5 py-2 xl:px-4 xl:py-2.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#1E293B] hover:shadow-md"
           >
             Free Profile Evaluation
           </Link>
 
-          {/* Secondary Quick Action: Book Consultation (desktop only) */}
+          {/* Secondary Quick Action: Book Consultation (large desktop only) */}
           <Link
             to="/bookings"
             title="Book Free Consultation"
             aria-label="Book Free Consultation"
-            className="hidden xl:inline-flex items-center gap-1.5 rounded-full border border-[#E7E5E0] bg-white px-3.5 py-2 text-xs font-semibold text-[#0F172A] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#FAF8F5] hover:border-[#CBD5E1]"
+            className="hidden 2xl:inline-flex whitespace-nowrap items-center gap-1.5 rounded-full border border-[#E7E5E0] bg-white px-3 py-2 text-xs font-semibold text-[#0F172A] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#FAF8F5] hover:border-[#CBD5E1]"
           >
             <Calendar className="h-3.5 w-3.5 text-[#2D6A4F]" aria-hidden="true" />
             <span>Book Call</span>
@@ -687,10 +687,10 @@ export default function Navbar() {
               to="/login"
               aria-label="Student Portal Login"
               title="Student Portal Login"
-              className="inline-flex items-center gap-1.5 rounded-full border border-[#E7E5E0] bg-white px-3 py-2 text-xs font-semibold text-[#0F172A] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#FAF8F5] hover:border-[#CBD5E1]"
+              className="whitespace-nowrap inline-flex items-center gap-1.5 rounded-full border border-[#E7E5E0] bg-white px-2.5 py-2 xl:px-3 text-xs font-semibold text-[#0F172A] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#FAF8F5] hover:border-[#CBD5E1]"
             >
               <LogIn className="h-3.5 w-3.5 text-[#2D6A4F]" aria-hidden="true" />
-              <span className="hidden sm:inline">Student Login</span>
+              <span className="hidden xl:inline whitespace-nowrap">Student Login</span>
             </Link>
           )}
 

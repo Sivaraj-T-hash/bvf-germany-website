@@ -132,11 +132,13 @@ describe('Homepage Hero Section', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders authentic university student photography with descriptive alt text', () => {
+  it('renders authentic university student photography with descriptive alt text and public universities badge', () => {
     renderHomePage();
     const studentImg = screen.getByAltText(
       /University students collaborating in an authentic academic environment/i
     );
     expect(studentImg).toBeInTheDocument();
+    expect(screen.getAllByText(/German Public Universities/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/Explore World-Class Degree Programs/i)).toBeInTheDocument();
   });
 });
