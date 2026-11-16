@@ -8,6 +8,7 @@ import WhatsAppFloat from '@/components/WhatsAppFloat';
 import WhatsAppCta from '@/components/WhatsAppCta';
 import BrandVisual from '@/components/BrandVisual';
 import StudentStories from '@/components/StudentStories';
+import StudyPathwayCards from '@/components/StudyPathwayCards';
 import SceneIllustration, { sceneFor } from '@/components/SceneIllustration';
 import ProfileEvaluationForm from '@/components/ProfileEvaluationForm';
 import { ComparisonCards, GermanyFactsSection, JourneyStagesSection, PackagePriceCard } from '@/components/OfferSections';
@@ -378,6 +379,8 @@ export default function HomePage() {
           </div>
         </section>
 
+        <StudyPathwayCards />
+
         <section className="px-4 py-16 md:px-8 md:py-20">
           <div className="container-narrow">
             <div className="text-center"><p className="section-kicker">Why Public Universities</p><h2 className="section-title mx-auto max-w-3xl">The Germany dream works best when the university choice is smart.</h2></div>
@@ -498,9 +501,9 @@ export default function HomePage() {
               <img src={founder.photo} alt={`${founder.name}, founder of BVF Germany`} className="h-80 w-full object-cover object-top md:h-full" loading="lazy" />
               <div className="flex flex-col justify-center p-8 md:p-12">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#facc15]">Founded by someone who has done it</p>
-                <h2 className="mt-3 font-heading text-3xl font-bold md:text-4xl">The Vision Behind BVF Germany</h2>
+                <h2 className="mt-3 font-heading text-3xl font-bold text-white md:text-4xl">The Vision Behind BVF Germany</h2>
                 <p className="mt-2 text-white/80">Real experiences. Honest guidance. Better opportunities.</p>
-                <p className="mt-6 text-lg font-bold">{founder.name} | {founder.role}</p>
+                <p className="mt-6 text-lg font-bold text-white">{founder.name} | {founder.role}</p>
                 <p className="mt-1 text-sm text-white/75">{founder.headline}</p>
                 <p className="mt-5 max-w-xl text-sm leading-7 text-white/80">
                   Our founder came from India to study Space Engineering at the University of Bremen. We know this journey from the inside, and we built BVF Germany so you never have to figure it out alone.
