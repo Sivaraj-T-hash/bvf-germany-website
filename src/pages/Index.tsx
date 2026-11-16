@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, CalendarDays, CircleDollarSign, FileText, Globe2, GraduationCap, House, Instagram, Languages, PlayCircle, SearchCheck, Send, ShieldCheck, BriefcaseBusiness, PlaneTakeoff } from 'lucide-react';
+import { ArrowRight, CalendarDays, CircleDollarSign, FileText, GraduationCap, House, Instagram, Languages, PlayCircle, SearchCheck, Send, ShieldCheck, BriefcaseBusiness, PlaneTakeoff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -9,6 +9,7 @@ import WhatsAppCta from '@/components/WhatsAppCta';
 import BrandVisual from '@/components/BrandVisual';
 import StudentStories from '@/components/StudentStories';
 import StudyPathwayCards from '@/components/StudyPathwayCards';
+import WhyChooseGermanySection from '@/components/WhyChooseGermanySection';
 import SceneIllustration, { sceneFor } from '@/components/SceneIllustration';
 import ProfileEvaluationForm from '@/components/ProfileEvaluationForm';
 import { ComparisonCards, GermanyFactsSection, JourneyStagesSection, PackagePriceCard } from '@/components/OfferSections';
@@ -51,14 +52,6 @@ const universityLogos = [
   { name: 'University of Freiburg', logo: universityOfFreiburgLogo },
   { name: 'University of Cologne', logo: universityOfCologneLogo },
   { name: 'FAU Erlangen-Nürnberg', logo: fauErlangenNurnbergLogo },
-];
-const benefits = [
-  { icon: CircleDollarSign, stat: 'EUR 0 Tuition', title: 'Zero Tuition', text: 'Most public universities charge no tuition fee, only a semester contribution.' },
-  { icon: Globe2, stat: 'Top 100', title: 'Global Rankings', text: 'Germany is home to globally respected universities across STEM, management, and research.' },
-  { icon: Languages, stat: 'In English', title: 'English Programs', text: 'Many master’s programs are taught in English, especially in technical fields.' },
-  { icon: BriefcaseBusiness, stat: '20 Hrs/Week', title: 'Student Work Rights', text: 'Students can work part-time while studying and gain practical exposure.' },
-  { icon: PlaneTakeoff, stat: '18 Months', title: 'Post-Study Visa', text: 'Graduates get time to stay back, job hunt, and transition into work life.' },
-  { icon: ShieldCheck, stat: 'Safe & Stable', title: 'Safe Country', text: 'Germany offers strong infrastructure, public services, and a student-friendly environment.' },
 ];
 const processSteps = [
   { title: 'Profile Check', label: 'Reality Check', desc: 'We map your CGPA, budget, timeline, and Germany readiness before anything else.', outcome: 'Clear starting point' },
@@ -381,13 +374,7 @@ export default function HomePage() {
 
         <StudyPathwayCards />
 
-        <section className="px-4 py-16 md:px-8 md:py-20">
-          <div className="container-narrow">
-            <div className="text-center"><p className="section-kicker">Why Public Universities</p><h2 className="section-title mx-auto max-w-3xl">The Germany dream works best when the university choice is smart.</h2></div>
-            <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">{benefits.map((benefit, index) => <motion.div key={benefit.title} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }} variants={reveal} custom={index * 0.05} className="surface-panel p-6"><benefit.icon className="h-6 w-6 text-secondary" aria-hidden="true" /><p className="mt-5 font-numeric text-4xl leading-none text-foreground">{benefit.stat}</p><h3 className="mt-3 text-lg font-semibold text-foreground">{benefit.title}</h3><p className="mt-2 text-sm leading-7 text-muted-foreground">{benefit.text}</p></motion.div>)}</div>
-            <div className="mt-8 text-center"><Link to="/tools" className="button-primary">Is a German Public University Right for Me?</Link></div>
-          </div>
-        </section>
+        <WhyChooseGermanySection />
 
         <GermanyFactsSection className="pt-0 md:pt-0" />
 
