@@ -12,7 +12,6 @@ import SceneIllustration, { sceneFor } from '@/components/SceneIllustration';
 import ProfileEvaluationForm from '@/components/ProfileEvaluationForm';
 import { ComparisonCards, GermanyFactsSection, JourneyStagesSection, PackagePriceCard } from '@/components/OfferSections';
 import { founder } from '@/content/team';
-import TextType from '@/components/ui/TextType';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useSeo } from '@/lib/useSeo';
@@ -36,6 +35,7 @@ import universityOfHamburgLogo from '@/assets/University of Hamburg.png';
 import universityOfFreiburgLogo from '@/assets/University of Freiburg.png';
 import universityOfCologneLogo from '@/assets/University of Cologne.png';
 import fauErlangenNurnbergLogo from '@/assets/FAU Erlangen-Nürnberg.png';
+import studentsGroup from '@/assets/students-group.jpg';
 
 const universityLogos = [
   { name: 'Technical University of Munich', logo: technicalUniversityOfMunichLogo },
@@ -219,6 +219,14 @@ export default function HomePage() {
   const universityPreview = useMemo(() => universityPreviewCards, []);
   const repeatedUniversityPreview = [...universityPreview, ...universityPreview];
 
+  const handleEvaluationClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const el = document.getElementById('profile-evaluation');
+    if (el) {
+      e.preventDefault();
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="site-shell home-showcase">
       <Navbar />
@@ -246,54 +254,100 @@ export default function HomePage() {
         </DialogContent>
       </Dialog>
       <main>
-        <section className="relative min-h-screen overflow-hidden bg-[#0f1726] text-white">
-          {/* Branded background. Replace with a genuine BVF photo or video when available. */}
-          <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_78%_22%,rgba(250,204,21,0.16),transparent_38%),radial-gradient(circle_at_12%_85%,rgba(255,153,51,0.12),transparent_40%),linear-gradient(160deg,#0f1726_0%,#16253f_55%,#0f1726_100%)]" />
-          <div aria-hidden="true" className="absolute inset-0 opacity-[0.06] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:44px_44px]" />
-          <div aria-hidden="true" className="absolute inset-x-0 top-0 flex h-1.5"><span className="flex-1 bg-[#1f2937]" /><span className="flex-1 bg-[#dd0000]" /><span className="flex-1 bg-[#ffce00]" /></div>
-          <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#0f1726] to-transparent" />
-          <div className="container-narrow relative z-10 grid min-h-screen items-center gap-10 px-4 pb-16 pt-32 md:px-8 md:pt-36 lg:grid-cols-[1.15fr_0.85fr]">
-            <motion.div initial="hidden" animate="show" variants={reveal} className="max-w-4xl">
-              <p className="font-home-accent mb-4 text-xs uppercase tracking-[0.34em] text-[#facc15]">BVF Germany</p>
-              <h1 className="sr-only">Study in Germany with free tuition and the right guidance</h1>
-              <div aria-hidden="true" className="font-home-heading max-w-5xl text-5xl font-extrabold leading-[0.82] text-white md:text-7xl">
-                <TextType
-                  text={`Study in Germany\nFree Tuition\nRight Guidance`}
-                  as="div"
-                  typingSpeed={42}
-                  deletingSpeed={0}
-                  pauseDuration={6000}
-                  loop={false}
-                  showCursor
-                  cursorClassName="text-[#facc15]"
-                />
-              </div>
-              <p className="font-home-body mt-6 max-w-3xl text-lg leading-8 text-white/76">
-                Your German university dream, made simple. 14 services, one honest package price, and one team with you from India to Germany.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link to="/tools" className="font-home-body inline-flex items-center justify-center rounded-full bg-[#facc15] px-6 py-3 text-sm font-bold text-[#0f1726] transition hover:-translate-y-0.5">🚀 Check My Eligibility</Link>
-                <WhatsAppCta className="font-home-body" label="Ask on WhatsApp" message="Hi BVF Germany! I would like help with studying in Germany. Please guide me." />
-                {youtubeUrl ? (
-                  <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" className="font-home-body inline-flex items-center justify-center rounded-full border border-white/25 px-6 py-3 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-white/10">Watch Our Story</a>
-                ) : null}
-              </div>
-              <div className="mt-5 flex flex-wrap gap-3 text-sm font-semibold text-white/80">
-                <Link to="/tools/cgpa-to-german-grade-converter" className="transition hover:text-[#facc15]">CGPA to German Grade Converter</Link>
-                <Link to="/tools/ielts-bank-requirements-checker" className="transition hover:text-[#facc15]">IELTS Bank Requirements Checker</Link>
-              </div>
-              <ul className="mt-8 flex flex-wrap gap-2 text-xs font-semibold text-white/85">
-                {['Free first consultation', '₹59,999 complete package', 'Part 2 paid only after your offer letter', 'A student support system, not a consultancy'].map((item) => (
-                  <li key={item} className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5">{item}</li>
-                ))}
-              </ul>
-            </motion.div>
-            <motion.div initial="hidden" animate="show" variants={reveal} custom={0.15} className="hidden lg:block">
-              <div className="overflow-hidden rounded-[32px] border border-white/15 shadow-[0_30px_90px_-40px_rgba(0,0,0,0.8)]">
-                <SceneIllustration scene="journey" label="Illustration: the journey from India to Germany" className="h-[420px]" />
-              </div>
-            </motion.div>
+        <section className="relative overflow-hidden bg-[#FAF8F5] pt-28 pb-16 md:pt-36 md:pb-24 lg:pt-40 lg:pb-28">
+          {/* Subtle ambient light backgrounds */}
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+            <div className="absolute -left-20 top-20 h-72 w-72 rounded-full bg-[#2D6A4F]/5 blur-3xl" />
+            <div className="absolute right-0 top-32 h-96 w-96 rounded-full bg-[#0F172A]/5 blur-3xl" />
+            <div className="absolute inset-0 opacity-[0.03] [background-image:linear-gradient(#0F172A_1px,transparent_1px),linear-gradient(90deg,#0F172A_1px,transparent_1px)] [background-size:48px_48px]" />
+          </div>
 
+          <div className="container-narrow relative z-10 px-4 md:px-8">
+            <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-10 xl:gap-14">
+              {/* Left Column: Editorial Headline & Actions */}
+              <motion.div
+                initial="hidden"
+                animate="show"
+                variants={reveal}
+                className="lg:col-span-7 max-w-2xl"
+              >
+                {/* Eyebrow */}
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#E7E5E0] bg-white px-3.5 py-1.5 shadow-sm">
+                  <span className="h-2 w-2 rounded-full bg-[#2D6A4F]" aria-hidden="true" />
+                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#2D6A4F]">
+                    YOUR JOURNEY TO GERMANY STARTS HERE
+                  </span>
+                </div>
+
+                {/* Main Heading */}
+                <h1 className="mt-6 font-heading text-4xl font-extrabold tracking-tight text-[#0F172A] sm:text-5xl lg:text-[52px] xl:text-[58px] leading-[1.1]">
+                  Your Future in Germany Starts With the Right Guidance.
+                </h1>
+
+                {/* Supporting Paragraph */}
+                <p className="mt-6 text-base leading-relaxed text-[#475569] sm:text-lg md:leading-8">
+                  From choosing the right university and navigating applications to preparing for life in Germany, BVF Germany supports you through every step of your study-abroad journey.
+                </p>
+
+                {/* CTAs */}
+                <div className="mt-8 flex flex-wrap items-center gap-4">
+                  <Link
+                    to="/#profile-evaluation"
+                    onClick={handleEvaluationClick}
+                    className="inline-flex items-center justify-center rounded-full bg-[#0F172A] px-7 py-3.5 text-sm md:text-base font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#1E293B] hover:shadow-md"
+                  >
+                    Free Profile Evaluation
+                  </Link>
+                  <Link
+                    to="/study-in-germany"
+                    className="inline-flex items-center justify-center rounded-full border border-[#E7E5E0] bg-white px-7 py-3.5 text-sm md:text-base font-semibold text-[#0F172A] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#FAF8F5] hover:border-[#CBD5E1]"
+                  >
+                    Explore Study Pathways
+                  </Link>
+                </div>
+
+                {/* Small Trust Message */}
+                <div className="mt-8 flex items-center gap-2 text-xs md:text-sm font-medium text-[#64748B]">
+                  <ShieldCheck className="h-4 w-4 text-[#2D6A4F] shrink-0" aria-hidden="true" />
+                  <span>Personal guidance. Clear direction. Support at every step.</span>
+                </div>
+              </motion.div>
+
+              {/* Right Column: Editorial University & Student Photography */}
+              <motion.div
+                initial="hidden"
+                animate="show"
+                variants={reveal}
+                custom={0.15}
+                className="lg:col-span-5"
+              >
+                <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
+                  <div className="relative overflow-hidden rounded-2xl md:rounded-3xl border border-[#E7E5E0] bg-white p-2.5 md:p-3 shadow-xl shadow-slate-900/5">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl md:rounded-2xl bg-[#F5F2EC]">
+                      <img
+                        src={studentsGroup}
+                        alt="University students collaborating in an authentic academic environment"
+                        className="h-full w-full object-cover object-center transition-transform duration-700 hover:scale-105"
+                        loading="eager"
+                        decoding="async"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/40 via-transparent to-transparent pointer-events-none" />
+
+                      {/* Subtle floating badge */}
+                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-xl bg-white/95 px-3.5 py-2.5 backdrop-blur-md border border-[#E7E5E0]/80 shadow-sm">
+                        <div className="min-w-0">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-[#2D6A4F]">German Public Universities</p>
+                          <p className="truncate text-xs font-semibold text-[#0F172A]">Tuition-Free & High-Standard Education</p>
+                        </div>
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FAF8F5] text-[#2D6A4F]">
+                          <GraduationCap className="h-4 w-4" aria-hidden="true" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
           </div>
         </section>
         <section id="social-proof" className="border-y border-border/70 bg-[#fff8ee] py-6">
