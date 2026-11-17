@@ -489,7 +489,7 @@ export default function HomePage() {
               <img src={founder.photo} alt={`${founder.name}, founder of BVF Germany`} className="h-80 w-full object-cover object-top md:h-full" loading="lazy" />
               <div className="flex flex-col justify-center p-8 md:p-12">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#facc15]">Founded by someone who has done it</p>
-                <h2 className="mt-3 font-heading text-3xl font-bold text-white md:text-4xl">The Vision Behind BVF Germany</h2>
+                <h2 className="mt-3 font-heading text-3xl font-bold text-white !text-white md:text-4xl" style={{ color: '#ffffff' }}>The Vision Behind BVF Germany</h2>
                 <p className="mt-2 text-white/80">Real experiences. Honest guidance. Better opportunities.</p>
                 <p className="mt-6 text-lg font-bold text-white">{founder.name} | {founder.role}</p>
                 <p className="mt-1 text-sm text-white/75">{founder.headline}</p>
@@ -504,7 +504,11 @@ export default function HomePage() {
           </div>
         </section>
 
-        <StudentStories kicker="Student Success Stories" title="Students choose BVF when they want the process to feel less chaotic." />
+        <StudentStories
+          kicker="REAL STUDENT EXPERIENCES"
+          title="Every Student Journey Has a Story."
+          subtitle="Explore genuine experiences from students who have pursued their education journey in Germany with BVF Germany."
+        />
 
         <section className="bg-[#fff8ee] px-4 py-16 md:px-8 md:py-20">
           <div className="container-narrow">
