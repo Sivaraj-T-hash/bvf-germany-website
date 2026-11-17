@@ -11,6 +11,7 @@ import StudentStories from '@/components/StudentStories';
 import StudyPathwayCards from '@/components/StudyPathwayCards';
 import WhyChooseGermanySection from '@/components/WhyChooseGermanySection';
 import StudentJourneySection from '@/components/StudentJourneySection';
+import LifeInGermanySection from '@/components/LifeInGermanySection';
 import SceneIllustration, { sceneFor } from '@/components/SceneIllustration';
 import ProfileEvaluationForm from '@/components/ProfileEvaluationForm';
 import { ComparisonCards, GermanyFactsSection, PackagePriceCard } from '@/components/OfferSections';
@@ -479,9 +480,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden px-4 py-10 md:px-8 md:py-12">
-          <div className="container-narrow"><div className="relative overflow-hidden rounded-[38px]"><div aria-hidden="true" className="relative h-[360px] w-full md:h-[460px]"><SceneIllustration scene="city" /><div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(15,23,38,0.92)_0%,rgba(15,23,38,0.7)_45%,rgba(15,23,38,0.05)_100%)]" /></div><div className="absolute inset-0 flex items-center"><div className="max-w-2xl p-8 md:p-12"><div className="max-w-[34rem]"><p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#facc15]">Study in Germany</p><h2 className="mt-4 max-w-[28rem] font-heading text-4xl font-semibold leading-[0.95] text-white md:text-5xl">Germany gives ambitious students world-class education without the tuition burden.</h2><p className="mt-5 max-w-[30rem] text-sm leading-7 text-white md:text-base">That only works well when the guidance is aligned with public universities, documentation timing, and the real student journey after admission.</p></div></div></div></div></div>
-        </section>
+        <LifeInGermanySection />
 
         <section className="px-4 py-16 md:px-8 md:py-20">
           <div className="container-narrow">
