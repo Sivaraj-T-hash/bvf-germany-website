@@ -12,10 +12,10 @@ import StudyPathwayCards from '@/components/StudyPathwayCards';
 import WhyChooseGermanySection from '@/components/WhyChooseGermanySection';
 import StudentJourneySection from '@/components/StudentJourneySection';
 import LifeInGermanySection from '@/components/LifeInGermanySection';
+import BvfTeamSection from '@/components/BvfTeamSection';
 import SceneIllustration, { sceneFor } from '@/components/SceneIllustration';
 import ProfileEvaluationForm from '@/components/ProfileEvaluationForm';
 import { ComparisonCards, GermanyFactsSection, PackagePriceCard } from '@/components/OfferSections';
-import { founder } from '@/content/team';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useSeo } from '@/lib/useSeo';
@@ -482,26 +482,7 @@ export default function HomePage() {
 
         <LifeInGermanySection />
 
-        <section className="px-4 py-16 md:px-8 md:py-20">
-          <div className="container-narrow">
-            <div className="grid overflow-hidden rounded-[34px] bg-[#1b1714] text-white shadow-card md:grid-cols-[0.8fr_1.2fr]">
-              <img src={founder.photo} alt={`${founder.name}, founder of BVF Germany`} className="h-80 w-full object-cover object-top md:h-full" loading="lazy" />
-              <div className="flex flex-col justify-center p-8 md:p-12">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#facc15]">Founded by someone who has done it</p>
-                <h2 className="mt-3 font-heading text-3xl font-bold text-white !text-white md:text-4xl" style={{ color: '#ffffff' }}>The Vision Behind BVF Germany</h2>
-                <p className="mt-2 text-white/80">Real experiences. Honest guidance. Better opportunities.</p>
-                <p className="mt-6 text-lg font-bold text-white">{founder.name} | {founder.role}</p>
-                <p className="mt-1 text-sm text-white/75">{founder.headline}</p>
-                <p className="mt-5 max-w-xl text-sm leading-7 text-white/80">
-                  Our founder came from India to study Space Engineering at the University of Bremen. We know this journey from the inside, and we built BVF Germany so you never have to figure it out alone.
-                </p>
-                <Link to="/about" className="mt-6 inline-flex w-fit items-center gap-2 rounded-full bg-[#facc15] px-5 py-3 text-sm font-semibold text-[#132033]">
-                  Meet the people behind BVF <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
+        <BvfTeamSection />
 
         <StudentStories
           kicker="REAL STUDENT EXPERIENCES"
