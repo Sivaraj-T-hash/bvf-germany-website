@@ -13,6 +13,7 @@ import WhyChooseGermanySection from '@/components/WhyChooseGermanySection';
 import StudentJourneySection from '@/components/StudentJourneySection';
 import LifeInGermanySection from '@/components/LifeInGermanySection';
 import BvfTeamSection from '@/components/BvfTeamSection';
+import KnowledgeHubSection from '@/components/KnowledgeHubSection';
 import SceneIllustration, { sceneFor } from '@/components/SceneIllustration';
 import ProfileEvaluationForm from '@/components/ProfileEvaluationForm';
 import { ComparisonCards, GermanyFactsSection, PackagePriceCard } from '@/components/OfferSections';
@@ -20,7 +21,6 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useSeo } from '@/lib/useSeo';
 import { getBlogPosts, type BlogPost } from '@/lib/blogStore';
-import CoverImage from '@/components/CoverImage';
 import { serviceCatalog } from '@/lib/serviceCatalog';
 import { type UniversityItem } from '@/lib/siteContentStore';
 import { getWebinarCatalog, type WebinarCatalogItem } from '@/lib/webinarCatalogStore';
@@ -554,12 +554,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-4 py-16 md:px-8 md:py-20">
-          <div className="container-narrow">
-            <div className="flex flex-col items-center gap-4 text-center"><div className="flex flex-col items-center"><p className="section-kicker">Blog Preview</p><h2 className="section-title max-w-3xl">Fresh guides for students planning every stage of Germany.</h2></div><Link to="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-foreground transition hover:text-secondary">Read All Guides <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link></div>
-            <div className="mt-10 grid gap-6 md:grid-cols-3">{posts.map((post, index) => <motion.article key={post.id} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }} variants={reveal} custom={index * 0.05} className="overflow-hidden rounded-[30px] border border-border/80 bg-white/86 shadow-card"><CoverImage src={post.featuredImage} title={post.title} className="h-52 w-full" /><div className="p-6"><p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-secondary">{post.category}</p><h3 className="mt-3 font-heading text-2xl font-semibold text-foreground"><Link to={`/blog/${post.slug}`} className="hover:text-secondary">{post.title}</Link></h3><div className="mt-4 flex flex-wrap gap-3 text-xs text-muted-foreground"><span>{estimateReadTime(post.content)}</span><span>{dateFormatter.format(new Date(post.createdAt))}</span></div></div></motion.article>)}</div>
-          </div>
-        </section>
+        <KnowledgeHubSection posts={posts} />
 
         {instagramUrl ? (
           <section className="bg-[#fff8ee] px-4 py-16 md:px-8 md:py-20">
