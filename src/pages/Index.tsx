@@ -10,9 +10,10 @@ import BrandVisual from '@/components/BrandVisual';
 import StudentStories from '@/components/StudentStories';
 import StudyPathwayCards from '@/components/StudyPathwayCards';
 import WhyChooseGermanySection from '@/components/WhyChooseGermanySection';
+import StudentJourneySection from '@/components/StudentJourneySection';
 import SceneIllustration, { sceneFor } from '@/components/SceneIllustration';
 import ProfileEvaluationForm from '@/components/ProfileEvaluationForm';
-import { ComparisonCards, GermanyFactsSection, JourneyStagesSection, PackagePriceCard } from '@/components/OfferSections';
+import { ComparisonCards, GermanyFactsSection, PackagePriceCard } from '@/components/OfferSections';
 import { founder } from '@/content/team';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -460,7 +461,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <JourneyStagesSection />
+        <StudentJourneySection />
 
         <section className="px-4 pb-16 md:px-8 md:pb-20">
           <div className="container-narrow">
