@@ -76,8 +76,8 @@ export default function ProfileEvaluationForm({
       setError('');
       setDone({
         message: result.emailSent
-          ? 'Your free profile evaluation request is in, and we have sent a confirmation email. A mentor will evaluate your background against public university criteria within 24 hours.'
-          : 'Your free profile evaluation request is saved. Our mentoring team can see it and will follow up with you within 24 hours.',
+          ? 'Your free profile evaluation request is in, and we have sent a confirmation email. A mentor will evaluate your background against public university criteria and follow up with you promptly.'
+          : 'Your free profile evaluation request is saved. Our mentoring team can see it and will follow up with you promptly.',
         whatsappHref: buildWhatsappHref(
           settings,
           buildProfileEvaluationWhatsappMessage({

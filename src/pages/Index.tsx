@@ -14,7 +14,6 @@ import StudentJourneySection from '@/components/StudentJourneySection';
 import LifeInGermanySection from '@/components/LifeInGermanySection';
 import BvfTeamSection from '@/components/BvfTeamSection';
 import KnowledgeHubSection from '@/components/KnowledgeHubSection';
-import PricingTeaserSection from '@/components/PricingTeaserSection';
 import HomepageFaqSection from '@/components/HomepageFaqSection';
 import SceneIllustration, { sceneFor } from '@/components/SceneIllustration';
 import ProfileEvaluationForm from '@/components/ProfileEvaluationForm';
@@ -401,7 +400,7 @@ export default function HomePage() {
         {/* 9. Knowledge Hub */}
         <KnowledgeHubSection posts={posts} />
 
-        {/* 10. Services Overview & Pricing Teaser */}
+        {/* 10. Services Overview */}
         <section className="bg-[#fff8ee] px-4 py-16 md:px-8 md:py-20 border-b border-[#eadfcd]">
           <div className="container-narrow font-showcase">
             <div className="overflow-hidden rounded-[34px] border border-[#eadfcd] bg-white/92 shadow-card">
@@ -484,9 +483,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
-        {/* Pricing Teaser Section */}
-        <PricingTeaserSection />
 
         {/* 11. Universities Preview & Webinars Showcase */}
         <section className="bg-[#fff8ee] px-4 py-16 md:px-8 md:py-20 border-b border-[#eadfcd]">

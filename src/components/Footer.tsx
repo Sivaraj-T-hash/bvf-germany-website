@@ -72,7 +72,7 @@ export default function Footer() {
               Your bridge to higher education in Germany.
             </h2>
             <p className="mt-3 text-[13px] leading-relaxed text-white/80">
-              {businessInfo.positioning}. Free first consultation, one transparent package price, and a dedicated team guiding you from India to Germany.
+              {businessInfo.positioning}. Free first consultation, structured end-to-end guidance, and a dedicated team guiding you from India to Germany.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link

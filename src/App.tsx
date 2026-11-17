@@ -189,9 +189,6 @@ const AnimatedRoutes = () => {
           <Route path="/admin" element={<PageTransition><AdminLogin /></PageTransition>} />
           <Route path="/admin/dashboard" element={<PageTransition><AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute></PageTransition>} />
           <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
-          <Route path="/admin" element={<PageTransition><AdminLogin /></PageTransition>} />
-          <Route path="/admin/dashboard" element={<PageTransition><AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute></PageTransition>} />
-          <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
         </Routes>
       </Suspense>
     </AnimatePresence>

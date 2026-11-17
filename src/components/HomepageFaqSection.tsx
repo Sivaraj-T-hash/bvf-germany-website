@@ -26,11 +26,11 @@ export const homepageFaqs: HomepageFaqItem[] = [
       'The APS (Akademische Prüfstelle) certificate verifies the authenticity of your Indian educational documents and confirms your eligibility for German higher education. Issued by the German Embassy in New Delhi, an APS certificate is legally mandatory for both university applications and the German student visa appointment. Because verification timelines can take several weeks, we recommend initiating APS documentation 8 to 12 months before your intended intake.',
   },
   {
-    id: 'faq-bvf-pricing',
-    category: 'Pricing & Process',
-    question: 'How does BVF Germany’s fee structure work?',
+    id: 'faq-services-guidance',
+    category: 'Services & Guidance',
+    question: 'How does BVF Germany guide students through the admissions process?',
     answer:
-      'We believe in complete transparency with zero hidden commissions. Our comprehensive guidance package is ₹59,999, payable in two clear installments: Part 1 (₹29,999) when you finalise your university course shortlist, and Part 2 (₹30,000) only after you receive your official university admission offer letter. If you do not receive an admission offer from our agreed shortlist, you do not pay Part 2.',
+      'BVF Germany provides structured mentorship across 14 specialized services in six stages—from your initial profile evaluation and university shortlist to German-format CV/SOP writing, APS guidance, visa interview file preparation, and German arrival assistance. To view complete guidance inclusions and optional add-ons, explore our dedicated Services and Pricing pages, or book a free profile consultation.',
   },
   {
     id: 'faq-language',

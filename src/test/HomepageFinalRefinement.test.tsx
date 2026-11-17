@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import HomePage from '@/pages/Index';
 import HomepageFaqSection, { homepageFaqs } from '@/components/HomepageFaqSection';
 import PricingTeaserSection from '@/components/PricingTeaserSection';
 import ProfileEvaluationForm from '@/components/ProfileEvaluationForm';
@@ -12,6 +13,30 @@ global.IntersectionObserver = class IntersectionObserver {
   unobserve = vi.fn();
   disconnect = vi.fn();
 } as unknown as typeof IntersectionObserver;
+
+describe('Homepage Pricing Removal (Critical Client Requirement)', () => {
+  beforeEach(() => {
+    window.sessionStorage.setItem('bvf_welcome_popup_seen', 'true');
+  });
+
+  it('verifies the homepage does NOT display package prices or instalment amounts', () => {
+    render(
+      <BrowserRouter>
+        <HomePage />
+      </BrowserRouter>
+    );
+
+    // Verify package prices are NOT anywhere on the homepage
+    expect(screen.queryByText(/₹59,999/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/₹29,999/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/₹30,000/)).not.toBeInTheDocument();
+
+    // Verify pricing teaser headings are not on the homepage
+    expect(
+      screen.queryByRole('heading', { name: /One Complete Package Covers Your Entire Journey/i })
+    ).not.toBeInTheDocument();
+  });
+});
 
 describe('Homepage FAQ Section', () => {
   const renderFaqs = () =>
@@ -45,6 +70,13 @@ describe('Homepage FAQ Section', () => {
     }
   });
 
+  it('verifies homepage FAQs do NOT contain package pricing numbers', () => {
+    renderFaqs();
+    expect(screen.queryByText(/₹59,999/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/₹29,999/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/₹30,000/)).not.toBeInTheDocument();
+  });
+
   it('toggles accordion items when clicked with accessible aria attributes', () => {
     renderFaqs();
     const firstQuestionBtn = screen.getByRole('button', {
@@ -76,7 +108,7 @@ describe('Homepage FAQ Section', () => {
   });
 });
 
-describe('Pricing Teaser Section', () => {
+describe('Pricing Teaser Section Component (Isolated)', () => {
   const renderPricing = () =>
     render(
       <BrowserRouter>
@@ -111,9 +143,7 @@ describe('Pricing Teaser Section', () => {
 
   it('displays the official fees distinction disclaimer', () => {
     renderPricing();
-    expect(
-      screen.getByText(/Official Fees Distinction:/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Official Fees Distinction:/i)).toBeInTheDocument();
     expect(
       screen.getByText(/APS certificate verification fees \(₹18,000\), university semester contributions/i)
     ).toBeInTheDocument();
